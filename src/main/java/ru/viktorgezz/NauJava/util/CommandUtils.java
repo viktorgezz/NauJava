@@ -5,6 +5,9 @@ import ru.viktorgezz.NauJava.exception.Error;
 
 import java.util.List;
 
+/**
+ * Утилиты для валидации и разбора аргументов команд.
+ */
 public final class CommandUtils {
 
     private CommandUtils() {

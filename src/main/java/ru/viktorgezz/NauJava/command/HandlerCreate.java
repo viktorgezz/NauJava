@@ -10,18 +10,20 @@ import java.util.List;
 
 import static ru.viktorgezz.NauJava.util.CommandUtils.*;
 
+/**
+ * Реализация {@link CommandHandler}
+ * <p>Обработчик для команды 'create'. Создает новый тест на основе переданных аргументов.</p>
+ */
 @Component("create")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class HandlerCreate extends ACommandHandler implements CommandHandler {
-
-    private List<String> args;
 
     public HandlerCreate(TestService testService) {
         super(testService);
     }
 
     @Override
-    public void exec() {
+    public void exec(List<String> args) {
         validInput(args, 1);
         String title = getStringField(args.get(1), "title");
         String description = getStringField(args.get(2), "description");
@@ -29,9 +31,5 @@ public class HandlerCreate extends ACommandHandler implements CommandHandler {
 
         testService.createTest(new TestModel(title, description, questions));
         System.out.println("Тест успешно добавлен...");
-    }
-
-    public void setArgs(List<String> args) {
-        this.args = args;
     }
 }

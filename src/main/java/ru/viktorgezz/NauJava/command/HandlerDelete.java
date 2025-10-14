@@ -11,26 +11,26 @@ import java.util.List;
 import static ru.viktorgezz.NauJava.util.CommandUtils.getId;
 import static ru.viktorgezz.NauJava.util.CommandUtils.validInput;
 
+/**
+ * Реализация {@link CommandHandler}
+ * <p>Обработчик для команды 'delete'. Удаляет существующий тест по его ID.</p>
+ */
 @Component("delete")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class HandlerDelete extends ACommandHandler implements CommandHandler{
+public class HandlerDelete extends ACommandHandler implements CommandHandler {
 
-    private List<String> args;
 
     public HandlerDelete(TestService testService) {
         super(testService);
     }
 
     @Override
-    public void exec() {
-        validInput(args,1);
+    public void exec(List<String> args) {
+        validInput(args, 1);
         Long id = getId(args.get(1));
         TestModel testModel = testService.findById(id);
         testService.deleteById(id);
         System.out.printf("Удален тест: %s...%n", testModel);
     }
 
-    public void setArgs(List<String> args) {
-        this.args = args;
-    }
 }

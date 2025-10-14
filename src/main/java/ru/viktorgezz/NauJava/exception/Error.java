@@ -1,5 +1,8 @@
 package ru.viktorgezz.NauJava.exception;
 
+/**
+ * Перечень кодов и шаблонов сообщений ошибок бизнес-логики.
+ */
 public enum Error {
 
     TEST_NOT_FOUND("Test с id: %s - не найден"),

@@ -12,6 +12,9 @@ import ru.viktorgezz.NauJava.service.intrf.TestService;
 
 import java.util.List;
 
+/**
+ * Реализация {@link ru.viktorgezz.NauJava.service.intrf.TestService}
+ */
 @Service
 public class TestServiceImpl implements TestService {
 

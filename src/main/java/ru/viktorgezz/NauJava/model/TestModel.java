@@ -4,6 +4,9 @@ import ru.viktorgezz.NauJava.util.IdGenerator;
 
 import java.util.List;
 
+/**
+ * Доменная модель теста.
+ */
 public class TestModel {
 
     private Long id;

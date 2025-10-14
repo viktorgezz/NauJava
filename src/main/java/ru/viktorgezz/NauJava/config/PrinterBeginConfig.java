@@ -3,6 +3,9 @@ package ru.viktorgezz.NauJava.config;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Configuration;
 
+/**
+ * Конфигурация для печати информационных данных приложения при старте.
+ */
 @Configuration
 public class PrinterBeginConfig {
 
@@ -11,14 +14,6 @@ public class PrinterBeginConfig {
 
     @Value("${app.version}")
     private String version;
-
-    public String getName() {
-        return name;
-    }
-
-    public String getVersion() {
-        return version;
-    }
 
     public void printAppInfoOnStartup() {
         System.out.println("========================================");

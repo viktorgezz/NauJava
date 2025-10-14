@@ -10,6 +10,9 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+/**
+ * Реализация {@link TestRepo}
+ */
 @Component
 public class TestRepoImpl implements TestRepo {
 

@@ -1,5 +1,8 @@
 package ru.viktorgezz.NauJava.exception;
 
+/**
+ * Исключение бизнес-уровня с сообщениями ошибок из {@link Error} и параметрами.
+ */
 public class BusinessException extends RuntimeException {
 
     private final Error error;

@@ -5,5 +5,8 @@ import ru.viktorgezz.NauJava.command.CommandHandler;
 
 import java.util.HashMap;
 
+/**
+ * Реестр фабрик обработчиков команд по имени команды.
+ */
 public class CommandFactories extends HashMap<String, ObjectFactory<CommandHandler>> {
 }

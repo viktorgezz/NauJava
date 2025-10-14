@@ -14,6 +14,9 @@ import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Реализация {@link CommandProcessor}
+ */
 @Component
 public class CommandProcessorImpl implements CommandProcessor {
 
@@ -26,26 +29,20 @@ public class CommandProcessorImpl implements CommandProcessor {
 
     @Override
     public void processCommand(String input) {
-        try {
-            List<String> cmd = parseInput(input);
-            if (cmd.isEmpty()) {
-                return;
-            }
-
-            ObjectFactory<CommandHandler> handlerFactory = Optional
-                    .ofNullable(commandFactories.get(cmd.getFirst()))
-                    .orElseThrow(() ->
-                            new BusinessException(
-                                    Error.UNKNOWN_COMMAND,
-                                    cmd.getFirst()));
-
-            CommandHandler handler = handlerFactory.getObject();
-            setHandlerArgs(handler, cmd);
-            handler.exec();
-            System.out.println();
-        } catch (BusinessException e) {
-            System.err.println(e.getMessage());
+        List<String> cmd = parseInput(input);
+        if (cmd.isEmpty()) {
+            return;
         }
+
+        ObjectFactory<CommandHandler> handlerFactory = Optional
+                .ofNullable(commandFactories.get(cmd.getFirst()))
+                .orElseThrow(() ->
+                        new BusinessException(
+                                Error.UNKNOWN_COMMAND,
+                                cmd.getFirst()));
+
+        CommandHandler handler = handlerFactory.getObject();
+        handler.exec(cmd);
     }
 
     private List<String> parseInput(String input) {
@@ -62,15 +59,4 @@ public class CommandProcessorImpl implements CommandProcessor {
         }
         return parts;
     }
-
-    private void setHandlerArgs(CommandHandler handler, List<String> args) {
-        try {
-            handler.getClass().getMethod("setArgs", List.class).invoke(handler, args);
-        } catch (NoSuchMethodException e) {
-            //  у данной команды нет аргументов
-        } catch (Exception e) {
-            throw new RuntimeException("Не удалось установить аргументы для команды: " + handler.getClass().getSimpleName(), e);
-        }
-    }
-
 }

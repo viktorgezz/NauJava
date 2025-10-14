@@ -5,6 +5,12 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 import ru.viktorgezz.NauJava.service.intrf.TestService;
 
+import java.util.List;
+
+/**
+ * Реализация {@link CommandHandler}
+ * <p>Обработчик для команды 'help'. Выводит в консоль справочную информацию по всем командам.</p>
+ */
 @Component("help")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
 public class HandlerHelp extends ACommandHandler implements CommandHandler {
@@ -14,7 +20,7 @@ public class HandlerHelp extends ACommandHandler implements CommandHandler {
     }
 
     @Override
-    public void exec() {
+    public void exec(List<String> args) {
         System.out.println("""
         
         СПРАВКА ПО КОМАНДАМ

@@ -10,18 +10,20 @@ import java.util.List;
 
 import static ru.viktorgezz.NauJava.util.CommandUtils.*;
 
+/**
+ * Реализация {@link CommandHandler}
+ * <p>Обработчик для команды 'updateTitleAndDescription'. Обновляет название и описание теста по ID.</p>
+ */
 @Component("updateTitleAndDescription")
 @Scope(BeanDefinition.SCOPE_PROTOTYPE)
-public class HandlerUpdateTitleAndDescription extends ACommandHandler implements CommandHandler{
-
-    private List<String> args;
+public class HandlerUpdateTitleAndDescription extends ACommandHandler implements CommandHandler {
 
     public HandlerUpdateTitleAndDescription(TestService testService) {
         super(testService);
     }
 
     @Override
-    public void exec() {
+    public void exec(List<String> args) {
         validInput(args, 3);
         Long id = getId(args.get(1));
         String title = getStringField(args.get(2), "title");
@@ -34,9 +36,5 @@ public class HandlerUpdateTitleAndDescription extends ACommandHandler implements
                 testService.findById(id),
                 testOld
         );
-    }
-
-    public void setArgs(List<String> args) {
-        this.args = args;
     }
 }

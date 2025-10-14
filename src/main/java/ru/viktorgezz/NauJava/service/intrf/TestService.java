@@ -4,6 +4,13 @@ import ru.viktorgezz.NauJava.model.TestModel;
 
 import java.util.List;
 
+/**
+ * Сервисный интерфейс для управления сущностями тестов.
+ *
+ * <p>Отвечает за бизнес-операции над {@link ru.viktorgezz.NauJava.model.TestModel}:
+ * создание, поиск, получение списка, удаление и частичное обновление
+ * (названия и описания).</p>
+ */
 public interface TestService {
 
     void createTest(TestModel test);
