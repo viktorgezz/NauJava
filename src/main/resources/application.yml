@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: NauJava
+logging:
+  level:
+    root: OFF
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include:
+          - health
+          - info
+          - metrics
+
+app:
+  name: System of testing
+  version: 1.0.0
+
