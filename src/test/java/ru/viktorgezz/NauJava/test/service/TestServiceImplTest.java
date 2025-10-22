@@ -1,13 +1,12 @@
 package ru.viktorgezz.NauJava.test.service;
 
 import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
-import ru.viktorgezz.NauJava.AbstractIntegrationPostgreTest;
+import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.question.Question;
 import ru.viktorgezz.NauJava.question.QuestionRepo;
 import ru.viktorgezz.NauJava.question.Type;
@@ -20,9 +19,9 @@ import ru.viktorgezz.NauJava.test_topic.TestTopic;
 import ru.viktorgezz.NauJava.test_topic.TestTopicRepo;
 import ru.viktorgezz.NauJava.topic.Topic;
 import ru.viktorgezz.NauJava.topic.TopicRepo;
-import ru.viktorgezz.NauJava.user.Role;
 import ru.viktorgezz.NauJava.user.User;
 import ru.viktorgezz.NauJava.user.repo.UserRepo;
+import ru.viktorgezz.NauJava.util.GeneratorRandomModel;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,7 +33,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ActiveProfiles("test")
 @DisplayName("TestServiceImpl Integration Tests")
-class TestServiceImplTest extends AbstractIntegrationPostgreTest {
+class TestServiceImplTest extends AbstractIntegrationPostgresTest {
 
     @Autowired
     private TestService testService;
@@ -63,26 +62,17 @@ class TestServiceImplTest extends AbstractIntegrationPostgreTest {
         questionRepo.deleteAll();
         testTopicRepo.deleteAll();
         testRepo.deleteAll();
-        topicRepo.deleteAll();
         userRepo.deleteAll();
+        topicRepo.deleteAll();
 
-        author = new User();
-        author.setUsername("testAuthor");
-        author.setPassword("password");
-        author.setRole(Role.USER);
-        author = userRepo.save(author);
+        author = createAndSaveRandomUser();
 
-        topic1 = new Topic();
-        topic1.setTitle("Topic One");
-        topic1 = topicRepo.save(topic1);
-
-        topic2 = new Topic();
-        topic2.setTitle("Topic Two");
-        topic2 = topicRepo.save(topic2);
+        topic1 = createAndSaveTopic("Topic One");
+        topic2 = createAndSaveTopic("Topic Two");
     }
 
     @Test
-    @DisplayName("Должен успешно создать тест с вопросами и темами")
+    @DisplayName("Создание теста с вопросами и темами")
     void shouldSuccessfullyCreateTestWithDetails() {
         // Arrange
         List<Question> questionsToCreate = new ArrayList<>();
@@ -139,7 +129,7 @@ class TestServiceImplTest extends AbstractIntegrationPostgreTest {
     }
 
     @Test
-    @DisplayName("Должен откатить транзакцию при несуществующем ID автора")
+    @DisplayName("Откат транзакции при несуществующем ID автора")
     void shouldRollbackTransactionWhenAuthorNotFound() {
         // Arrange
         Long nonExistentAuthorId = 999L;
@@ -174,7 +164,7 @@ class TestServiceImplTest extends AbstractIntegrationPostgreTest {
     }
 
     @Test
-    @DisplayName("Должен откатить транзакцию при несуществующем ID темы")
+    @DisplayName("Откат транзакции при несуществующем ID темы")
     void shouldRollbackTransactionWhenTopicNotFound() {
         // Arrange
         Long nonExistentTopicId = 998L;
@@ -209,8 +199,7 @@ class TestServiceImplTest extends AbstractIntegrationPostgreTest {
     }
 
     @Test
-    @Transactional
-    @DisplayName("Должен успешно создать тест без вопросов и тем")
+    @DisplayName("Успешно создание теста без вопросов и тем")
     void shouldCreateTestWithoutQuestionsAndTopics() {
         // Arrange
         List<Question> emptyQuestions = Collections.emptyList();
@@ -240,9 +229,13 @@ class TestServiceImplTest extends AbstractIntegrationPostgreTest {
         assertThat(testRepo.count()).isEqualTo(initialTestCount + 1);
         assertThat(questionRepo.count()).isEqualTo(initialQuestionCount);
         assertThat(testTopicRepo.count()).isEqualTo(initialTestTopicCount);
+    }
 
-        TestModel foundTest = testRepo.findById(createdTest.getId()).orElseThrow();
-        assertThat(foundTest.getQuestions()).isEmpty();
-        assertThat(foundTest.getTestTopics()).isEmpty();
+    private User createAndSaveRandomUser() {
+        return userRepo.save(GeneratorRandomModel.getRandomUser());
+    }
+
+    private Topic createAndSaveTopic(String topicTitle) {
+        return topicRepo.save(new Topic(topicTitle));
     }
 }

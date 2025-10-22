@@ -5,7 +5,7 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
-import ru.viktorgezz.NauJava.AbstractIntegrationPostgreTest;
+import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.user.Role;
 import ru.viktorgezz.NauJava.user.User;
 import ru.viktorgezz.NauJava.user.repo.UserRepo;
@@ -17,7 +17,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
 @DisplayName("UserRepoImpl Criteria API Tests")
-class UserRepoImplTest extends AbstractIntegrationPostgreTest {
+class UserRepoImplTest extends AbstractIntegrationPostgresTest {
 
     @Autowired
     private UserRepoImpl userRepoImpl;
@@ -26,50 +26,49 @@ class UserRepoImplTest extends AbstractIntegrationPostgreTest {
     private UserRepo userRepo;
 
     private User admin1;
-    private User admin2;
     private User user1;
 
     @BeforeEach
     void setUp() {
         userRepo.deleteAll();
 
-        admin1 = new User();
-        admin1.setUsername("admin1");
-        admin1.setPassword("pwd");
-        admin1.setRole(Role.ADMIN);
-        admin1 = userRepo.save(admin1);
+        admin1 = userRepo.save(new User(
+                "admin1",
+                "pwd",
+                Role.ADMIN
+        ));
 
-        admin2 = new User();
-        admin2.setUsername("admin2");
-        admin2.setPassword("pwd");
-        admin2.setRole(Role.ADMIN);
-        admin2 = userRepo.save(admin2);
+        userRepo.save(new User(
+                "admin2",
+                "pwd",
+                Role.ADMIN
+        ));
 
-        user1 = new User();
-        user1.setUsername("user1");
-        user1.setPassword("pwd");
-        user1.setRole(Role.USER);
-        user1 = userRepo.save(user1);
+        user1 = userRepo.save(new User(
+                "user1",
+                "pwd",
+                Role.USER
+        ));
     }
 
     @Test
-    @DisplayName("Должен находить пользователя по имени через Criteria API")
+    @DisplayName("Поиск пользователя по имени через Criteria API")
     void findByUsername_Criteria_shouldReturnUser() {
-        Optional<User> found = userRepoImpl.findByUsername("admin1");
+        Optional<User> found = userRepoImpl.findByUsername(admin1.getUsername());
         assertThat(found).isPresent();
-        assertThat(found.get().getUsername()).isEqualTo("admin1");
+        assertThat(found.get().getUsername()).isEqualTo(admin1.getUsername());
         assertThat(found.get().getRole()).isEqualTo(Role.ADMIN);
     }
 
     @Test
-    @DisplayName("Должен возвращать пустой Optional, если пользователь не найден (Criteria API)")
+    @DisplayName("Возвращение пустого Optional, если пользователь не найден через Criteria API")
     void findByUsername_Criteria_shouldReturnEmptyWhenNotFound() {
         Optional<User> found = userRepoImpl.findByUsername("unknown");
         assertThat(found).isEmpty();
     }
 
     @Test
-    @DisplayName("Должен находить пользователей по роли через Criteria API")
+    @DisplayName("Поиск пользователей по роли через Criteria API")
     void findAllByRole_Criteria_shouldReturnUsersByRole() {
         List<User> admins = userRepoImpl.findAllByRole(Role.ADMIN);
         List<User> users = userRepoImpl.findAllByRole(Role.USER);
@@ -78,8 +77,6 @@ class UserRepoImplTest extends AbstractIntegrationPostgreTest {
         assertThat(admins).allMatch(u -> u.getRole() == Role.ADMIN);
 
         assertThat(users).hasSize(1);
-        assertThat(users.getFirst().getUsername()).isEqualTo("user1");
+        assertThat(users.getFirst().getUsername()).isEqualTo(user1.getUsername());
     }
 }
-
-

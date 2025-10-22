@@ -11,7 +11,7 @@ import java.util.List;
  * Модель пользователя системы тестирования.
  */
 @Entity
-@Table(name = "_users")
+@Table(name = "users")
 public class User {
 
     @Id
@@ -35,12 +35,26 @@ public class User {
     private List<TestModel> tests = new ArrayList<>();
 
     @OneToMany(
-            mappedBy = "user",
+            mappedBy = "participant",
             fetch = FetchType.LAZY
     )
     private List<Result> results = new ArrayList<>();
 
     public User() {
+    }
+
+    public User(String username, String password, Role role) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
+    }
+
+    public User(String username, String password, Role role, List<TestModel> tests, List<Result> results) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
+        this.tests = tests;
+        this.results = results;
     }
 
     public Long getId() {

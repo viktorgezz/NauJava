@@ -42,7 +42,7 @@ public class Result {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_user")
-    private User user;
+    private User participant;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_test")
@@ -115,12 +115,12 @@ public class Result {
         this.completedAt = completedAt;
     }
 
-    public User getUser() {
-        return user;
+    public User getParticipant() {
+        return participant;
     }
 
-    public void setUser(User user) {
-        this.user = user;
+    public void setParticipant(User participant) {
+        this.participant = participant;
     }
 
     public TestModel getTest() {

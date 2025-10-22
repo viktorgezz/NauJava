@@ -9,7 +9,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 
 @SpringBootTest
 @Testcontainers
-public abstract class AbstractIntegrationPostgreTest {
+public abstract class AbstractIntegrationPostgresTest {
 
     @Container
     private static final PostgreSQLContainer<?> postgresContainer =

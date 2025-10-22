@@ -5,16 +5,16 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
-import ru.viktorgezz.NauJava.AbstractIntegrationPostgreTest;
+import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.test.Status;
 import ru.viktorgezz.NauJava.test.TestModel;
 import ru.viktorgezz.NauJava.test_topic.TestTopic;
 import ru.viktorgezz.NauJava.test_topic.TestTopicRepo;
 import ru.viktorgezz.NauJava.topic.Topic;
 import ru.viktorgezz.NauJava.topic.TopicRepo;
-import ru.viktorgezz.NauJava.user.Role;
 import ru.viktorgezz.NauJava.user.User;
 import ru.viktorgezz.NauJava.user.repo.UserRepo;
+import ru.viktorgezz.NauJava.util.GeneratorRandomModel;
 
 import java.util.Collections;
 import java.util.List;
@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
 @DisplayName("TestRepo Integration Test")
-class TestRepoTest extends AbstractIntegrationPostgreTest {
+class TestRepoTest extends AbstractIntegrationPostgresTest {
 
     @Autowired
     private TestRepo testRepo;
@@ -49,27 +49,15 @@ class TestRepoTest extends AbstractIntegrationPostgreTest {
         topicRepo.deleteAll();
         userRepo.deleteAll();
 
-        author1 = new User();
-        author1.setUsername("author1");
-        author1.setPassword("pwd");
-        author1.setRole(Role.USER);
-        author1 = userRepo.save(author1);
+        author1 = createAndSaveRandomUser();
 
-        topicJava = new Topic();
-        topicJava.setTitle("Java Basics");
-        topicJava = topicRepo.save(topicJava);
-
-        topicSql = new Topic();
-        topicSql.setTitle("SQL");
-        topicSql = topicRepo.save(topicSql);
-
-        topicSpring = new Topic();
-        topicSpring.setTitle("Spring Framework");
-        topicSpring = topicRepo.save(topicSpring);
+        topicJava = createAndSaveTopic("Java Basics");
+        topicSql = createAndSaveTopic("SQL");
+        topicSpring = createAndSaveTopic("Spring Framework");
     }
 
     @Test
-    @DisplayName("Должен находить тесты по точному названию")
+    @DisplayName("Поиск тестов по точному названию")
     void findByTitle_shouldReturnMatchingTests() {
         // Arrange
         String targetTitle = "Java Core Test";
@@ -86,7 +74,7 @@ class TestRepoTest extends AbstractIntegrationPostgreTest {
     }
 
     @Test
-    @DisplayName("Должен возвращать пустой список, если тесты не найдены")
+    @DisplayName("Возвращение пустого списка, если тесты не найдены")
     void findByTitle_shouldReturnEmptyListForNonMatchingTitle() {
         // Arrange
         testRepo.save(createTest("Java Core Test", "Test on core Java concepts", Status.PUBLIC, author1));
@@ -100,7 +88,7 @@ class TestRepoTest extends AbstractIntegrationPostgreTest {
 
 
     @Test
-    @DisplayName("Должен возвращать тесты, связанные хотя бы с одной из тем по названию")
+    @DisplayName("Поиск тестов, связанных хотя бы с одной из тем по названию")
     void findTestsByTopicTitles_shouldReturnAssociatedTests() {
         // Arrange
         TestModel javaTest = testRepo.save(createTest("Java Advanced", "Advanced Java topics", Status.PUBLIC, author1));
@@ -128,7 +116,7 @@ class TestRepoTest extends AbstractIntegrationPostgreTest {
     }
 
     @Test
-    @DisplayName("Должен возвращать уникальные тесты, даже если у теста несколько искомых тем")
+    @DisplayName("Поиск уникальных тестов, даже если у теста несколько искомых тем")
     void findTestsByTopicTitles_shouldReturnDistinctTests() {
         // Arrange
         TestModel combinedTest = testRepo.save(createTest("Java & Spring", "Combined topics", Status.PUBLIC, author1));
@@ -147,7 +135,7 @@ class TestRepoTest extends AbstractIntegrationPostgreTest {
 
 
     @Test
-    @DisplayName("Должен возвращать пустой список для тем без тестов")
+    @DisplayName("Возвращение пустого списка для тем без тестов")
     void findTestsByTopicTitles_shouldReturnEmptyListForTopicsWithNoTests() {
         // Arrange
 
@@ -167,7 +155,7 @@ class TestRepoTest extends AbstractIntegrationPostgreTest {
     }
 
     @Test
-    @DisplayName("Должен возвращать пустой список для несуществующих названий тем")
+    @DisplayName("Возвращение пустого списка для несуществующих названий тем")
     void findTestsByTopicTitles_shouldReturnEmptyListForNonExistentTopicTitles() {
         // Arrange
         List<String> nonExistentTopicTitles = List.of("NonExistentTopic1", "NonExistentTopic2");
@@ -181,7 +169,7 @@ class TestRepoTest extends AbstractIntegrationPostgreTest {
     }
 
     @Test
-    @DisplayName("Должен возвращать пустой список при передаче пустого списка названий")
+    @DisplayName("Возвращение пустого списка при передаче пустого списка названий")
     void findTestsByTopicTitles_shouldReturnEmptyListForEmptyInputList() {
         // Arrange
         List<String> emptyList = Collections.emptyList();
@@ -207,6 +195,14 @@ class TestRepoTest extends AbstractIntegrationPostgreTest {
         testModel.setStatus(status);
         testModel.setAuthor(author);
         return testModel;
+    }
+
+    private User createAndSaveRandomUser() {
+        return userRepo.save(GeneratorRandomModel.getRandomUser());
+    }
+
+    private Topic createAndSaveTopic(String topicTitle) {
+        return topicRepo.save(new Topic(topicTitle));
     }
 
     private void linkTestTopic(TestModel test, Topic topic) {

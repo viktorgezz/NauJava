@@ -5,13 +5,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
-import ru.viktorgezz.NauJava.AbstractIntegrationPostgreTest;
+import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.result.Grade;
 import ru.viktorgezz.NauJava.result.Result;
 import ru.viktorgezz.NauJava.result.repo.ResultRepo;
-import ru.viktorgezz.NauJava.user.Role;
 import ru.viktorgezz.NauJava.user.User;
 import ru.viktorgezz.NauJava.user.repo.UserRepo;
+import ru.viktorgezz.NauJava.util.GeneratorRandomModel;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -21,7 +21,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
 @DisplayName("ResultRepoImpl Criteria API Tests")
-class ResultRepoImplTest extends AbstractIntegrationPostgreTest {
+class ResultRepoImplTest extends AbstractIntegrationPostgresTest {
 
     @Autowired
     private ResultRepoImpl resultRepoImpl;
@@ -40,21 +40,12 @@ class ResultRepoImplTest extends AbstractIntegrationPostgreTest {
         resultRepo.deleteAll();
         userRepo.deleteAll();
 
-        user1 = new User();
-        user1.setUsername("user1");
-        user1.setPassword("password1");
-        user1.setRole(Role.USER);
-        user1 = userRepo.save(user1);
-
-        user2 = new User();
-        user2.setUsername("user2");
-        user2.setPassword("password2");
-        user2.setRole(Role.USER);
-        user2 = userRepo.save(user2);
+        user1 = createAndSaveRandomUser();
+        user2 = createAndSaveRandomUser();
     }
 
     @Test
-    @DisplayName("Должен найти все результаты по оценке и userId через Criteria API")
+    @DisplayName("Поиск всех результатов по оценке и userId через Criteria API")
     void shouldFindAllByGradeAndUserId() {
         // Arrange
         resultRepo.save(createResult(user1, Grade.B, new BigDecimal("82.5")));
@@ -68,11 +59,11 @@ class ResultRepoImplTest extends AbstractIntegrationPostgreTest {
         // Assert
         assertThat(results).hasSize(2);
         assertThat(results).allMatch(r -> r.getGrade() == Grade.B);
-        assertThat(results).allMatch(r -> r.getUser().getId().equals(user1.getId()));
+        assertThat(results).allMatch(r -> r.getParticipant().getId().equals(user1.getId()));
     }
 
     @Test
-    @DisplayName("Должен найти результаты с баллами меньше указанного значения через Criteria API")
+    @DisplayName("Поиск результатов с баллами меньше указанного значения через Criteria API")
     void shouldFindWithScoreLessThan() {
         // Arrange
         resultRepo.save(createResult(user1, Grade.F, new BigDecimal("40.0")));
@@ -88,7 +79,7 @@ class ResultRepoImplTest extends AbstractIntegrationPostgreTest {
     }
 
     @Test
-    @DisplayName("ResultRepoImpl и ResultRepo должны возвращать одинаковые результаты")
+    @DisplayName("ResultRepoImpl и ResultRepo должны возвращать одинаковые результаты по методу findAllByGradeAndUserId")
     void shouldReturnSameResultsAsRepo() {
         // Arrange
         resultRepo.save(createResult(user1, Grade.A, new BigDecimal("95.0")));
@@ -106,7 +97,7 @@ class ResultRepoImplTest extends AbstractIntegrationPostgreTest {
     }
 
     @Test
-    @DisplayName("Должен вернуть пустой список если нет подходящих результатов")
+    @DisplayName("Возвращение пустого списка если нет подходящих результатов")
     void shouldReturnEmptyListWhenNoMatches() {
         // Arrange
         resultRepo.save(createResult(user1, Grade.A, new BigDecimal("95.0")));
@@ -119,7 +110,7 @@ class ResultRepoImplTest extends AbstractIntegrationPostgreTest {
     }
 
     @Test
-    @DisplayName("Должен корректно работать с граничными значениями")
+    @DisplayName("Корректная работа поиска с граничными значениями")
     void shouldHandleBoundaryValues() {
         // Arrange
         resultRepo.save(createResult(user1, Grade.F, new BigDecimal("50.0")));
@@ -135,10 +126,14 @@ class ResultRepoImplTest extends AbstractIntegrationPostgreTest {
 
     private Result createResult(User user, Grade grade, BigDecimal score) {
         Result result = new Result();
-        result.setUser(user);
+        result.setParticipant(user);
         result.setGrade(grade);
         result.setScore(score);
         result.setCompletedAt(LocalDateTime.now());
         return result;
+    }
+
+    private User createAndSaveRandomUser() {
+        return userRepo.save(GeneratorRandomModel.getRandomUser());
     }
 }

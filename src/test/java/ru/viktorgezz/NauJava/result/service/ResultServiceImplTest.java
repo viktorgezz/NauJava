@@ -6,14 +6,14 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ActiveProfiles;
-import ru.viktorgezz.NauJava.AbstractIntegrationPostgreTest;
+import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.result.Grade;
 import ru.viktorgezz.NauJava.result.Result;
 import ru.viktorgezz.NauJava.result.repo.ResultRepo;
 import ru.viktorgezz.NauJava.result.service.intrf.ResultService;
-import ru.viktorgezz.NauJava.user.Role;
 import ru.viktorgezz.NauJava.user.User;
 import ru.viktorgezz.NauJava.user.repo.UserRepo;
+import ru.viktorgezz.NauJava.util.GeneratorRandomModel;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @ActiveProfiles("test")
 @DisplayName("ResultServiceImpl Integration Tests")
-class ResultServiceImplTest extends AbstractIntegrationPostgreTest {
+class ResultServiceImplTest extends AbstractIntegrationPostgresTest {
 
     @Autowired
     private ResultService resultService;
@@ -42,16 +42,11 @@ class ResultServiceImplTest extends AbstractIntegrationPostgreTest {
         resultRepo.deleteAll();
         userRepo.deleteAll();
 
-        testUser = new User();
-        testUser.setUsername("testuser");
-        testUser.setPassword("password");
-        testUser.setRole(Role.USER);
-        testUser = userRepo.save(testUser);
-
+        testUser = createAndSaveRandomUser();
     }
 
     @Test
-    @DisplayName("Должен успешно удалить существующий Result")
+    @DisplayName("Удаление существующего Result")
     void shouldDeleteExistingResultSuccessfully() {
         // Arrange
         Result resultToSave = createResult(testUser, Grade.B, new BigDecimal("88.0"));
@@ -67,7 +62,7 @@ class ResultServiceImplTest extends AbstractIntegrationPostgreTest {
     }
 
     @Test
-    @DisplayName("Должен выбросить EntityNotFoundException при попытке удалить несуществующий Result")
+    @DisplayName("Выброс EntityNotFoundException при попытке удалить несуществующий Result")
     void shouldThrowExceptionWhenDeletingNonExistentResult() {
         // Arrange
         Long nonExistentResultId = 999L;
@@ -87,11 +82,15 @@ class ResultServiceImplTest extends AbstractIntegrationPostgreTest {
 
     private Result createResult(User user, Grade grade, BigDecimal score) {
         Result result = new Result();
-        result.setUser(user);
+        result.setParticipant(user);
         result.setGrade(grade);
         result.setScore(score);
         result.setCompletedAt(LocalDateTime.now());
         result.setTimeSpentSeconds(120);
         return result;
+    }
+
+    private User createAndSaveRandomUser() {
+        return userRepo.save(GeneratorRandomModel.getRandomUser());
     }
 }
