@@ -12,6 +12,11 @@ services:
       - "5433:5432"
     volumes:
       - postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: [ "CMD", "pg_isready", "-U", "${POSTGRESQL_USERNAME}" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 volumes:
   postgres-data:

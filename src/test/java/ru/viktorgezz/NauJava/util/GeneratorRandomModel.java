@@ -7,6 +7,9 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.stream.Collectors;
 
+/**
+ * Генератор случайных данных моделей.
+ */
 public class GeneratorRandomModel {
 
     private static final String[] NAMES = {"User1", "User2", "User3", "User4", "User5", "User6", "User7"};

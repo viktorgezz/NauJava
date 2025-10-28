@@ -1,14 +1,20 @@
 package ru.viktorgezz.NauJava;
 
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 import org.testcontainers.containers.PostgreSQLContainer;
+import org.testcontainers.containers.wait.strategy.Wait;
 import org.testcontainers.junit.jupiter.Container;
 import org.testcontainers.junit.jupiter.Testcontainers;
 
+/**
+ * Базовый класс интеграционных тестов с Testcontainers (PostgreSQL).
+ */
 @SpringBootTest
 @Testcontainers
+@ActiveProfiles("test")
 public abstract class AbstractIntegrationPostgresTest {
 
     @Container
@@ -17,7 +23,8 @@ public abstract class AbstractIntegrationPostgresTest {
                     .withDatabaseName("testdb")
                     .withUsername("test")
                     .withPassword("test")
-                    .withReuse(true);
+                    .withReuse(true)
+                    .waitingFor(Wait.forLogMessage(".*database system is ready to accept connections.*\\n", 1));
 
     @DynamicPropertySource
     static void setProperties(DynamicPropertyRegistry registry) {

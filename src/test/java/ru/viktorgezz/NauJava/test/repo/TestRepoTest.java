@@ -14,12 +14,14 @@ import ru.viktorgezz.NauJava.topic.Topic;
 import ru.viktorgezz.NauJava.topic.TopicRepo;
 import ru.viktorgezz.NauJava.user.User;
 import ru.viktorgezz.NauJava.user.repo.UserRepo;
-import ru.viktorgezz.NauJava.util.SavingModel;
 
 import java.util.Collections;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static ru.viktorgezz.NauJava.util.CreationModel.createRandomUser;
+import static ru.viktorgezz.NauJava.util.CreationModel.createTest;
+import static ru.viktorgezz.NauJava.util.CreationModel.createTopic;
 
 @ActiveProfiles("test")
 @DisplayName("TestRepo Integration Test")
@@ -37,9 +39,6 @@ class TestRepoTest extends AbstractIntegrationPostgresTest {
     @Autowired
     private TestTopicRepo testTopicRepo;
 
-    @Autowired
-    private SavingModel savingModel;
-
     private User author1;
     private Topic topicJava;
     private Topic topicSql;
@@ -52,11 +51,11 @@ class TestRepoTest extends AbstractIntegrationPostgresTest {
         topicRepo.deleteAll();
         userRepo.deleteAll();
 
-        author1 = savingModel.createAndSaveRandomUser();
+        author1 = userRepo.save(createRandomUser());
 
-        topicJava = savingModel.createAndSaveTopic("Java Basics");
-        topicSql = savingModel.createAndSaveTopic("SQL");
-        topicSpring = savingModel.createAndSaveTopic("Spring Framework");
+        topicJava = topicRepo.save(createTopic("Java Basics"));
+        topicSql = topicRepo.save(createTopic("SQL"));
+        topicSpring = topicRepo.save(createTopic("Spring Framework"));
     }
 
     @Test
@@ -141,7 +140,6 @@ class TestRepoTest extends AbstractIntegrationPostgresTest {
     @DisplayName("Возвращение пустого списка для тем без тестов")
     void findTestsByTopicTitles_shouldReturnEmptyListForTopicsWithNoTests() {
         // Arrange
-
         Topic unusedTopic = new Topic();
         unusedTopic.setTitle("Unused");
         topicRepo.save(unusedTopic);
@@ -185,19 +183,41 @@ class TestRepoTest extends AbstractIntegrationPostgresTest {
         assertThat(foundTests).isEmpty();
     }
 
+    @Test
+    @DisplayName("Получение всех тестов с подгруженными автором и темами")
+    void findAllWithAuthorAndTopics_shouldReturnAllWithRelations() {
+        // Arrange
+        User author2 = userRepo.save(createRandomUser());
 
-    private TestModel createTest(
-            String title,
-            String description,
-            Status status,
-            User author
-    ) {
-        TestModel testModel = new TestModel();
-        testModel.setTitle(title);
-        testModel.setDescription(description);
-        testModel.setStatus(status);
-        testModel.setAuthor(author);
-        return testModel;
+        TestModel testModel1 = testRepo.save(createTest("T1", "desc", Status.PUBLIC, author1));
+        TestModel testModel2 = testRepo.save(createTest("T2", "desc", Status.PUBLIC, author2));
+
+        linkTestTopic(testModel1, topicJava);
+        linkTestTopic(testModel1, topicSpring);
+        linkTestTopic(testModel2, topicSql);
+
+        // Act
+        List<TestModel> tests = testRepo.findAllWithAuthorAndTopics();
+
+        // Assert
+        assertThat(tests).hasSize(2);
+        assertThat(tests)
+                .extracting(TestModel::getTitle)
+                .containsExactlyInAnyOrder("T1", "T2");
+
+        TestModel loadedTest1 = tests.stream().filter(t -> t.getTitle().equals("T1")).findFirst().orElseThrow();
+        TestModel loadedTest2 = tests.stream().filter(t -> t.getTitle().equals("T2")).findFirst().orElseThrow();
+
+        assertThat(loadedTest1.getAuthor().getId()).isEqualTo(author1.getId());
+        assertThat(loadedTest2.getAuthor().getId()).isEqualTo(author2.getId());
+
+        assertThat(loadedTest1.getTestTopics())
+                .extracting(testTopic -> testTopic.getTopic().getTitle())
+                .containsExactlyInAnyOrder("Java Basics", "Spring Framework");
+
+        assertThat(loadedTest2.getTestTopics())
+                .extracting(testTopic -> testTopic.getTopic().getTitle())
+                .containsExactlyInAnyOrder("SQL");
     }
 
     private void linkTestTopic(TestModel test, Topic topic) {

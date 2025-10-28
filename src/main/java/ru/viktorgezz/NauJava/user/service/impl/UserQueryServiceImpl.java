@@ -1,0 +1,35 @@
+package ru.viktorgezz.NauJava.user.service.impl;
+
+import org.springframework.stereotype.Service;
+import ru.viktorgezz.NauJava.exception.BusinessException;
+import ru.viktorgezz.NauJava.exception.ErrorCode;
+import ru.viktorgezz.NauJava.user.Role;
+import ru.viktorgezz.NauJava.user.User;
+import ru.viktorgezz.NauJava.user.repo.UserRepo;
+import ru.viktorgezz.NauJava.user.service.intrf.UserQueryService;
+
+import java.util.List;
+
+/**
+ * Реализация сервиса чтения пользователей. Реализует {@link ru.viktorgezz.NauJava.user.service.intrf.UserQueryService}.
+ */
+@Service
+public class UserQueryServiceImpl implements UserQueryService {
+
+    private final UserRepo userRepo;
+
+    public UserQueryServiceImpl(UserRepo userRepo) {
+        this.userRepo = userRepo;
+    }
+
+    @Override
+    public User getByUsername(String username) {
+        return userRepo.findByUsername(username).orElseThrow(() ->
+                new BusinessException(ErrorCode.USER_NOT_FOUND, username));
+    }
+
+    @Override
+    public List<User> findAllByRole(Role role) {
+        return userRepo.findAllByRole(role);
+    }
+}

@@ -1,6 +1,8 @@
 package ru.viktorgezz.NauJava.test_topic;
 
 import jakarta.persistence.*;
+import org.hibernate.proxy.HibernateProxy;
+import ru.viktorgezz.NauJava.result.Result;
 import ru.viktorgezz.NauJava.test.TestModel;
 import ru.viktorgezz.NauJava.topic.Topic;
 
@@ -59,14 +61,21 @@ public class TestTopic {
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (o == null || getClass() != o.getClass()) return false;
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+
+        Class<?> oEffectiveClass = (o instanceof HibernateProxy hibernateProxy) ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = (this instanceof HibernateProxy hibernateProxy) ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+
+        if (thisEffectiveClass != oEffectiveClass) return false;
         TestTopic testTopic = (TestTopic) o;
-        return Objects.equals(test, testTopic.test) && Objects.equals(topic, testTopic.topic);
+
+        return getId() != null && Objects.equals(getId(), testTopic.getId());
     }
 
     @Override
-    public int hashCode() {
-        return Objects.hash(test, topic);
+    public final int hashCode() {
+        return this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 }

@@ -3,10 +3,15 @@ package ru.viktorgezz.NauJava.test.repo;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
+import org.springframework.data.rest.core.annotation.RepositoryRestResource;
 import ru.viktorgezz.NauJava.test.TestModel;
 
 import java.util.List;
 
+/**
+ * Репозиторий для доступа к сущностям {@link TestModel}.
+ */
+@RepositoryRestResource(path = "tests")
 public interface TestRepo extends CrudRepository<TestModel, Long> {
 
     /**
@@ -23,4 +28,15 @@ public interface TestRepo extends CrudRepository<TestModel, Long> {
      */
     @Query("SELECT DISTINCT tt.test FROM TestTopic tt WHERE tt.topic.title IN :topicTitles")
     List<TestModel> findTestsByTopicTitles(@Param("topicTitles") List<String> topicTitles);
+
+    /**
+     * Получить все тесты со связанными автором и темами.
+     *
+     * @return List<TestModel> все тесты с подгруженными автором и темами
+     */
+    @Query("SELECT DISTINCT t FROM TestModel t " +
+            "LEFT JOIN FETCH t.author " +
+            "LEFT JOIN FETCH t.testTopics tt " +
+            "LEFT JOIN FETCH tt.topic")
+    List<TestModel> findAllWithAuthorAndTopics();
 }

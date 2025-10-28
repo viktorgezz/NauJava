@@ -1,0 +1,43 @@
+package ru.viktorgezz.NauJava.user.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import ru.viktorgezz.NauJava.user.Role;
+import ru.viktorgezz.NauJava.user.User;
+import ru.viktorgezz.NauJava.user.dto.UserMapper;
+import ru.viktorgezz.NauJava.user.dto.UserResponseDto;
+import ru.viktorgezz.NauJava.user.service.intrf.UserQueryService;
+
+import java.util.List;
+import java.util.stream.Collectors;
+
+/**
+ * REST-контроллер для пользователей {@link User}.
+ */
+@RestController
+@RequestMapping("/users")
+public class UserRestController {
+
+    private final UserQueryService userQueryService;
+
+    @Autowired
+    public UserRestController(UserQueryService userQueryService) {
+        this.userQueryService = userQueryService;
+    }
+
+    @GetMapping("/search/username")
+    public UserResponseDto getUserByUsername(@RequestParam String username) {
+        return UserMapper.toDto(userQueryService.getByUsername(username));
+    }
+
+    @GetMapping("/search/role")
+    public List<UserResponseDto> getUsersByRole(@RequestParam Role role) {
+        return userQueryService.findAllByRole(role)
+                .stream()
+                .map(UserMapper::toDto)
+                .collect(Collectors.toList());
+    }
+}

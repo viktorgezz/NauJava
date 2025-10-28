@@ -2,9 +2,9 @@ spring:
   application:
     name: NauJava
   datasource:
-    url:
-    username:
-    password:
+    url: jdbc:postgresql://localhost:5433/testing_system
+    username: postgres
+    password: strong_password
   jpa:
     properties:
       hibernate:
@@ -20,8 +20,3 @@ management:
           - health
           - info
           - metrics
-
-app:
-  name: System of testing
-  version: 1.0.0
-

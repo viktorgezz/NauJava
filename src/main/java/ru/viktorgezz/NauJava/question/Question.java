@@ -56,6 +56,11 @@ import java.util.List;
     public Question() {
     }
 
+    public Question(String text, Type type) {
+        this.text = text;
+        this.type = type;
+    }
+
     public Long getId() {
         return id;
     }
