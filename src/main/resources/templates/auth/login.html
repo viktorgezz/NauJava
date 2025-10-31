@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<meta charset="UTF-8" />
+	<title>Login</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+	<h1>Вход</h1>
+	<form th:action="@{/ui/auth/login}" method="post">
+		<div>
+			<label>Имя пользователя</label>
+			<input type="text" name="name" required />
+		</div>
+		<div>
+			<label>Пароль</label>
+			<input type="password" name="password" required />
+		</div>
+		<div>
+			<button type="submit">Войти</button>
+		</div>
+	</form>
+	<p>
+		Нет аккаунта? <a th:href="@{/ui/auth/register}">Регистрация</a>
+	</p>
+</body>
+</html>

@@ -1,6 +1,8 @@
-package ru.viktorgezz.NauJava.result.dto;
+package ru.viktorgezz.NauJava.result;
 
-import ru.viktorgezz.NauJava.result.Result;
+import ru.viktorgezz.NauJava.result.dto.ParticipantDto;
+import ru.viktorgezz.NauJava.result.dto.ResultResponseDto;
+import ru.viktorgezz.NauJava.result.dto.TestInfoDto;
 
 /**
  * Маппер для конвертации {@link Result} в DTO.

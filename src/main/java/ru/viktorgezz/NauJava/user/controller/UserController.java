@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.viktorgezz.NauJava.user.Role;
 import ru.viktorgezz.NauJava.user.User;
-import ru.viktorgezz.NauJava.user.dto.UserMapper;
+import ru.viktorgezz.NauJava.user.UserMapper;
 import ru.viktorgezz.NauJava.user.dto.UserResponseDto;
 import ru.viktorgezz.NauJava.user.service.intrf.UserQueryService;
 
@@ -19,12 +19,12 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/users")
-public class UserRestController {
+public class UserController {
 
     private final UserQueryService userQueryService;
 
     @Autowired
-    public UserRestController(UserQueryService userQueryService) {
+    public UserController(UserQueryService userQueryService) {
         this.userQueryService = userQueryService;
     }
 

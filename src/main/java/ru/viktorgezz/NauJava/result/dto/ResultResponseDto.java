@@ -18,4 +18,3 @@ public record ResultResponseDto(
         TestInfoDto test
 ) {
 }
-

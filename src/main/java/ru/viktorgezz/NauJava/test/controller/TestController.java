@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.viktorgezz.NauJava.test.TestModel;
-import ru.viktorgezz.NauJava.test.dto.TestMapper;
+import ru.viktorgezz.NauJava.test.TestMapper;
 import ru.viktorgezz.NauJava.test.dto.TestResponseDto;
 import ru.viktorgezz.NauJava.test.service.intrf.TestQueryService;
 
@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/tests")
-public class TestRestController {
+public class TestController {
 
     private final TestQueryService testQueryService;
 
     @Autowired
-    public TestRestController(TestQueryService testQueryService) {
+    public TestController(TestQueryService testQueryService) {
         this.testQueryService = testQueryService;
     }
 

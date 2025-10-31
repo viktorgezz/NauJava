@@ -1,5 +1,7 @@
 package ru.viktorgezz.NauJava.user.service.impl;
 
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import ru.viktorgezz.NauJava.exception.BusinessException;
 import ru.viktorgezz.NauJava.exception.ErrorCode;
@@ -31,5 +33,12 @@ public class UserQueryServiceImpl implements UserQueryService {
     @Override
     public List<User> findAllByRole(Role role) {
         return userRepo.findAllByRole(role);
+    }
+
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return userRepo.findByUsername(username).orElseThrow(
+                () -> new UsernameNotFoundException("Username " + username + " not found")
+        );
     }
 }

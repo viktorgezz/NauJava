@@ -1,10 +1,15 @@
 package ru.viktorgezz.NauJava.user;
 
 import jakarta.persistence.*;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+import ru.viktorgezz.NauJava.security.RefreshToken;
 import ru.viktorgezz.NauJava.test.TestModel;
 import ru.viktorgezz.NauJava.result.Result;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 /**
@@ -12,7 +17,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "users")
-public class User {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -28,6 +33,15 @@ public class User {
     @Column(nullable = false)
     private Role role;
 
+    @Column(name = "is_enabled")
+    private boolean enabled;
+
+    @Column(name = "is_account_locked")
+    private boolean locked;
+
+    @Column(name = "is_credentials_expired")
+    private boolean credentialsExpired;
+
     @OneToMany(
             mappedBy = "author",
             fetch = FetchType.LAZY
@@ -40,6 +54,14 @@ public class User {
     )
     private List<Result> results = new ArrayList<>();
 
+    @OneToMany(
+            mappedBy = "user",
+            cascade = CascadeType.ALL,
+            fetch = FetchType.LAZY,
+            orphanRemoval = true
+    )
+    private List<RefreshToken> refreshTokens;
+
     public User() {
     }
 
@@ -47,6 +69,15 @@ public class User {
         this.username = username;
         this.password = password;
         this.role = role;
+    }
+
+    public User(String username, String password, Role role, boolean enabled, boolean locked, boolean credentialsExpired) {
+        this.username = username;
+        this.password = password;
+        this.role = role;
+        this.enabled = enabled;
+        this.locked = locked;
+        this.credentialsExpired = credentialsExpired;
     }
 
     public User(String username, String password, Role role, List<TestModel> tests, List<Result> results) {
@@ -65,8 +96,34 @@ public class User {
         this.id = id;
     }
 
+    @Override
     public String getUsername() {
         return username;
+    }
+
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return List.of(new SimpleGrantedAuthority("ROLE_" + role.name()));
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return !this.locked;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return !credentialsExpired;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return this.enabled;
     }
 
     public void setUsername(String username) {
@@ -93,15 +150,31 @@ public class User {
         return tests;
     }
 
-    public void setTests(List<TestModel> tests) {
-        this.tests = tests;
-    }
-
-    public List<Result> getTestResults() {
+    public List<Result> getResults() {
         return results;
     }
 
-    public void setTestResults(List<Result> results) {
-        this.results = results;
+    public List<RefreshToken> getRefreshTokens() {
+        return refreshTokens;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
+    }
+
+    public boolean isLocked() {
+        return locked;
+    }
+
+    public void setLocked(boolean locked) {
+        this.locked = locked;
+    }
+
+    public boolean isCredentialsExpired() {
+        return credentialsExpired;
+    }
+
+    public void setCredentialsExpired(boolean credentialsExpired) {
+        this.credentialsExpired = credentialsExpired;
     }
 }

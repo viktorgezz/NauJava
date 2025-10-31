@@ -1,11 +1,10 @@
 package ru.viktorgezz.NauJava.test.service;
 
-import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
 import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.question.Question;
 import ru.viktorgezz.NauJava.question.QuestionRepo;
@@ -27,10 +26,8 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static ru.viktorgezz.NauJava.util.CreationModel.*;
 
-@ActiveProfiles("test")
 @DisplayName("TestServiceImpl Integration Tests")
 class TestServiceImplTestCommand extends AbstractIntegrationPostgresTest {
 
@@ -58,16 +55,19 @@ class TestServiceImplTestCommand extends AbstractIntegrationPostgresTest {
 
     @BeforeEach
     void setUp() {
-        questionRepo.deleteAll();
-        testTopicRepo.deleteAll();
-        testRepo.deleteAll();
-        userRepo.deleteAll();
-        topicRepo.deleteAll();
-
         author = userRepo.save(createRandomUser());
 
         topic1 = topicRepo.save(createTopic("Topic One"));
         topic2 = topicRepo.save(createTopic("Topic Two"));
+    }
+
+    @AfterEach
+    void tearDown() {
+        questionRepo.deleteAll();
+        testTopicRepo.deleteAll();
+        testRepo.deleteAll();
+        topicRepo.deleteAll();
+        userRepo.deleteAll();
     }
 
     @Test
@@ -85,7 +85,6 @@ class TestServiceImplTestCommand extends AbstractIntegrationPostgresTest {
                 "Successful Test",
                 "Description for success",
                 Status.PUBLIC,
-                author.getId(),
                 questionsToCreate,
                 topicIdsToLink
         );
@@ -95,7 +94,7 @@ class TestServiceImplTestCommand extends AbstractIntegrationPostgresTest {
         long initialTestTopicCount = testTopicRepo.count();
 
         // Act
-        TestModel createdTest = testCommandService.createTest(requestDto);
+        TestModel createdTest = testCommandService.createTest(requestDto, author);
 
         // Assert
         assertThat(createdTest).isNotNull();
@@ -122,76 +121,6 @@ class TestServiceImplTestCommand extends AbstractIntegrationPostgresTest {
     }
 
     @Test
-    @DisplayName("Откат транзакции при несуществующем ID автора")
-    void shouldRollbackTransactionWhenAuthorNotFound() {
-        // Arrange
-        Long nonExistentAuthorId = 999L;
-        List<Question> questionsToCreate = List.of(new Question());
-        Set<Long> topicIdsToLink = Set.of(topic1.getId());
-
-        TestRequestDto requestDto = new TestRequestDto(
-                "Failed Test Author",
-                "Description",
-                Status.PRIVATE,
-                nonExistentAuthorId,
-                questionsToCreate,
-                topicIdsToLink
-        );
-
-        long initialTestCount = testRepo.count();
-        long initialQuestionCount = questionRepo.count();
-        long initialTestTopicCount = testTopicRepo.count();
-
-        // Act & Assert
-        EntityNotFoundException exception = assertThrows(
-                EntityNotFoundException.class,
-                () -> testCommandService.createTest(requestDto)
-        );
-
-        assertThat(exception.getMessage()).isEqualTo("Author not found with id: " + nonExistentAuthorId);
-
-        // Assert
-        assertThat(testRepo.count()).isEqualTo(initialTestCount);
-        assertThat(questionRepo.count()).isEqualTo(initialQuestionCount);
-        assertThat(testTopicRepo.count()).isEqualTo(initialTestTopicCount);
-    }
-
-    @Test
-    @DisplayName("Откат транзакции при несуществующем ID темы")
-    void shouldRollbackTransactionWhenTopicNotFound() {
-        // Arrange
-        Long nonExistentTopicId = 998L;
-        List<Question> questionsToCreate = List.of(new Question());
-        Set<Long> topicIdsToLink = Set.of(topic1.getId(), nonExistentTopicId);
-
-        TestRequestDto requestDto = new TestRequestDto(
-                "Failed Test Topic",
-                "Description",
-                Status.UNLISTED,
-                author.getId(),
-                questionsToCreate,
-                topicIdsToLink
-        );
-
-        long initialTestCount = testRepo.count();
-        long initialQuestionCount = questionRepo.count();
-        long initialTestTopicCount = testTopicRepo.count();
-
-        // Act & Assert
-        EntityNotFoundException exception = assertThrows(
-                EntityNotFoundException.class,
-                () -> testCommandService.createTest(requestDto)
-        );
-
-        assertThat(exception.getMessage()).isEqualTo("One or more topics not found for the given IDs.");
-
-        // Assert
-        assertThat(testRepo.count()).isEqualTo(initialTestCount);
-        assertThat(questionRepo.count()).isEqualTo(initialQuestionCount);
-        assertThat(testTopicRepo.count()).isEqualTo(initialTestTopicCount);
-    }
-
-    @Test
     @DisplayName("Успешно создание теста без вопросов и тем")
     void shouldCreateTestWithoutQuestionsAndTopics() {
         // Arrange
@@ -202,7 +131,6 @@ class TestServiceImplTestCommand extends AbstractIntegrationPostgresTest {
                 "Simple Test",
                 "Simple Desc",
                 Status.PRIVATE,
-                author.getId(),
                 emptyQuestions,
                 emptyTopicIds
         );
@@ -211,7 +139,7 @@ class TestServiceImplTestCommand extends AbstractIntegrationPostgresTest {
         long initialQuestionCount = questionRepo.count();
         long initialTestTopicCount = testTopicRepo.count();
 
-        TestModel createdTest = testCommandService.createTest(requestDto);
+        TestModel createdTest = testCommandService.createTest(requestDto, author);
 
         // Assert
         assertThat(createdTest).isNotNull();

@@ -1,10 +1,10 @@
 package ru.viktorgezz.NauJava.result.repo;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
 import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.result.Grade;
 import ru.viktorgezz.NauJava.result.Result;
@@ -18,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static ru.viktorgezz.NauJava.util.CreationModel.createRandomUser;
 import static ru.viktorgezz.NauJava.util.CreationModel.createResult;
 
-@ActiveProfiles("test")
 @DisplayName("ResultRepo Integration Tests")
 class ResultRepoTest extends AbstractIntegrationPostgresTest {
 
@@ -33,11 +32,14 @@ class ResultRepoTest extends AbstractIntegrationPostgresTest {
 
     @BeforeEach
     void setUp() {
-        resultRepo.deleteAll();
-        userRepo.deleteAll();
-
         user1 = userRepo.save(createRandomUser());
         user2 = userRepo.save(createRandomUser());
+    }
+
+    @AfterEach
+    void tearDown() {
+        resultRepo.deleteAll();
+        userRepo.deleteAll();
     }
 
     @Test

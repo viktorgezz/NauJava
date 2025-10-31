@@ -1,11 +1,11 @@
 package ru.viktorgezz.NauJava.result.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
 import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.result.Grade;
 import ru.viktorgezz.NauJava.result.Result;
@@ -21,7 +21,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static ru.viktorgezz.NauJava.util.CreationModel.createRandomUser;
 import static ru.viktorgezz.NauJava.util.CreationModel.createResult;
 
-@ActiveProfiles("test")
 @DisplayName("ResultServiceImpl Integration Tests")
 class ResultCommandServiceImplTest extends AbstractIntegrationPostgresTest {
 
@@ -38,10 +37,13 @@ class ResultCommandServiceImplTest extends AbstractIntegrationPostgresTest {
 
     @BeforeEach
     void setUp() {
+        testUser = userRepo.save(createRandomUser());
+    }
+
+    @AfterEach
+    void tearDown() {
         resultRepo.deleteAll();
         userRepo.deleteAll();
-
-        testUser = userRepo.save(createRandomUser());
     }
 
     @Test
