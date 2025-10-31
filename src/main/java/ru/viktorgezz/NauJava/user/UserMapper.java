@@ -1,6 +1,7 @@
-package ru.viktorgezz.NauJava.user.dto;
+package ru.viktorgezz.NauJava.user;
 
-import ru.viktorgezz.NauJava.user.User;
+import ru.viktorgezz.NauJava.auth.dto.RegistrationRequest;
+import ru.viktorgezz.NauJava.user.dto.UserResponseDto;
 
 /**
  * Маппер для конвертации {@link User} в DTO.
@@ -23,6 +24,17 @@ public class UserMapper {
                 user.getId(),
                 user.getUsername(),
                 user.getRole()
+        );
+    }
+
+    public static User toUser(RegistrationRequest request, Role role) {
+        return new User(
+                request.username(),
+                request.password(),
+                role,
+                true,
+                false,
+                false
         );
     }
 }

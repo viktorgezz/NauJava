@@ -3,13 +3,17 @@ package ru.viktorgezz.NauJava.result.controller;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.viktorgezz.NauJava.result.Grade;
 import ru.viktorgezz.NauJava.result.Result;
 import ru.viktorgezz.NauJava.result.service.intrf.ResultQueryService;
+import ru.viktorgezz.NauJava.security.JwtAuthenticationFilter;
 import ru.viktorgezz.NauJava.util.GeneratorRandomModel;
 
 import static ru.viktorgezz.NauJava.util.CreationModel.*;
@@ -28,7 +32,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 /**
  * Тесты веб-слоя для {@link ResultRestController}.
  */
-@WebMvcTest(ResultRestController.class)
+@WebMvcTest(
+        controllers = ResultRestController.class,
+        excludeAutoConfiguration = {SecurityAutoConfiguration.class},
+        excludeFilters = @ComponentScan.Filter(
+                type = FilterType.ASSIGNABLE_TYPE,
+                classes = JwtAuthenticationFilter.class
+        )
+)
 class ResultRestControllerTest {
 
     @Autowired

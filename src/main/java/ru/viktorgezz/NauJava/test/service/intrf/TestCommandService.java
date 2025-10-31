@@ -11,13 +11,18 @@ public interface TestCommandService {
 
     /**
      * Создает новый тест вместе с его вопросами и связями с темами.
-     * Операция выполняется в одной транзакции.
      *
      * @param createRequest DTO с данными для создания теста.
      * @return Созданный и сохраненный объект TestModel.
      */
     TestModel createTest(TestRequestDto createRequest);
 
+    /**
+     * Создает новый тест с темами.
+     *
+     * @param testDto DTO с данными для создания теста c Thymeleaf
+     * @return Созданный и сохраненный объект TestModel.
+     */
     TestModel createTestThymeleaf(TestRequestThymeleafDto testDto);
 
 }

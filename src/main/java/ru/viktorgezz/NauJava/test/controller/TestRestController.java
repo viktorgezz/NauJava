@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.viktorgezz.NauJava.test.TestModel;
-import ru.viktorgezz.NauJava.test.dto.TestMapper;
+import ru.viktorgezz.NauJava.test.TestMapper;
 import ru.viktorgezz.NauJava.test.dto.TestResponseDto;
 import ru.viktorgezz.NauJava.test.service.intrf.TestQueryService;
 

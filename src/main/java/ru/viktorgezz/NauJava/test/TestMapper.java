@@ -1,6 +1,7 @@
-package ru.viktorgezz.NauJava.test.dto;
+package ru.viktorgezz.NauJava.test;
 
-import ru.viktorgezz.NauJava.test.TestModel;
+import ru.viktorgezz.NauJava.test.dto.AuthorDto;
+import ru.viktorgezz.NauJava.test.dto.TestResponseDto;
 
 /**
  * Маппер для конвертации {@link TestModel} в DTO.

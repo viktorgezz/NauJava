@@ -12,7 +12,7 @@ import ru.viktorgezz.NauJava.test.service.intrf.TestCommandService;
 import ru.viktorgezz.NauJava.topic.Topic;
 import ru.viktorgezz.NauJava.topic.TopicService;
 import ru.viktorgezz.NauJava.user.User;
-import ru.viktorgezz.NauJava.user.repo.UserRepo;
+import ru.viktorgezz.NauJava.user.service.intrf.UserQueryService;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -27,18 +27,18 @@ import java.util.stream.Collectors;
 public class TestCommandServiceImpl implements TestCommandService {
 
     private final TestRepo testRepo;
-    private final UserRepo userRepo;
 
     private final TopicService topicService;
+    private final UserQueryService userQueryService;
 
     @Autowired
     public TestCommandServiceImpl(
             TestRepo testRepo,
-            UserRepo userRepo,
-            TopicService topicService
+            TopicService topicService,
+            UserQueryService userQueryService
     ) {
         this.testRepo = testRepo;
-        this.userRepo = userRepo;
+        this.userQueryService = userQueryService;
         this.topicService = topicService;
     }
 
@@ -55,33 +55,16 @@ public class TestCommandServiceImpl implements TestCommandService {
                 testDto.getTitle(),
                 testDto.getDescription(),
                 Status.valueOf(testDto.getStatusParam()),
-                -1L, // временная мера для демонстрации работы на страницу new. (Thymeleaf)
+                1L, // временная мера для демонстрации работы на страницу new. (Thymeleaf)
                 new ArrayList<>(),
                 resolveTopicIds(testDto)
         ));
     }
 
-    private Set<Long> resolveTopicIds(TestRequestThymeleafDto testDto) {
-        Set<Long> topicIds = new HashSet<>();
-        if (testDto.getSelectedTopicIds() != null && testDto.getSelectedTopicIds().length != 0) {
-            topicIds = Arrays
-                    .stream(testDto.getSelectedTopicIds())
-                    .map(Long::parseLong)
-                    .collect(Collectors.toSet());
-        }
-
-        if (testDto.getNewTopicTitle() != null && !testDto.getNewTopicTitle().trim().isEmpty()) {
-            Topic newTopic = new Topic(testDto.getNewTopicTitle());
-            newTopic = topicService.save(newTopic);
-            topicIds.add(newTopic.getId());
-        }
-        return topicIds;
-    }
-
     private TestModel internalCreateTest(TestRequestDto createRequest) {
         Set<Long> idsTopic = createRequest.topicIds();
 
-        User author = userRepo.findById(createRequest.authorId()).orElse(null); // временная мера для демонстрации работы на страницу new. (Thymeleaf)
+        User author = userQueryService.getById(createRequest.authorId());
 
         Set<Topic> foundTopics = topicService.findAllById(idsTopic);
 
@@ -100,5 +83,22 @@ public class TestCommandServiceImpl implements TestCommandService {
         topicService.saveAndLinkAll(foundTopics, newTest);
 
         return testRepo.save(newTest);
+    }
+
+    private Set<Long> resolveTopicIds(TestRequestThymeleafDto testDto) {
+        Set<Long> topicIds = new HashSet<>();
+        if (testDto.getSelectedTopicIds() != null && testDto.getSelectedTopicIds().length != 0) {
+            topicIds = Arrays
+                    .stream(testDto.getSelectedTopicIds())
+                    .map(Long::parseLong)
+                    .collect(Collectors.toSet());
+        }
+
+        if (testDto.getNewTopicTitle() != null && !testDto.getNewTopicTitle().trim().isEmpty()) {
+            Topic newTopic = new Topic(testDto.getNewTopicTitle());
+            newTopic = topicService.save(newTopic);
+            topicIds.add(newTopic.getId());
+        }
+        return topicIds;
     }
 }

@@ -1,10 +1,10 @@
 package ru.viktorgezz.NauJava.user.repo;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
 import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.user.Role;
 import ru.viktorgezz.NauJava.user.User;
@@ -14,7 +14,6 @@ import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@ActiveProfiles("test")
 @DisplayName("UserRepo Integration Tests")
 class UserRepoTest extends AbstractIntegrationPostgresTest {
 
@@ -26,8 +25,6 @@ class UserRepoTest extends AbstractIntegrationPostgresTest {
 
     @BeforeEach
     void setUp() {
-        userRepo.deleteAll();
-
         admin1 = userRepo.save(new User(
                 "admin1",
                 "pwd",
@@ -45,6 +42,11 @@ class UserRepoTest extends AbstractIntegrationPostgresTest {
                 "pwd",
                 Role.USER
         ));
+    }
+
+    @AfterEach
+    void  tearDown() {
+        userRepo.deleteAll();
     }
 
     @Test

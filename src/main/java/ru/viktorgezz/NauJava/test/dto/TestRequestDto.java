@@ -14,11 +14,18 @@ import java.util.Set;
  * @param topicIds    Набор ID тем может быть пустым, но не null
  */
 public record TestRequestDto(
-        @NotBlank(message = "Название теста не может быть пустым") String title,
+        @NotBlank(message = "Название теста не может быть пустым")
+        String title,
+
         String description,
-        @NotNull(message = "Статус теста не может быть null") Status status,
+
+        @NotNull(message = "Статус теста не может быть null")
+        Status status,
+
         Long authorId,
+
         @NotNull(message = "Список вопросов не может быть null (может быть пустым)") List<Question> questions,
+
         @NotNull(message = "Набор ID тем не может быть null (может быть пустым)") Set<Long> topicIds
 ) {
 

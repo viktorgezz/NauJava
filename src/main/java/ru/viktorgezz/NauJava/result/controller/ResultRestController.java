@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import ru.viktorgezz.NauJava.result.Grade;
 import ru.viktorgezz.NauJava.result.Result;
-import ru.viktorgezz.NauJava.result.dto.ResultMapper;
+import ru.viktorgezz.NauJava.result.ResultMapper;
 import ru.viktorgezz.NauJava.result.dto.ResultResponseDto;
 import ru.viktorgezz.NauJava.result.service.intrf.ResultQueryService;
 

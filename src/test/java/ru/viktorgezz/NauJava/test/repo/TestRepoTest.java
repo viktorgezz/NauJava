@@ -1,10 +1,10 @@
 package ru.viktorgezz.NauJava.test.repo;
 
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.test.context.ActiveProfiles;
 import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.test.Status;
 import ru.viktorgezz.NauJava.test.TestModel;
@@ -23,7 +23,6 @@ import static ru.viktorgezz.NauJava.util.CreationModel.createRandomUser;
 import static ru.viktorgezz.NauJava.util.CreationModel.createTest;
 import static ru.viktorgezz.NauJava.util.CreationModel.createTopic;
 
-@ActiveProfiles("test")
 @DisplayName("TestRepo Integration Test")
 class TestRepoTest extends AbstractIntegrationPostgresTest {
 
@@ -46,16 +45,19 @@ class TestRepoTest extends AbstractIntegrationPostgresTest {
 
     @BeforeEach
     void setUp() {
-        testTopicRepo.deleteAll();
-        testRepo.deleteAll();
-        topicRepo.deleteAll();
-        userRepo.deleteAll();
-
         author1 = userRepo.save(createRandomUser());
 
         topicJava = topicRepo.save(createTopic("Java Basics"));
         topicSql = topicRepo.save(createTopic("SQL"));
         topicSpring = topicRepo.save(createTopic("Spring Framework"));
+    }
+
+    @AfterEach
+    void tearDown() {
+        testTopicRepo.deleteAll();
+        testRepo.deleteAll();
+        topicRepo.deleteAll();
+        userRepo.deleteAll();
     }
 
     @Test
