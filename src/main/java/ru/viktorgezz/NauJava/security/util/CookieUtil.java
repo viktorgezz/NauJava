@@ -7,6 +7,8 @@ import jakarta.servlet.http.Cookie;
  */
 public class CookieUtil {
 
+    private CookieUtil(){}
+
     public static Cookie createCookieForJwtToken(
             String token,
             String nameToken,

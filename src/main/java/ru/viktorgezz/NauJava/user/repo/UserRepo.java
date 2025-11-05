@@ -24,13 +24,6 @@ public interface UserRepo extends CrudRepository<User, Long> {
     Optional<User> findByUsername(String username);
 
     /**
-     * Поиск id пользователя по имени
-     * @param username имя пользователя
-     * @return Возращает id пользователя
-     */
-    Optional<Long>  findIdByUsername(String username);
-
-    /**
      * Поиск юзеров по роли
      * @param role роль пользователя
      * @return возвращает список пользователей

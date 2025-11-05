@@ -19,12 +19,12 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/users")
-public class UserRestController {
+public class UserController {
 
     private final UserQueryService userQueryService;
 
     @Autowired
-    public UserRestController(UserQueryService userQueryService) {
+    public UserController(UserQueryService userQueryService) {
         this.userQueryService = userQueryService;
     }
 

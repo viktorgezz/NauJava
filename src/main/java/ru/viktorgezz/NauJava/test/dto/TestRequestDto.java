@@ -22,28 +22,23 @@ public record TestRequestDto(
         @NotNull(message = "Статус теста не может быть null")
         Status status,
 
-        Long authorId,
+        @NotNull(message = "Список вопросов не может быть null (может быть пустым)")
+        List<Question> questions,
 
-        @NotNull(message = "Список вопросов не может быть null (может быть пустым)") List<Question> questions,
-
-        @NotNull(message = "Набор ID тем не может быть null (может быть пустым)") Set<Long> topicIds
+        @NotNull(message = "Набор ID тем не может быть null (может быть пустым)")
+        Set<Long> topicIds
 ) {
-
-
     public TestRequestDto(
             String title,
             String description,
             Status status,
-            Long authorId,
             List<Question> questions,
             Set<Long> topicIds
     ) {
         this.title = title;
         this.description = description;
         this.status = status;
-        this.authorId = authorId;
         this.questions = questions;
         this.topicIds = topicIds;
     }
-
 }

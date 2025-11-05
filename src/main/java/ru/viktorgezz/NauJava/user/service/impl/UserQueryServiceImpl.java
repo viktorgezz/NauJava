@@ -1,6 +1,5 @@
 package ru.viktorgezz.NauJava.user.service.impl;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
@@ -29,12 +28,6 @@ public class UserQueryServiceImpl implements UserQueryService {
     public User getByUsername(String username) {
         return userRepo.findByUsername(username).orElseThrow(() ->
                 new BusinessException(ErrorCode.USER_NOT_FOUND, username));
-    }
-
-    @Override
-    public User getById(Long id) {
-        return userRepo.findById(id).orElseThrow(() ->
-                new EntityNotFoundException("User with ID " + id + " not found"));
     }
 
     @Override

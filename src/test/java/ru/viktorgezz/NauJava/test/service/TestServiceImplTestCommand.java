@@ -1,6 +1,5 @@
 package ru.viktorgezz.NauJava.test.service;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -27,7 +26,6 @@ import java.util.List;
 import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static ru.viktorgezz.NauJava.util.CreationModel.*;
 
 @DisplayName("TestServiceImpl Integration Tests")
@@ -87,7 +85,6 @@ class TestServiceImplTestCommand extends AbstractIntegrationPostgresTest {
                 "Successful Test",
                 "Description for success",
                 Status.PUBLIC,
-                author.getId(),
                 questionsToCreate,
                 topicIdsToLink
         );
@@ -97,7 +94,7 @@ class TestServiceImplTestCommand extends AbstractIntegrationPostgresTest {
         long initialTestTopicCount = testTopicRepo.count();
 
         // Act
-        TestModel createdTest = testCommandService.createTest(requestDto);
+        TestModel createdTest = testCommandService.createTest(requestDto, author);
 
         // Assert
         assertThat(createdTest).isNotNull();
@@ -124,41 +121,6 @@ class TestServiceImplTestCommand extends AbstractIntegrationPostgresTest {
     }
 
     @Test
-    @DisplayName("Откат транзакции при несуществующем ID автора")
-    void shouldRollbackTransactionWhenAuthorNotFound() {
-        // Arrange
-        Long nonExistentAuthorId = 999L;
-        List<Question> questionsToCreate = List.of(new Question("question", Type.SINGLE_CHOICE));
-        Set<Long> topicIdsToLink = Set.of(topic1.getId());
-
-        TestRequestDto requestDto = new TestRequestDto(
-                "Failed Test Author",
-                "Description",
-                Status.PRIVATE,
-                nonExistentAuthorId,
-                questionsToCreate,
-                topicIdsToLink
-        );
-
-        long initialTestCount = testRepo.count();
-        long initialQuestionCount = questionRepo.count();
-        long initialTestTopicCount = testTopicRepo.count();
-
-        // Act & Assert
-        EntityNotFoundException exception = assertThrows(
-                EntityNotFoundException.class,
-                () -> testCommandService.createTest(requestDto)
-        );
-
-        assertThat(exception.getMessage()).isEqualTo("User with ID %s not found".formatted(nonExistentAuthorId));
-
-        // Assert
-        assertThat(testRepo.count()).isEqualTo(initialTestCount);
-        assertThat(questionRepo.count()).isEqualTo(initialQuestionCount);
-        assertThat(testTopicRepo.count()).isEqualTo(initialTestTopicCount);
-    }
-
-    @Test
     @DisplayName("Успешно создание теста без вопросов и тем")
     void shouldCreateTestWithoutQuestionsAndTopics() {
         // Arrange
@@ -169,7 +131,6 @@ class TestServiceImplTestCommand extends AbstractIntegrationPostgresTest {
                 "Simple Test",
                 "Simple Desc",
                 Status.PRIVATE,
-                author.getId(),
                 emptyQuestions,
                 emptyTopicIds
         );
@@ -178,7 +139,7 @@ class TestServiceImplTestCommand extends AbstractIntegrationPostgresTest {
         long initialQuestionCount = questionRepo.count();
         long initialTestTopicCount = testTopicRepo.count();
 
-        TestModel createdTest = testCommandService.createTest(requestDto);
+        TestModel createdTest = testCommandService.createTest(requestDto, author);
 
         // Assert
         assertThat(createdTest).isNotNull();

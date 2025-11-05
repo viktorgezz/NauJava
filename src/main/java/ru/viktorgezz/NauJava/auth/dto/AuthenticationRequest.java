@@ -11,7 +11,7 @@ import jakarta.validation.constraints.Size;
  */
 public record AuthenticationRequest(
 
-        @NotBlank(message = "Имя не должен быть пустым")
+        @NotBlank(message = "Имя не должно быть пустым")
         @Size(
                 min = 2,
                 max = 255,

@@ -20,12 +20,12 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/results")
-public class ResultRestController {
+public class ResultController {
 
     private final ResultQueryService resultQueryService;
 
     @Autowired
-    public ResultRestController(ResultQueryService resultQueryService) {
+    public ResultController(ResultQueryService resultQueryService) {
         this.resultQueryService = resultQueryService;
     }
 

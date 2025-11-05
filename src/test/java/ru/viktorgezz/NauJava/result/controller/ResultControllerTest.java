@@ -30,17 +30,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 /**
- * Тесты веб-слоя для {@link ResultRestController}.
+ * Тесты веб-слоя для {@link ResultController}.
  */
 @WebMvcTest(
-        controllers = ResultRestController.class,
+        controllers = ResultController.class,
         excludeAutoConfiguration = {SecurityAutoConfiguration.class},
         excludeFilters = @ComponentScan.Filter(
                 type = FilterType.ASSIGNABLE_TYPE,
                 classes = JwtAuthenticationFilter.class
         )
 )
-class ResultRestControllerTest {
+class ResultControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

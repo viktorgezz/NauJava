@@ -3,9 +3,11 @@ package ru.viktorgezz.NauJava;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import org.testcontainers.utility.DockerImageName;
+import ru.viktorgezz.NauJava.security.service.TokenCleanupService;
 
 /**
  * Базовый класс интеграционных тестов с Testcontainers (PostgreSQL).
@@ -13,6 +15,9 @@ import org.testcontainers.utility.DockerImageName;
 @Testcontainers
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 public abstract class AbstractIntegrationPostgresTest {
+
+    @MockitoBean
+    private TokenCleanupService tokenCleanupService;
 
     private static final PostgreSQLContainer<?> POSTGRES_CONTAINER =
             new PostgreSQLContainer<>(DockerImageName.parse("postgres:18-alpine"));

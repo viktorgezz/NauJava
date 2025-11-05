@@ -28,17 +28,17 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static ru.viktorgezz.NauJava.util.CreationModel.*;
 
 /**
- * Тесты веб-слоя для {@link TestRestController}.
+ * Тесты веб-слоя для {@link TestController}.
  */
 @WebMvcTest(
-        controllers = TestRestController.class,
+        controllers = TestController.class,
         excludeAutoConfiguration = {SecurityAutoConfiguration.class},
         excludeFilters = @ComponentScan.Filter(
                 type = FilterType.ASSIGNABLE_TYPE,
                 classes = JwtAuthenticationFilter.class
         )
 )
-class TestRestControllerTest {
+class TestControllerTest {
 
     @Autowired
     private MockMvc mockMvc;

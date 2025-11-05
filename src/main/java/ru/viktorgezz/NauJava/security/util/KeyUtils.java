@@ -13,8 +13,7 @@ import java.util.Base64;
  */
 public class KeyUtils {
 
-    private KeyUtils() {
-    }
+    private KeyUtils() {}
 
     public static PrivateKey loadPrivateKey(final String pemPath) throws Exception {
         final String key = readKeyFromResource(pemPath).replace("-----BEGIN PRIVATE KEY-----","")

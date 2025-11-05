@@ -18,12 +18,12 @@ import java.util.stream.Collectors;
  */
 @RestController
 @RequestMapping("/tests")
-public class TestRestController {
+public class TestController {
 
     private final TestQueryService testQueryService;
 
     @Autowired
-    public TestRestController(TestQueryService testQueryService) {
+    public TestController(TestQueryService testQueryService) {
         this.testQueryService = testQueryService;
     }
 

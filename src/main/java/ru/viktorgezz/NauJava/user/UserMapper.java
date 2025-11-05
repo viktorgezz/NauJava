@@ -27,6 +27,13 @@ public class UserMapper {
         );
     }
 
+    /**
+     * Конвертирует {@link RegistrationRequest} и {@link Role} в {User}.
+     *
+     * @param request данные при регистрации
+     * @param role роль пользователя
+     * @return DTO пользователя
+     */
     public static User toUser(RegistrationRequest request, Role role) {
         return new User(
                 request.username(),

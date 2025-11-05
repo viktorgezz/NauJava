@@ -16,14 +16,17 @@ public class GeneratorRandomModel {
     private static final String[] PASSWORDS = {"password1", "password2", "password3"};
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
 
-    public static User getRandomUser() {
+    private GeneratorRandomModel() {
+    }
 
+    public static User getRandomUser() {
         return new User(
                 NAMES[getRandomIndex(NAMES.length)] + randomString(10),
                 PASSWORDS[getRandomIndex(PASSWORDS.length)],
                 Arrays.stream(Role.values()).findAny().orElseThrow()
         );
     }
+
     private static int getRandomIndex(int sizeArray) {
         return new Random().nextInt(sizeArray);
     }

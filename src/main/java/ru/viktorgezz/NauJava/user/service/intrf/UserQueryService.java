@@ -19,8 +19,6 @@ public interface UserQueryService extends UserDetailsService {
      */
     User getByUsername(String username);
 
-    User getById(Long id);
-
     /**
      * Поиск юзеров по роли
      * @param role роль пользователя
