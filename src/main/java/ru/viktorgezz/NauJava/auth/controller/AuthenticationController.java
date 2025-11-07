@@ -9,6 +9,7 @@ import ru.viktorgezz.NauJava.auth.dto.AuthenticationResponse;
 import ru.viktorgezz.NauJava.auth.dto.RefreshRequest;
 import ru.viktorgezz.NauJava.auth.dto.RegistrationRequest;
 import ru.viktorgezz.NauJava.auth.service.AuthenticationService;
+import ru.viktorgezz.NauJava.domain.user.Role;
 
 /**
  * REST-контроллер для операций аутентификации пользователей.
@@ -45,7 +46,7 @@ public class AuthenticationController {
             @Valid
             final RegistrationRequest request
     ){
-        authenticationService.register(request);
+        authenticationService.register(request, Role.USER);
     }
 
     @PostMapping("/refresh")

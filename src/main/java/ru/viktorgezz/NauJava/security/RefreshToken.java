@@ -1,7 +1,7 @@
 package ru.viktorgezz.NauJava.security;
 
 import jakarta.persistence.*;
-import ru.viktorgezz.NauJava.user.User;
+import ru.viktorgezz.NauJava.domain.user.User;
 
 import java.util.Date;
 

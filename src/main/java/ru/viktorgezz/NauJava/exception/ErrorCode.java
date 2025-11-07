@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus;
 public enum ErrorCode {
 
     USER_NOT_FOUND("User not found", "User with username: %s - not found", HttpStatus.NOT_FOUND),
+    REPORT_NOT_FOUND("Report not found", "Report with id: %s - not found", HttpStatus.NOT_FOUND),
     PASSWORD_MISMATCH("PASSWORD_MISMATCH", "Current password and new password are not the same", HttpStatus.BAD_REQUEST),
     BAD_CREDENTIALS("BAD_CREDENTIALS", "Username and / or password is incorrect", HttpStatus.UNAUTHORIZED),
     INTERNAL_EXCEPTION("INTERNAL_EXCEPTION", "Internal error", HttpStatus.INTERNAL_SERVER_ERROR);

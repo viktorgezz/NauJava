@@ -14,7 +14,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import ru.viktorgezz.NauJava.user.Role;
+import ru.viktorgezz.NauJava.domain.user.Role;
 
 import java.util.Arrays;
 
@@ -57,6 +57,7 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(final HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
+                .formLogin(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(auth ->
                         auth.requestMatchers(PUBLIC_URLS)
                                 .permitAll()

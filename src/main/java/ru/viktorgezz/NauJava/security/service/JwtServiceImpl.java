@@ -9,8 +9,8 @@ import org.springframework.stereotype.Service;
 import ru.viktorgezz.NauJava.security.util.KeyUtils;
 import ru.viktorgezz.NauJava.security.RefreshToken;
 import ru.viktorgezz.NauJava.security.RefreshTokenRepo;
-import ru.viktorgezz.NauJava.user.User;
-import ru.viktorgezz.NauJava.user.service.intrf.UserQueryService;
+import ru.viktorgezz.NauJava.domain.user.User;
+import ru.viktorgezz.NauJava.domain.user.service.intrf.UserQueryService;
 import ru.viktorgezz.NauJava.security.JwtProperties;
 
 import java.security.PrivateKey;

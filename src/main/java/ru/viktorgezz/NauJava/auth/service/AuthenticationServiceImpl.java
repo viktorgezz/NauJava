@@ -15,10 +15,10 @@ import ru.viktorgezz.NauJava.auth.dto.RegistrationRequest;
 import ru.viktorgezz.NauJava.exception.BusinessException;
 import ru.viktorgezz.NauJava.exception.ErrorCode;
 import ru.viktorgezz.NauJava.security.service.JwtService;
-import ru.viktorgezz.NauJava.user.Role;
-import ru.viktorgezz.NauJava.user.User;
-import ru.viktorgezz.NauJava.user.UserMapper;
-import ru.viktorgezz.NauJava.user.service.intrf.UserCommandService;
+import ru.viktorgezz.NauJava.domain.user.Role;
+import ru.viktorgezz.NauJava.domain.user.User;
+import ru.viktorgezz.NauJava.domain.user.UserMapper;
+import ru.viktorgezz.NauJava.domain.user.service.intrf.UserCommandService;
 
 /**
  * Сервис аутентификации пользователей. Реализует {@link AuthenticationService}.
@@ -69,9 +69,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     @Override
-    public void register(RegistrationRequest request) {
+    public void register(RegistrationRequest request, Role role) {
         checkPasswords(request.password(), request.confirmPassword());
-        final User user = UserMapper.toUser(request, Role.USER);
+        final User user = UserMapper.toUser(request, role);
         user.setPassword(passwordEncoder.encode(request.password()));
         userCommandService.save(user);
         log.debug("Registering user: {}", user);
