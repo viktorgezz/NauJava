@@ -1,7 +1,7 @@
 package ru.viktorgezz.NauJava.util;
 
-import ru.viktorgezz.NauJava.user.Role;
-import ru.viktorgezz.NauJava.user.User;
+import ru.viktorgezz.NauJava.domain.user.Role;
+import ru.viktorgezz.NauJava.domain.user.User;
 
 import java.util.Arrays;
 import java.util.Random;

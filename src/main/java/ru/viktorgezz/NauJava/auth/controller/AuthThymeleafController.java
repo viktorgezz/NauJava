@@ -16,6 +16,7 @@ import ru.viktorgezz.NauJava.auth.dto.RegistrationRequest;
 import ru.viktorgezz.NauJava.auth.service.AuthenticationService;
 import ru.viktorgezz.NauJava.security.JwtProperties;
 import ru.viktorgezz.NauJava.security.util.CookieUtil;
+import ru.viktorgezz.NauJava.domain.user.Role;
 
 /**
  * Контроллер (Thymeleaf) для регистрации и входа пользователей.
@@ -48,7 +49,7 @@ public class AuthThymeleafController {
             @RequestParam("confirmPassword") @NotBlank String confirmPassword
     ) {
         RegistrationRequest rq = new RegistrationRequest(username, password, confirmPassword);
-        authenticationService.register(rq);
+        authenticationService.register(rq, Role.USER);
         return "redirect:/ui/auth/login";
     }
 

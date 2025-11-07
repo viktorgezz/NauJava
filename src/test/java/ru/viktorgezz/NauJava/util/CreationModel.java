@@ -1,13 +1,15 @@
 package ru.viktorgezz.NauJava.util;
 
-import ru.viktorgezz.NauJava.question.Question;
-import ru.viktorgezz.NauJava.question.Type;
-import ru.viktorgezz.NauJava.result.Grade;
-import ru.viktorgezz.NauJava.result.Result;
-import ru.viktorgezz.NauJava.test.Status;
-import ru.viktorgezz.NauJava.test.TestModel;
-import ru.viktorgezz.NauJava.topic.Topic;
-import ru.viktorgezz.NauJava.user.User;
+import ru.viktorgezz.NauJava.domain.question.Question;
+import ru.viktorgezz.NauJava.domain.question.Type;
+import ru.viktorgezz.NauJava.domain.report.StatusReport;
+import ru.viktorgezz.NauJava.domain.report.ReportUserCountResultsModel;
+import ru.viktorgezz.NauJava.domain.result.Grade;
+import ru.viktorgezz.NauJava.domain.result.Result;
+import ru.viktorgezz.NauJava.domain.test.Status;
+import ru.viktorgezz.NauJava.domain.test.TestModel;
+import ru.viktorgezz.NauJava.domain.topic.Topic;
+import ru.viktorgezz.NauJava.domain.user.User;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -38,6 +40,24 @@ public class CreationModel {
         testModel.setStatus(status);
         testModel.setAuthor(author);
         return testModel;
+    }
+
+    public static ReportUserCountResultsModel createUserCountResultReportModel(
+            StatusReport status,
+            Long countUsers,
+            LocalDateTime completedAt,
+            Long timeSpentSearchingForUsersMillis,
+            Long timeSpentSearchingForResultsMillis,
+            Long timeSpentCommonMillis
+            ) {
+        return new ReportUserCountResultsModel(
+                status,
+                countUsers,
+                timeSpentSearchingForUsersMillis,
+                timeSpentSearchingForResultsMillis,
+                timeSpentCommonMillis,
+                completedAt
+                );
     }
 
     public static User createRandomUser() {
