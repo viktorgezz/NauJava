@@ -1,11 +1,9 @@
-package ru.viktorgezz.NauJava.domain.report;
+package ru.viktorgezz.NauJava.domain.report.model;
 
 import jakarta.persistence.*;
-import ru.viktorgezz.NauJava.domain.many_to_many_entity.user_count_result_report.UserResultReport;
+import ru.viktorgezz.NauJava.domain.report.StatusReport;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * Модель отчета, которые собирает данные о результатах {@link ru.viktorgezz.NauJava.domain.result.Result}
@@ -26,12 +24,9 @@ public class ReportUserCountResultsModel {
     @Column
     private Long countUsers;
 
-    // TODO Вопрос: можно ли здесь хранить значения в качестве JSON с помощью `@Convert`
-//    @Column(nullable = true)
-//    private List<ResultResponse> results;
-
-    @OneToMany(mappedBy = "reportUserCountResultsModel", fetch = FetchType.EAGER)
-    private List<UserResultReport> userResultReports = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "id_report_result_data")
+    private ReportResultData reportResultData;
 
     @Column
     private Long timeSpentSearchingForUsersMillis;
@@ -77,14 +72,6 @@ public class ReportUserCountResultsModel {
         this.countUsers = countUsers;
     }
 
-    public List<UserResultReport> getUserResultReports() {
-        return new ArrayList<>(userResultReports);
-    }
-
-    public void setUserResultReports(List<UserResultReport> userResultReports) {
-        this.userResultReports = userResultReports;
-    }
-
     public Long getTimeSpentSearchingForUsersMillis() {
         return timeSpentSearchingForUsersMillis;
     }
@@ -123,5 +110,13 @@ public class ReportUserCountResultsModel {
 
     public void setStatus(StatusReport status) {
         this.status = status;
+    }
+
+    public ReportResultData getReportResultData() {
+        return reportResultData;
+    }
+
+    public void setReportResultData(ReportResultData reportResultData) {
+        this.reportResultData = reportResultData;
     }
 }

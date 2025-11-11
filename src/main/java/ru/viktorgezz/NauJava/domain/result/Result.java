@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.hibernate.proxy.HibernateProxy;
-import ru.viktorgezz.NauJava.domain.many_to_many_entity.user_count_result_report.UserResultReport;
 import ru.viktorgezz.NauJava.domain.test.TestModel;
 import ru.viktorgezz.NauJava.domain.user.User;
 import ru.viktorgezz.NauJava.domain.user_answer.UserAnswer;
@@ -56,12 +55,6 @@ public class Result {
             orphanRemoval = true
     )
     private List<UserAnswer> userAnswers = new ArrayList<>();
-
-    @OneToMany(
-            mappedBy = "result",
-            fetch = FetchType.LAZY
-    )
-    private List<UserResultReport> userResultReports = new ArrayList<>();
 
     public Result() {
     }
@@ -149,11 +142,4 @@ public class Result {
         this.userAnswers = userAnswers;
     }
 
-    public List<UserResultReport> getUserResultReports() {
-        return userResultReports;
-    }
-
-    public void setUserResultReports(List<UserResultReport> reportsCountUserAndResult) {
-        this.userResultReports = reportsCountUserAndResult;
-    }
 }

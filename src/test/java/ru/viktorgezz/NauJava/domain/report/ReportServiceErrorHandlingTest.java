@@ -7,7 +7,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.domain.report.dto.ReportUserCountResultsResponse;
-import ru.viktorgezz.NauJava.domain.report.service.ReportService;
+import ru.viktorgezz.NauJava.domain.report.model.ReportUserCountResultsModel;
+import ru.viktorgezz.NauJava.domain.report.repo.UserCountResultReportRepo;
+import ru.viktorgezz.NauJava.domain.report.service.intrf.ReportService;
 import ru.viktorgezz.NauJava.domain.result.service.intrf.ResultQueryService;
 import ru.viktorgezz.NauJava.domain.user.service.intrf.UserQueryService;
 
@@ -55,12 +57,12 @@ class ReportServiceErrorHandlingTest extends AbstractIntegrationPostgresTest {
                 .thenReturn(List.of());
 
         // Act
-        CompletableFuture<ReportUserCountResultsResponse> resultReportFuture = reportService.generationReport(idReport);
+        CompletableFuture<ReportUserCountResultsResponse> resultReportFuture = reportService.generateReportAsync(idReport);
 
         // Assert - проверяем, что CompletableFuture завершился с ошибкой
         ExecutionException executionException = assertThrows(ExecutionException.class, resultReportFuture::get);
         assertThat(executionException.getCause()).isInstanceOf(RuntimeException.class);
-        assertThat(executionException.getCause().getMessage()).isEqualTo("Ошибка при генерации отчета");
+        assertThat(executionException.getCause().getMessage()).isEqualTo("Ошибка при подсчете пользователей");
 
         ReportUserCountResultsModel reportAfterError = userCountResultReportRepo.findById(idReport).orElseThrow();
         assertThat(reportAfterError.getStatus()).isEqualTo(StatusReport.ERROR);
@@ -82,12 +84,12 @@ class ReportServiceErrorHandlingTest extends AbstractIntegrationPostgresTest {
                 .thenThrow(new RuntimeException("Ошибка при получении результатов"));
 
         // Act
-        CompletableFuture<ReportUserCountResultsResponse> resultReportFuture = reportService.generationReport(idReport);
+        CompletableFuture<ReportUserCountResultsResponse> resultReportFuture = reportService.generateReportAsync(idReport);
 
         // Assert - проверяем, что CompletableFuture завершился с ошибкой
         ExecutionException executionException = assertThrows(ExecutionException.class, resultReportFuture::get);
         assertThat(executionException.getCause()).isInstanceOf(RuntimeException.class);
-        assertThat(executionException.getCause().getMessage()).isEqualTo("Ошибка при генерации отчета");
+        assertThat(executionException.getCause().getMessage()).isEqualTo("Ошибка при получении результатов");
 
         ReportUserCountResultsModel reportAfterError = userCountResultReportRepo.findById(idReport).orElseThrow();
         assertThat(reportAfterError.getStatus()).isEqualTo(StatusReport.ERROR);
@@ -109,7 +111,7 @@ class ReportServiceErrorHandlingTest extends AbstractIntegrationPostgresTest {
                 .thenThrow(new RuntimeException("Ошибка при получении результатов"));
 
         // Act
-        CompletableFuture<ReportUserCountResultsResponse> resultReportFuture = reportService.generationReport(idReport);
+        CompletableFuture<ReportUserCountResultsResponse> resultReportFuture = reportService.generateReportAsync(idReport);
 
         // Assert - проверяем, что CompletableFuture завершился с ошибкой
         assertThrows(ExecutionException.class, () -> {
@@ -117,7 +119,7 @@ class ReportServiceErrorHandlingTest extends AbstractIntegrationPostgresTest {
                 resultReportFuture.get();
             } catch (ExecutionException e) {
                 assertThat(e.getCause()).isInstanceOf(RuntimeException.class);
-                assertThat(e.getCause().getMessage()).isEqualTo("Ошибка при генерации отчета");
+                assertThat(e.getCause().getMessage()).isEqualTo("Ошибка при подсчете пользователей");
                 throw e;
             }
         });
@@ -142,11 +144,11 @@ class ReportServiceErrorHandlingTest extends AbstractIntegrationPostgresTest {
                 .thenReturn(List.of());
 
         // Act
-        CompletableFuture<ReportUserCountResultsResponse> resultReportFuture = reportService.generationReport(idReport);
+        CompletableFuture<ReportUserCountResultsResponse> resultReportFuture = reportService.generateReportAsync(idReport);
 
         // Assert
         ExecutionException exception = assertThrows(ExecutionException.class, resultReportFuture::get);
         assertThat(exception.getCause()).isInstanceOf(RuntimeException.class);
-        assertThat(exception.getCause().getMessage()).isEqualTo("Ошибка при генерации отчета");
+        assertThat(exception.getCause().getMessage()).isEqualTo("Тестовая ошибка");
     }
 }

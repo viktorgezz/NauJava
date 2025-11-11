@@ -6,11 +6,13 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
-import ru.viktorgezz.NauJava.domain.many_to_many_entity.user_count_result_report.UserResultReport;
-import ru.viktorgezz.NauJava.domain.many_to_many_entity.user_count_result_report.UserResultReportRepo;
 import ru.viktorgezz.NauJava.domain.report.dto.ResultResponse;
 import ru.viktorgezz.NauJava.domain.report.dto.ReportUserCountResultsResponse;
-import ru.viktorgezz.NauJava.domain.report.service.ReportService;
+import ru.viktorgezz.NauJava.domain.report.model.ReportResultData;
+import ru.viktorgezz.NauJava.domain.report.model.ReportUserCountResultsModel;
+import ru.viktorgezz.NauJava.domain.report.repo.UserCountResultReportRepo;
+import ru.viktorgezz.NauJava.domain.report.service.intrf.ReportResultDataService;
+import ru.viktorgezz.NauJava.domain.report.service.intrf.ReportService;
 import ru.viktorgezz.NauJava.domain.result.Grade;
 import ru.viktorgezz.NauJava.domain.result.Result;
 import ru.viktorgezz.NauJava.domain.result.repo.ResultRepo;
@@ -24,6 +26,7 @@ import ru.viktorgezz.NauJava.exception.ErrorCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -44,7 +47,8 @@ class ReportServiceTest extends AbstractIntegrationPostgresTest {
     @Autowired
     private UserCountResultReportRepo userCountResultReportRepo;
     @Autowired
-    private UserResultReportRepo userResultReportRepo;
+    private ReportResultDataService reportResultDataService;
+
     @Autowired
     private ResultRepo resultRepo;
     @Autowired
@@ -54,7 +58,6 @@ class ReportServiceTest extends AbstractIntegrationPostgresTest {
 
     private User participant;
     private TestModel testModel;
-    private Result result;
     private ReportUserCountResultsModel report;
 
     @BeforeEach
@@ -71,23 +74,30 @@ class ReportServiceTest extends AbstractIntegrationPostgresTest {
 
         Result resultToSave = createResult(participant, Grade.A, new BigDecimal("95.5"));
         resultToSave.setTest(testModel);
-        result = resultRepo.save(resultToSave);
+        Result result = resultRepo.save(resultToSave);
 
-        report =  createUserCountResultReportModel(
+        List<ResultResponse> resultResponses = new ArrayList<>(List
+                .of(
+                        ReportMapper.toDto(result, participant.getUsername(), testModel.getTitle())
+                )
+        );
+        ReportResultData reportResultData = reportResultDataService.findOrCreate(resultResponses);
+
+        report = createUserCountResultReportModel(
                 StatusReport.FINISHED,
                 120L,
+                reportResultData,
                 LocalDateTime.now().minusHours(1),
                 2000L,
                 2000L,
                 5000L
         );
+
         report = userCountResultReportRepo.save(report);
-        linkAndSaveReport(report, result);
     }
 
     @AfterEach
     void tearDown() {
-        userResultReportRepo.deleteAll();
         userCountResultReportRepo.deleteAll();
         resultRepo.deleteAll();
         testRepo.deleteAll();
@@ -139,30 +149,27 @@ class ReportServiceTest extends AbstractIntegrationPostgresTest {
         ReportUserCountResultsModel createdReport = userCountResultReportRepo.save(
                 new ReportUserCountResultsModel(StatusReport.CREATED)
         );
-        Long reportId = createdReport.getId();
+        Long idReport = createdReport.getId();
 
-        CompletableFuture<ReportUserCountResultsResponse> reportGeneratedFuture = reportService.generationReport(reportId);
+        CompletableFuture<ReportUserCountResultsResponse> reportGeneratedFuture = reportService.generateReportAsync(idReport);
 
         ReportUserCountResultsResponse reportGenerated = reportGeneratedFuture.get();
         assertThat(reportGenerated).isNotNull();
         assertThat(reportGenerated.status()).isEqualTo(StatusReport.FINISHED);
 
-        long expectedUserCount = userRepo.count();
-        assertThat(reportGenerated.countUsers()).isEqualTo(expectedUserCount);
+        long countUserExpected = userRepo.count();
+        assertThat(reportGenerated.countUsers()).isEqualTo(countUserExpected);
 
-        long expectedResultCount = resultRepo.count();
-        assertThat(reportGenerated.resultResponses()).hasSize(Math.toIntExact(expectedResultCount));
+        long countResultExpected = resultRepo.count();
+        assertThat(reportGenerated.resultResponses()).hasSize(Math.toIntExact(countResultExpected));
         assertThat(reportGenerated.resultResponses().getFirst().titleTest()).isEqualTo(testModel.getTitle());
 
-        ReportUserCountResultsModel reportFinished = userCountResultReportRepo.findById(reportId).orElseThrow();
+        ReportUserCountResultsModel reportFinished = userCountResultReportRepo.findByIdWithResults(idReport).orElseThrow();
         assertThat(reportFinished.getStatus()).isEqualTo(StatusReport.FINISHED);
-        assertThat(reportFinished.getCountUsers()).isEqualTo(expectedUserCount);
+        assertThat(reportFinished.getCountUsers()).isEqualTo(countUserExpected);
 
-        List<UserResultReport> links = userResultReportRepo.findAll();
-        long reportLinks = links.stream()
-                .filter(it -> it.getUserCountResultReportModel().getId().equals(reportId))
-                .count();
-        assertThat(reportLinks).isEqualTo(expectedResultCount);
+        long countResult = reportFinished.getReportResultData().getResults().size();
+        assertThat(countResult).isEqualTo(countResultExpected);
     }
 
     @Test
@@ -175,7 +182,7 @@ class ReportServiceTest extends AbstractIntegrationPostgresTest {
         // Act & Assert
         BusinessException exception = assertThrows(
                 BusinessException.class,
-                () -> reportService.generationReport(nonExistentId)
+                () -> reportService.generateReportAsync(nonExistentId)
         );
 
         // Assert
@@ -207,14 +214,6 @@ class ReportServiceTest extends AbstractIntegrationPostgresTest {
         assertThat(createdReport.getCountUsers()).isNull();
         assertThat(createdReport.getTimeSpentCommonMillis()).isNull();
         assertThat(createdReport.getCompletedAt()).isNull();
-        assertThat(createdReport.getUserResultReports()).isEmpty();
-    }
-
-
-    private void linkAndSaveReport(ReportUserCountResultsModel report, Result result) {
-        UserResultReport joinLink = new UserResultReport();
-        joinLink.setUserCountResultReportModel(report);
-        joinLink.setResult(result);
-        userResultReportRepo.save(joinLink);
+        assertThat(createdReport.getReportResultData()).isNull();
     }
 }

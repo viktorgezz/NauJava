@@ -2,8 +2,10 @@ package ru.viktorgezz.NauJava.domain.report;
 
 import ru.viktorgezz.NauJava.domain.report.dto.ResultResponse;
 import ru.viktorgezz.NauJava.domain.report.dto.ReportUserCountResultsResponse;
+import ru.viktorgezz.NauJava.domain.report.model.ReportUserCountResultsModel;
 import ru.viktorgezz.NauJava.domain.result.Result;
 
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -15,14 +17,17 @@ public class ReportMapper {
     }
 
     public static ReportUserCountResultsResponse toDto(
-            ReportUserCountResultsModel model,
-            List<ResultResponse> resultResponses
+            ReportUserCountResultsModel model
     ) {
+        List<ResultResponse> results = (model.getReportResultData() != null)
+                ? model.getReportResultData().getResults()
+                : Collections.emptyList();
+
         return new ReportUserCountResultsResponse(
                 model.getId(),
                 model.getStatus(),
                 model.getCountUsers(),
-                resultResponses,
+                results,
                 model.getTimeSpentSearchingForUsersMillis(),
                 model.getTimeSpentSearchingForResultsMillis(),
                 model.getTimeSpentCommonMillis(),

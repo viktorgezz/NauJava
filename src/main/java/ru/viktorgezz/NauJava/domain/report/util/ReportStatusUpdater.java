@@ -7,8 +7,8 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import ru.viktorgezz.NauJava.domain.report.StatusReport;
-import ru.viktorgezz.NauJava.domain.report.ReportUserCountResultsModel;
-import ru.viktorgezz.NauJava.domain.report.UserCountResultReportRepo;
+import ru.viktorgezz.NauJava.domain.report.model.ReportUserCountResultsModel;
+import ru.viktorgezz.NauJava.domain.report.repo.UserCountResultReportRepo;
 import ru.viktorgezz.NauJava.exception.BusinessException;
 import ru.viktorgezz.NauJava.exception.ErrorCode;
 
@@ -16,6 +16,7 @@ import ru.viktorgezz.NauJava.exception.ErrorCode;
  * Утилитный класс для обновления статуса отчета.
  * Использует отдельную транзакцию для гарантии сохранения статуса ERROR
  * даже при откате основной транзакции.
+ * Сохраняет отчет с FINISHED статусом
  */
 @Component
 public class ReportStatusUpdater {
@@ -37,5 +38,10 @@ public class ReportStatusUpdater {
         report.setStatus(StatusReport.ERROR);
         userCountResultReportRepo.save(report);
         log.debug("Статус ERROR успешно сохранен для отчета id={}", idReport);
+    }
+
+    @Transactional
+    public void saveFinishedStatus(ReportUserCountResultsModel report) {
+        userCountResultReportRepo.save(report);
     }
 }

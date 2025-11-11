@@ -10,12 +10,13 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.viktorgezz.NauJava.domain.report.dto.ReportUserCountResultsResponse;
-import ru.viktorgezz.NauJava.domain.report.service.ReportService;
+import ru.viktorgezz.NauJava.domain.report.model.ReportUserCountResultsModel;
+import ru.viktorgezz.NauJava.domain.report.service.intrf.ReportService;
 
 import java.util.List;
 
 /**
- * Контроллер UI (Thymeleaf) для работы с отчетами {@link ru.viktorgezz.NauJava.domain.report.ReportUserCountResultsModel}.
+ * Контроллер UI (Thymeleaf) для работы с отчетами {@link ReportUserCountResultsModel}.
  */
 @Controller
 @RequestMapping("/ui/reports")
@@ -36,7 +37,7 @@ public class ReportThymeleafController {
             Model model
     ) {
         try {
-            List<ReportUserCountResultsResponse> allReports = reportService.findAllWithFullResults();
+            List<ReportUserCountResultsResponse> allReports = reportService.findAll();
             model.addAttribute("allReports", allReports);
         } catch (Exception e) {
             log.error("Не удалось загрузить список отчетов", e);
@@ -59,7 +60,7 @@ public class ReportThymeleafController {
     @PostMapping("/create")
     public String createNewReport() {
         Long idNewReport = reportService.createReport();
-        reportService.generationReport(idNewReport);
+        reportService.generateReportAsync(idNewReport);
 
         return "redirect:/ui/reports";
     }

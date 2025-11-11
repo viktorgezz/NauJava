@@ -1,6 +1,6 @@
-package ru.viktorgezz.NauJava.domain.report.service;
+package ru.viktorgezz.NauJava.domain.report.service.intrf;
 
-import ru.viktorgezz.NauJava.domain.report.ReportUserCountResultsModel;
+import ru.viktorgezz.NauJava.domain.report.model.ReportUserCountResultsModel;
 import ru.viktorgezz.NauJava.domain.report.dto.ReportUserCountResultsResponse;
 
 import java.util.List;
@@ -15,8 +15,7 @@ public interface ReportService {
 
     Long createReport();
 
-    CompletableFuture<ReportUserCountResultsResponse> generationReport(Long id);
+    CompletableFuture<ReportUserCountResultsResponse> generateReportAsync(Long id);
 
-    List<ReportUserCountResultsResponse> findAllWithFullResults();
-
+    List<ReportUserCountResultsResponse> findAll();
 }

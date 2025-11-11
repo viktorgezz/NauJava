@@ -2,9 +2,9 @@ package ru.viktorgezz.NauJava.domain.report.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
-import ru.viktorgezz.NauJava.domain.report.ReportUserCountResultsModel;
+import ru.viktorgezz.NauJava.domain.report.model.ReportUserCountResultsModel;
 import ru.viktorgezz.NauJava.domain.report.dto.ReportUserCountResultsResponse;
-import ru.viktorgezz.NauJava.domain.report.service.ReportService;
+import ru.viktorgezz.NauJava.domain.report.service.intrf.ReportService;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ public class ReportController {
     @PostMapping
     public Long createTestResult() {
         Long idNewReport = reportService.createReport();
-        reportService.generationReport(idNewReport);
+        reportService.generateReportAsync(idNewReport);
         return idNewReport;
     }
 
@@ -33,8 +33,9 @@ public class ReportController {
     public ReportUserCountResultsResponse getById(@PathVariable(name = "id_report") Long idReport) {
         return reportService.findById(idReport);
     }
+
     @GetMapping
     public List<ReportUserCountResultsResponse> getAll() {
-        return reportService.findAllWithFullResults();
+        return reportService.findAll();
     }
 }

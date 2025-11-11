@@ -3,7 +3,9 @@ package ru.viktorgezz.NauJava.util;
 import ru.viktorgezz.NauJava.domain.question.Question;
 import ru.viktorgezz.NauJava.domain.question.Type;
 import ru.viktorgezz.NauJava.domain.report.StatusReport;
-import ru.viktorgezz.NauJava.domain.report.ReportUserCountResultsModel;
+import ru.viktorgezz.NauJava.domain.report.model.ReportResultData;
+import ru.viktorgezz.NauJava.domain.report.model.ReportUserCountResultsModel;
+import ru.viktorgezz.NauJava.domain.report.dto.ResultResponse;
 import ru.viktorgezz.NauJava.domain.result.Grade;
 import ru.viktorgezz.NauJava.domain.result.Result;
 import ru.viktorgezz.NauJava.domain.test.Status;
@@ -13,6 +15,7 @@ import ru.viktorgezz.NauJava.domain.user.User;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.Random;
 
 /**
  * Утилиты для создания тестовых моделей.
@@ -45,18 +48,37 @@ public class CreationModel {
     public static ReportUserCountResultsModel createUserCountResultReportModel(
             StatusReport status,
             Long countUsers,
+            ReportResultData reportResultData,
             LocalDateTime completedAt,
             Long timeSpentSearchingForUsersMillis,
             Long timeSpentSearchingForResultsMillis,
             Long timeSpentCommonMillis
-            ) {
-        return new ReportUserCountResultsModel(
+    ) {
+        ReportUserCountResultsModel reportUserCountResultsModel = new ReportUserCountResultsModel(
                 status,
                 countUsers,
                 timeSpentSearchingForUsersMillis,
                 timeSpentSearchingForResultsMillis,
                 timeSpentCommonMillis,
                 completedAt
+        );
+        reportUserCountResultsModel.setReportResultData(reportResultData);
+        return reportUserCountResultsModel;
+    }
+
+    public static ResultResponse createResultResponse(
+            BigDecimal score,
+            Grade grade,
+            String usernameParticipant,
+            String titleTest
+    ) {
+        return new ResultResponse(
+                score,
+                grade,
+                new Random().nextInt()*15,
+                LocalDateTime.now(),
+                usernameParticipant,
+                titleTest
                 );
     }
 
