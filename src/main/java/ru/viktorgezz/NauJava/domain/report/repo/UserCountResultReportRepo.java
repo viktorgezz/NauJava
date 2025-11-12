@@ -15,13 +15,16 @@ import java.util.Optional;
 public interface UserCountResultReportRepo extends CrudRepository<ReportUserCountResultsModel, Long> {
 
     @NonNull
-    @Query("SELECT report FROM ReportUserCountResultsModel report " +
-            "LEFT JOIN FETCH report.reportResultData")
+    @Query("""
+            SELECT report FROM ReportUserCountResultsModel report
+            LEFT JOIN FETCH report.reportResultData
+            """)
     List<ReportUserCountResultsModel> findAll();
 
-    @Query("SELECT report FROM ReportUserCountResultsModel report " +
-            "LEFT JOIN FETCH report.reportResultData " +
-            "WHERE report.id = :idReport"
-    )
+    @Query("""
+            SELECT report FROM ReportUserCountResultsModel report
+            LEFT JOIN FETCH report.reportResultData
+            WHERE report.id = :idReport
+            """)
     Optional<ReportUserCountResultsModel> findByIdWithResults(@Param("idReport") Long id);
 }
