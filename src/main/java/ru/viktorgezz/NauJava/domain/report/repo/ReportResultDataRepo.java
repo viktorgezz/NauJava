@@ -1,6 +1,8 @@
 package ru.viktorgezz.NauJava.domain.report.repo;
 
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
+import org.springframework.data.repository.query.Param;
 import ru.viktorgezz.NauJava.domain.report.model.ReportResultData;
 
 import java.util.Optional;
@@ -10,5 +12,6 @@ import java.util.Optional;
  */
 public interface ReportResultDataRepo extends CrudRepository<ReportResultData, Long> {
 
-    Optional<ReportResultData> findByResultsHash(String resultsHash);
+    @Query("SELECT rrd FROM ReportResultData rrd LEFT JOIN FETCH rrd.reports WHERE rrd.resultsHash = :resultsHash")
+    Optional<ReportResultData> findByResultsHash(@Param("resultsHash") String resultsHash);
 }
