@@ -33,19 +33,17 @@ class ResultQueryServiceTest extends AbstractIntegrationPostgresTest {
     private UserRepo userRepo;
 
     private User user1;
-    private User user2;
     private Result result1; // User1, Grade A, 95.0
     private Result result2; // User1, Grade B, 85.0
-    private Result result3; // User2, Grade A, 92.0
 
     @BeforeEach
     void setUp() {
         user1 = userRepo.save(createRandomUser());
-        user2 = userRepo.save(createRandomUser());
+        User user2 = userRepo.save(createRandomUser());
 
         result1 = resultRepo.save(createResult(user1, Grade.A, new BigDecimal("95.0")));
         result2 = resultRepo.save(createResult(user1, Grade.B, new BigDecimal("85.0")));
-        result3 = resultRepo.save(createResult(user2, Grade.A, new BigDecimal("92.0")));
+        resultRepo.save(createResult(user2, Grade.A, new BigDecimal("92.0")));
     }
 
     @AfterEach

@@ -37,7 +37,7 @@ public class ReportResultDataServiceImpl implements ReportResultDataService {
     @Transactional
     public ReportResultData findOrCreate(List<ResultResponse> results) {
         if (results == null) {
-            throw new RuntimeException("results is null");
+            throw new IllegalArgumentException("results is null");
         }
         try {
             String jsonResults = objectMapper.writeValueAsString(results);
@@ -52,7 +52,7 @@ public class ReportResultDataServiceImpl implements ReportResultDataService {
             return reportResultDataRepo.save(reportResultData);
 
         } catch (JsonProcessingException e) {
-            throw new RuntimeException("Ошибка сериализации DTO ResultResponse", e);
+            throw new IllegalStateException("Ошибка сериализации DTO ResultResponse", e);
         }
     }
 }

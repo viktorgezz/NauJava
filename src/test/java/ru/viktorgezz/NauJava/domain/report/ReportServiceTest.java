@@ -200,8 +200,7 @@ class ReportServiceTest extends AbstractIntegrationPostgresTest {
         Long idNewReport = reportService.createReport();
 
         // Assert
-        assertThat(idNewReport).isNotNull();
-        assertThat(idNewReport).isNotEqualTo(report.getId());
+        assertThat(idNewReport).isNotNull().isNotEqualTo(report.getId());
 
         long finalReportCount = userCountResultReportRepo.count();
         assertThat(finalReportCount).isEqualTo(initialReportCount + 1);

@@ -12,6 +12,9 @@ import java.util.Optional;
  */
 public interface ReportResultDataRepo extends CrudRepository<ReportResultData, Long> {
 
-    @Query("SELECT rrd FROM ReportResultData rrd LEFT JOIN FETCH rrd.reports WHERE rrd.resultsHash = :resultsHash")
+    @Query("SELECT reportData FROM ReportResultData reportData " +
+            "LEFT JOIN FETCH reportData.reports " +
+            "WHERE reportData.resultsHash = :resultsHash"
+    )
     Optional<ReportResultData> findByResultsHash(@Param("resultsHash") String resultsHash);
 }

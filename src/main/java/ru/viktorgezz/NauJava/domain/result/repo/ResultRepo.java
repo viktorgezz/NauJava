@@ -44,20 +44,4 @@ public interface ResultRepo extends CrudRepository<Result, Long> {
     )
     List<Result> findAllWithParticipantUsernameAndTitleTest();
 
-//    // ...
-//    // полный путь к ResultResponse должен быть правильный правильный
-//    @Query(
-//            "SELECT new ru.viktorgezz.NauJava.domain.report.dto.ResultResponse( " +
-//                    "   r.score, " +
-//                    "   r.grade, " +
-//                    "   r.timeSpentSeconds, " +
-//                    "   r.completedAt, " +
-//                    "   p.username, " + // <-- Берем только username из participant
-//                    "   t.title " +     // <-- Берем только title из test
-//                    ") " +
-//                    "FROM Result r " + // Нам нужен Result (r)
-//                    "JOIN r.participant p " + // к нему присоединяем User (p)
-//                    "JOIN r.test t"           // и к нему присоединяем TestModel (t)
-//    )
-//    List<ResultResponse> findAllAsResultResponse(); // <-- ИЗМЕНЕН ТИП
 }
