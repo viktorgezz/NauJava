@@ -32,12 +32,12 @@ public class TestQueryServiceImpl implements TestQueryService {
     }
 
     @Override
-    public List<TestModel> findByTitle(String title) {
-        return testRepo.findByTitle(title);
+    public List<TestModel> findAllByTitle(String title) {
+        return testRepo.findAllByTitle(title);
     }
 
     @Override
-    public List<TestModel> findTestsByTopicTitles(List<String> topicTitles) {
+    public List<TestModel> findTestsByTopicsTitle(List<String> topicTitles) {
         return testRepo.findTestsByTopicTitles(topicTitles);
     }
 

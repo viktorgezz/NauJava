@@ -19,7 +19,7 @@ public interface TestRepo extends CrudRepository<TestModel, Long> {
      * @param title название теста
      * @return List<TestModel>
      */
-    List<TestModel> findByTitle(String title);
+    List<TestModel> findAllByTitle(String title);
 
     /**
      * Поиск тестов по списку названий тем.

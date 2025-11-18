@@ -14,7 +14,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
+import ru.viktorgezz.NauJava.testconfig.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.auth.dto.RegistrationRequest;
 import ru.viktorgezz.NauJava.auth.service.AuthenticationService;
 import ru.viktorgezz.NauJava.security.service.JwtService;

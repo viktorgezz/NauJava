@@ -14,7 +14,7 @@ public interface TopicService {
 
     Topic save(Topic topic);
 
-    Set<Topic> findAllById(Set<Long> idsTopic);
+    Set<Topic> findAllByIds(Set<Long> idsTopic);
 
-    void saveAndLinkAll(Set<Topic> foundTopics, TestModel newTest);
+    void saveAndLinkAll(Set<Topic> topics, TestModel testNew);
 }

@@ -26,9 +26,9 @@ public class ResultQueryServiceImpl implements ResultQueryService {
     @Override
     public List<Result> findAllByGradeAndParticipantId(
             Grade grade,
-            Long userId
+            Long idUser
     ) {
-        return resultRepo.findAllByGradeAndParticipantId(grade, userId);
+        return resultRepo.findAllByGradeAndParticipantId(grade, idUser);
     }
 
     @Override

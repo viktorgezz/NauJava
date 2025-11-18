@@ -10,7 +10,6 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.viktorgezz.NauJava.domain.test.controller.TestController;
 import ru.viktorgezz.NauJava.security.JwtAuthenticationFilter;
 import ru.viktorgezz.NauJava.domain.test.Status;
 import ru.viktorgezz.NauJava.domain.test.TestModel;
@@ -58,7 +57,7 @@ class TestControllerTest {
         TestModel testModel2 = createTest("Java Core Test", "Another", Status.UNLISTED, author);
         testModel2.setId(2L);
 
-        given(testQueryService.findByTitle("Java Core Test"))
+        given(testQueryService.findAllByTitle("Java Core Test"))
                 .willReturn(List.of(testModel1, testModel2));
 
         mockMvc.perform(get("/tests/search/title")
@@ -68,7 +67,7 @@ class TestControllerTest {
                 .andExpect(jsonPath("$[0].title").value("Java Core Test"))
                 .andExpect(jsonPath("$[1].title").value("Java Core Test"));
 
-        verify(testQueryService).findByTitle("Java Core Test");
+        verify(testQueryService).findAllByTitle("Java Core Test");
         verifyNoMoreInteractions(testQueryService);
     }
 
@@ -83,7 +82,7 @@ class TestControllerTest {
         TestModel testModel2 = createTest("SQL Basics", "SQL", Status.PUBLIC, author);
         testModel2.setId(11L);
 
-        given(testQueryService.findTestsByTopicTitles(anyList()))
+        given(testQueryService.findTestsByTopicsTitle(anyList()))
                 .willReturn(List.of(testModel1, testModel2));
 
         mockMvc.perform(get("/tests/search/topics")
@@ -93,7 +92,7 @@ class TestControllerTest {
                 .andExpect(jsonPath("$[?(@.title=='Java & Spring')]").exists())
                 .andExpect(jsonPath("$[?(@.title=='SQL Basics')]").exists());
 
-        verify(testQueryService).findTestsByTopicTitles(List.of("Java Basics", "SQL"));
+        verify(testQueryService).findTestsByTopicsTitle(List.of("Java Basics", "SQL"));
         verifyNoMoreInteractions(testQueryService);
     }
 }

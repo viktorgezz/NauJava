@@ -1,4 +1,4 @@
-package ru.viktorgezz.NauJava;
+package ru.viktorgezz.NauJava.testconfig;
 
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;

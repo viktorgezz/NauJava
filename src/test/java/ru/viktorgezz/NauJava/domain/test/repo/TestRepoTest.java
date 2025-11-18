@@ -5,10 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
+import ru.viktorgezz.NauJava.testconfig.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.domain.test.Status;
 import ru.viktorgezz.NauJava.domain.test.TestModel;
-import ru.viktorgezz.NauJava.domain.test.repo.TestRepo;
 import ru.viktorgezz.NauJava.domain.many_to_many_entity.test_topic.TestTopic;
 import ru.viktorgezz.NauJava.domain.many_to_many_entity.test_topic.TestTopicRepo;
 import ru.viktorgezz.NauJava.domain.topic.Topic;
@@ -63,7 +62,7 @@ class TestRepoTest extends AbstractIntegrationPostgresTest {
 
     @Test
     @DisplayName("Поиск тестов по точному названию")
-    void findByTitle_shouldReturnMatchingTests() {
+    void findAllByTitle_shouldReturnMatchingTests() {
         // Arrange
         String targetTitle = "Java Core Test";
         testRepo.save(createTest(targetTitle, "Test on core Java concepts", Status.PUBLIC, author1));
@@ -71,7 +70,7 @@ class TestRepoTest extends AbstractIntegrationPostgresTest {
         testRepo.save(createTest(targetTitle, "Another test with the same title", Status.PUBLIC, author1));
 
         // Act
-        List<TestModel> foundTests = testRepo.findByTitle(targetTitle);
+        List<TestModel> foundTests = testRepo.findAllByTitle(targetTitle);
 
         // Assert
         assertThat(foundTests).hasSize(2);
@@ -80,12 +79,12 @@ class TestRepoTest extends AbstractIntegrationPostgresTest {
 
     @Test
     @DisplayName("Возвращение пустого списка, если тесты не найдены")
-    void findByTitle_shouldReturnEmptyListForNonMatchingTitle() {
+    void findAllByTitle_shouldReturnEmptyListForNonMatchingTitle() {
         // Arrange
         testRepo.save(createTest("Java Core Test", "Test on core Java concepts", Status.PUBLIC, author1));
 
         // Act
-        List<TestModel> foundTests = testRepo.findByTitle("NonExistentTitle");
+        List<TestModel> foundTests = testRepo.findAllByTitle("NonExistentTitle");
 
         // Assert
         assertThat(foundTests).isEmpty();

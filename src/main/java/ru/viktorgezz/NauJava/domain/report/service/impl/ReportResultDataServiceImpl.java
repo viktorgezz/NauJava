@@ -40,8 +40,8 @@ public class ReportResultDataServiceImpl implements ReportResultDataService {
             throw new IllegalArgumentException("results is null");
         }
         try {
-            String jsonResults = objectMapper.writeValueAsString(results);
-            String hash = DigestUtils.sha256Hex(jsonResults);
+            String resultsJson = objectMapper.writeValueAsString(results);
+            String hash = DigestUtils.sha256Hex(resultsJson);
 
             Optional<ReportResultData> reportResultDataFound = reportResultDataRepo.findByResultsHash(hash);
             if (reportResultDataFound.isPresent()) {

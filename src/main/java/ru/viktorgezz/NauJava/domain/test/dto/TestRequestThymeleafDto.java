@@ -20,20 +20,6 @@ public class TestRequestThymeleafDto {
 
     private String[] selectedTopicIds;
 
-    public TestRequestThymeleafDto(
-            String title,
-            String description,
-            String statusParam,
-            String newTopicTitle,
-            String[] selectedTopicIds
-    ) {
-        this.title = title;
-        this.description = description;
-        this.statusParam = statusParam;
-        this.newTopicTitle = newTopicTitle;
-        this.selectedTopicIds = selectedTopicIds;
-    }
-
     public TestRequestThymeleafDto() {
     }
 

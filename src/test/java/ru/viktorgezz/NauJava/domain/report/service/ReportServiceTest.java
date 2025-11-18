@@ -1,11 +1,13 @@
-package ru.viktorgezz.NauJava.domain.report;
+package ru.viktorgezz.NauJava.domain.report.service;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
+import ru.viktorgezz.NauJava.testconfig.AbstractIntegrationPostgresTest;
+import ru.viktorgezz.NauJava.domain.report.ReportMapper;
+import ru.viktorgezz.NauJava.domain.report.StatusReport;
 import ru.viktorgezz.NauJava.domain.report.dto.ResultResponse;
 import ru.viktorgezz.NauJava.domain.report.dto.ReportUserCountResultsResponse;
 import ru.viktorgezz.NauJava.domain.report.model.ReportResultData;
@@ -45,9 +47,9 @@ class ReportServiceTest extends AbstractIntegrationPostgresTest {
     private ReportService reportService;
 
     @Autowired
-    private UserCountResultReportRepo userCountResultReportRepo;
-    @Autowired
     private ReportResultDataService reportResultDataService;
+    @Autowired
+    private UserCountResultReportRepo userCountResultReportRepo;
 
     @Autowired
     private ResultRepo resultRepo;

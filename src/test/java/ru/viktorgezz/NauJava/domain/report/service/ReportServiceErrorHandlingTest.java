@@ -1,11 +1,12 @@
-package ru.viktorgezz.NauJava.domain.report;
+package ru.viktorgezz.NauJava.domain.report.service;
 
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
-import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
+import ru.viktorgezz.NauJava.testconfig.AbstractIntegrationPostgresTest;
+import ru.viktorgezz.NauJava.domain.report.StatusReport;
 import ru.viktorgezz.NauJava.domain.report.dto.ReportUserCountResultsResponse;
 import ru.viktorgezz.NauJava.domain.report.model.ReportUserCountResultsModel;
 import ru.viktorgezz.NauJava.domain.report.repo.UserCountResultReportRepo;

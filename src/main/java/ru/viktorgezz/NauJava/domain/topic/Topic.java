@@ -1,9 +1,11 @@
 package ru.viktorgezz.NauJava.domain.topic;
 
 import jakarta.persistence.*;
+import org.hibernate.proxy.HibernateProxy;
 import ru.viktorgezz.NauJava.domain.many_to_many_entity.test_topic.TestTopic;
 
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 /**
@@ -32,6 +34,25 @@ public class Topic {
 
     public Topic(String title) {
         this.title = title;
+    }
+
+    @Override
+    public final boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null) return false;
+
+        Class<?> oEffectiveClass = (o instanceof HibernateProxy hibernateProxy) ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : o.getClass();
+        Class<?> thisEffectiveClass = (this instanceof HibernateProxy hibernateProxy) ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass() : this.getClass();
+
+        if (thisEffectiveClass != oEffectiveClass) return false;
+        Topic topic = (Topic) o;
+
+        return getId() != null && Objects.equals(getId(), topic.getId());
+    }
+
+    @Override
+    public final int hashCode() {
+        return this instanceof HibernateProxy hibernateProxy ? hibernateProxy.getHibernateLazyInitializer().getPersistentClass().hashCode() : getClass().hashCode();
     }
 
     public Long getId() {

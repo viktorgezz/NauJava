@@ -20,10 +20,10 @@ public interface ResultRepo extends CrudRepository<Result, Long> {
     /**
      * Находит все пройденные тесты пользователя с определенной оценкой
      * @param grade Оценка за текст
-     * @param userId id пользователя
+     * @param idUser id пользователя
      * @return List<Result>
      */
-    List<Result> findAllByGradeAndParticipantId(Grade grade, Long userId);
+    List<Result> findAllByGradeAndParticipantId(Grade grade, Long idUser);
 
     /**
      * Возвращает все пройденные тесты с балами ниже определенного числа

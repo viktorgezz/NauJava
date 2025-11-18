@@ -5,10 +5,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
+import ru.viktorgezz.NauJava.testconfig.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.domain.user.Role;
 import ru.viktorgezz.NauJava.domain.user.User;
-import ru.viktorgezz.NauJava.domain.user.repo.UserRepo;
 
 import java.util.List;
 import java.util.Optional;
