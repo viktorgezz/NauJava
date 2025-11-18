@@ -29,7 +29,7 @@ public class TestController {
 
     @GetMapping("/search/title")
     public List<TestResponseDto> getTestsByTitle(@RequestParam String title) {
-        return testQueryService.findByTitle(title)
+        return testQueryService.findAllByTitle(title)
                 .stream()
                 .map(TestMapper::toDto)
                 .collect(Collectors.toList());
@@ -37,7 +37,7 @@ public class TestController {
 
     @GetMapping("/search/topics")
     public List<TestResponseDto> getTestsByTopics(@RequestParam List<String> nameTopics) {
-        return testQueryService.findTestsByTopicTitles(nameTopics)
+        return testQueryService.findTestsByTopicsTitle(nameTopics)
                 .stream()
                 .map(TestMapper::toDto)
                 .collect(Collectors.toList());

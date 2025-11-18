@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
+import ru.viktorgezz.NauJava.testconfig.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.domain.result.Grade;
 import ru.viktorgezz.NauJava.domain.result.Result;
 import ru.viktorgezz.NauJava.domain.result.repo.ResultRepo;
@@ -20,7 +20,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static ru.viktorgezz.NauJava.util.CreationModel.createRandomUser;
 import static ru.viktorgezz.NauJava.util.CreationModel.createResult;
 
-@DisplayName("ResultQueryServiceImpl Integration Tests")
+@DisplayName("ResultQueryService Integration Tests")
 class ResultQueryServiceTest extends AbstractIntegrationPostgresTest {
 
     @Autowired
@@ -53,7 +53,7 @@ class ResultQueryServiceTest extends AbstractIntegrationPostgresTest {
     }
 
     @Test
-    @DisplayName("Должен найти все результаты")
+    @DisplayName("Поиск всех результатов")
     void shouldFindAllResults() {
         // Act
         List<Result> results = resultQueryService.findAll();
@@ -63,7 +63,7 @@ class ResultQueryServiceTest extends AbstractIntegrationPostgresTest {
     }
 
     @Test
-    @DisplayName("Должен найти результаты с баллами < 90")
+    @DisplayName("Поиск результатов с баллами < 90")
     void shouldFindWithScoreLessThan() {
         BigDecimal scoreLimit = new BigDecimal("90.0");
 
@@ -77,7 +77,7 @@ class ResultQueryServiceTest extends AbstractIntegrationPostgresTest {
     }
 
     @Test
-    @DisplayName("Должен найти результаты по Оценке и ID пользователя")
+    @DisplayName("Поиск результатов по Оценке и ID пользователя")
     void shouldFindAllByGradeAndParticipantId() {
         // Act
         List<Result> results = resultQueryService.findAllByGradeAndParticipantId(Grade.A, user1.getId());

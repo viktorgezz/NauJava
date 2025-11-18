@@ -1,5 +1,6 @@
 package ru.viktorgezz.NauJava.util;
 
+import ru.viktorgezz.NauJava.domain.topic.Topic;
 import ru.viktorgezz.NauJava.domain.user.Role;
 import ru.viktorgezz.NauJava.domain.user.User;
 
@@ -15,6 +16,7 @@ public class GeneratorRandomModel {
     private static final String[] NAMES = {"User1", "User2", "User3", "User4", "User5", "User6", "User7"};
     private static final String[] PASSWORDS = {"password1", "password2", "password3"};
     private static final String CHARACTERS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    private static final String[] TOPICS = {"Topic1", "Topic2", "Topic3", "Topic4", "Topic5", "Topic6", "Topic7"};
 
     private GeneratorRandomModel() {
     }
@@ -25,6 +27,10 @@ public class GeneratorRandomModel {
                 PASSWORDS[getRandomIndex(PASSWORDS.length)],
                 Arrays.stream(Role.values()).findAny().orElseThrow()
         );
+    }
+
+    public static Topic getRandomTopic() {
+        return new Topic(TOPICS[getRandomIndex(TOPICS.length)] + " " + randomString(10));
     }
 
     private static int getRandomIndex(int sizeArray) {

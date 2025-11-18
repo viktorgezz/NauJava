@@ -32,9 +32,9 @@ public class ResultController {
     @GetMapping("/search/grade-and-participant")
     public List<ResultResponseDto> getResultsByGradeAndParticipant(
             @RequestParam Grade grade,
-            @RequestParam Long participantId
+            @RequestParam Long idParticipant
             ) {
-        return resultQueryService.findAllByGradeAndParticipantId(grade, participantId)
+        return resultQueryService.findAllByGradeAndParticipantId(grade, idParticipant)
                 .stream()
                 .map(ResultMapper::toDto)
                 .collect(Collectors.toList());

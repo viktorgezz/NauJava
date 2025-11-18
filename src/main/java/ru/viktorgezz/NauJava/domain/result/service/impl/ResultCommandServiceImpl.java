@@ -23,10 +23,10 @@ public class ResultCommandServiceImpl implements ResultCommandService {
 
     @Override
     @Transactional
-    public void deleteResult(Long resultId) {
-        if (!resultRepo.existsById(resultId)) {
-            throw new EntityNotFoundException("Result with id " + resultId + " not found.");
+    public void deleteResult(Long idResult) {
+        if (!resultRepo.existsById(idResult)) {
+            throw new EntityNotFoundException("Result with id " + idResult + " not found.");
         }
-        resultRepo.deleteById(resultId);
+        resultRepo.deleteById(idResult);
     }
 }

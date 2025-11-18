@@ -12,7 +12,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import ru.viktorgezz.NauJava.domain.result.Grade;
 import ru.viktorgezz.NauJava.domain.result.Result;
-import ru.viktorgezz.NauJava.domain.result.controller.ResultController;
 import ru.viktorgezz.NauJava.domain.result.service.intrf.ResultQueryService;
 import ru.viktorgezz.NauJava.security.JwtAuthenticationFilter;
 import ru.viktorgezz.NauJava.util.GeneratorRandomModel;
@@ -67,7 +66,7 @@ class ResultControllerTest {
 
         mockMvc.perform(get("/results/search/grade-and-participant")
                         .param("grade", "A")
-                        .param("participantId", "42")
+                        .param("idParticipant", "42")
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].grade").value("A"))

@@ -6,7 +6,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
+import ru.viktorgezz.NauJava.testconfig.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.domain.result.Grade;
 import ru.viktorgezz.NauJava.domain.result.Result;
 import ru.viktorgezz.NauJava.domain.result.repo.ResultRepo;
@@ -22,7 +22,7 @@ import static ru.viktorgezz.NauJava.util.CreationModel.createRandomUser;
 import static ru.viktorgezz.NauJava.util.CreationModel.createResult;
 
 @DisplayName("ResultService Integration Tests")
-class ResultCommandServiceImplTest extends AbstractIntegrationPostgresTest {
+class ResultCommandServiceTest extends AbstractIntegrationPostgresTest {
 
     @Autowired
     private ResultCommandService resultCommandService;

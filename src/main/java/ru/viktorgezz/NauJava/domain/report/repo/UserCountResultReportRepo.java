@@ -18,13 +18,15 @@ public interface UserCountResultReportRepo extends CrudRepository<ReportUserCoun
     @Query("""
             SELECT report FROM ReportUserCountResultsModel report
             LEFT JOIN FETCH report.reportResultData
-            """)
+            """
+    )
     List<ReportUserCountResultsModel> findAll();
 
     @Query("""
             SELECT report FROM ReportUserCountResultsModel report
             LEFT JOIN FETCH report.reportResultData
             WHERE report.id = :idReport
-            """)
+            """
+    )
     Optional<ReportUserCountResultsModel> findByIdWithResults(@Param("idReport") Long id);
 }

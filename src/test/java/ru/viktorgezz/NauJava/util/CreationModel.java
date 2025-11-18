@@ -90,6 +90,10 @@ public class CreationModel {
         return new Topic(topicTitle);
     }
 
+    public static Topic createTopicRandom() {
+        return GeneratorRandomModel.getRandomTopic();
+    }
+
     public static Question createQuestion(String text, Type type) {
         return new Question(text, type);
     }

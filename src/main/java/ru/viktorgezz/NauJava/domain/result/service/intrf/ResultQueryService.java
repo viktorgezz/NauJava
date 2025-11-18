@@ -1,6 +1,5 @@
 package ru.viktorgezz.NauJava.domain.result.service.intrf;
 
-import org.springframework.data.jpa.repository.Query;
 import ru.viktorgezz.NauJava.domain.result.Grade;
 import ru.viktorgezz.NauJava.domain.result.Result;
 
@@ -16,10 +15,10 @@ public interface ResultQueryService {
     /**
      * Находит все пройденные тесты пользователя с определенной оценкой
      * @param grade Оценка за текст
-     * @param userId id пользователя
+     * @param idUser id пользователя
      * @return List<Result>
      */
-    List<Result> findAllByGradeAndParticipantId(Grade grade, Long userId);
+    List<Result> findAllByGradeAndParticipantId(Grade grade, Long idUser);
 
     /**
      * Возвращает все пройденные тесты с балами ниже определенного числа

@@ -5,7 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.viktorgezz.NauJava.AbstractIntegrationPostgresTest;
+import ru.viktorgezz.NauJava.testconfig.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.domain.question.Question;
 import ru.viktorgezz.NauJava.domain.question.QuestionRepo;
 import ru.viktorgezz.NauJava.domain.question.Type;
@@ -28,8 +28,8 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static ru.viktorgezz.NauJava.util.CreationModel.*;
 
-@DisplayName("TestServiceImpl Integration Tests")
-class TestServiceImplTestCommand extends AbstractIntegrationPostgresTest {
+@DisplayName("TestService Integration Tests")
+class TestCommandServiceTest extends AbstractIntegrationPostgresTest {
 
     @Autowired
     private TestCommandService testCommandService;

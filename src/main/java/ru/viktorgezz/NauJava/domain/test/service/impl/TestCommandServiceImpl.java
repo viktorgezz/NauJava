@@ -73,7 +73,7 @@ public class TestCommandServiceImpl implements TestCommandService {
     ) {
         Set<Long> idsTopic = createRequest.topicIds();
 
-        Set<Topic> foundTopics = topicService.findAllById(idsTopic);
+        Set<Topic> foundTopics = topicService.findAllByIds(idsTopic);
 
         TestModel newTest = new TestModel(
                 createRequest.title(),
@@ -93,19 +93,23 @@ public class TestCommandServiceImpl implements TestCommandService {
     }
 
     private Set<Long> resolveTopicIds(TestRequestThymeleafDto testDto) {
-        Set<Long> topicIds = new HashSet<>();
-        if (testDto.getSelectedTopicIds() != null && testDto.getSelectedTopicIds().length != 0) {
-            topicIds = Arrays
-                    .stream(testDto.getSelectedTopicIds())
+        Set<Long> idsTopic = new HashSet<>();
+
+        String[] idsTopicSelected = testDto.getSelectedTopicIds();
+        String titleTopicNew = testDto.getNewTopicTitle();
+        if (idsTopicSelected != null && idsTopicSelected.length != 0) {
+            idsTopic = Arrays
+                    .stream(idsTopicSelected)
                     .map(Long::parseLong)
                     .collect(Collectors.toSet());
         }
 
-        if (testDto.getNewTopicTitle() != null && !testDto.getNewTopicTitle().trim().isEmpty()) {
-            Topic newTopic = new Topic(testDto.getNewTopicTitle());
+        if (titleTopicNew != null && !titleTopicNew.trim().isEmpty()) {
+            Topic newTopic = new Topic(titleTopicNew);
             newTopic = topicService.save(newTopic);
-            topicIds.add(newTopic.getId());
+            idsTopic.add(newTopic.getId());
         }
-        return topicIds;
+
+        return idsTopic;
     }
 }

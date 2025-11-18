@@ -20,14 +20,14 @@ public interface TestQueryService {
      * @param title название теста
      * @return List<TestModel>
      */
-    List<TestModel> findByTitle(String title);
+    List<TestModel> findAllByTitle(String title);
 
     /**
      * Поиск тестов по списку названий тем.
      * @param topicTitles Список названий тем.
      * @return List<TestModel> Список уникальных тестов, связанных хотя бы с одной из указанных тем.
      */
-    List<TestModel> findTestsByTopicTitles(List<String> topicTitles);
+    List<TestModel> findTestsByTopicsTitle(List<String> topicTitles);
 
     /**
      * Получить все тесты со связанными автором и темами.
