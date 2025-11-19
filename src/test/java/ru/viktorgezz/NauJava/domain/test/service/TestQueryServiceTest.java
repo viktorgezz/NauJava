@@ -43,6 +43,7 @@ public class TestQueryServiceTest extends AbstractIntegrationPostgresTest {
     private TestModel testModel1;
     private User author;
     private Topic topic1;
+    private Topic topicCommon;
 
     @BeforeEach
     void setup() {
@@ -54,9 +55,9 @@ public class TestQueryServiceTest extends AbstractIntegrationPostgresTest {
 
         testRepo.saveAll(List.of(testModel1, testModel2));
 
-        topic1 = createTopic("Topic 1");
-        Topic topic2 = createTopic("Topic 2");
-        Topic topicCommon = createTopic("Topic Common");
+        topic1 = createTopicRandom();
+        Topic topic2 = createTopicRandom();
+        topicCommon = createTopicRandom();
 
         topicRepo.saveAll(List.of(topic1, topic2, topicCommon));
 
@@ -71,6 +72,28 @@ public class TestQueryServiceTest extends AbstractIntegrationPostgresTest {
         topicRepo.deleteAll();
     }
 
+    /**
+     * <p>Тестирование получения всех созданных тестов.
+     * Проверяется, что метод возвращает все объекты, сохраненные в БД во время {@code setup()}.</p>
+     * <br>
+     * <b><ol>
+     * <li>Подготовка:</li>
+     * <ul>
+     * <li>Среда настроена методом {@code setup()}, в БД два теста.</li>
+     * </ul>
+     * <br>
+     * <li>Действия:</li>
+     * <ul>
+     * <li>Вызов метода {@code testQueryService.findAll()}.</li>
+     * </ul>
+     * <br>
+     * <li>Проверки:</li>
+     * <ul>
+     * <li>Проверить, что возвращенный список содержит ровно 2 элемента.</li>
+     * <li>Проверить, что заголовки тестов в списке соответствуют ожидаемым ("The test 1", "The test 2").</li>
+     * </ul>
+     * </ol></b>
+     */
     @Test
     @DisplayName("Поиск всех Тестов")
     void shouldFindAllTests() {
@@ -81,6 +104,28 @@ public class TestQueryServiceTest extends AbstractIntegrationPostgresTest {
                 .contains("The test 1", "The test 2");
     }
 
+    /**
+     * <p>Тестирование поиска теста по точному названию.
+     * Проверяется, что возвращается только один тест с искомым названием.</p>
+     * <br>
+     * <b><ol>
+     * <li>Подготовка:</li>
+     * <ul>
+     * <li>Определено целевое название теста ("The test 1").</li>
+     * </ul>
+     * <br>
+     * <li>Действия:</li>
+     * <ul>
+     * <li>Вызов метода {@code testQueryService.findAllByTitle(testTitle)}.</li>
+     * </ul>
+     * <br>
+     * <li>Проверки:</li>
+     * <ul>
+     * <li>Проверить, что возвращенный список содержит ровно 1 элемент.</li>
+     * <li>Проверить, что название и ID найденного теста соответствуют ожидаемому ({@code testModel1}).</li>
+     * </ul>
+     * </ol></b>
+     */
     @Test
     @DisplayName("Поиск теста по названию")
     void shouldFindAllTestsByTitle() {
@@ -93,9 +138,29 @@ public class TestQueryServiceTest extends AbstractIntegrationPostgresTest {
                     assertThat(t.getTitle()).isEqualTo(testTitle);
                     assertThat(t.getId()).isEqualTo(testModel1.getId());
                 });
-
     }
 
+    /**
+     * <p>Тестирование поиска тестов по несуществующему названию.
+     * Проверяется, что при передаче названия, не соответствующего ни одному тесту, возвращается пустой список.</p>
+     * <br>
+     * <b><ol>
+     * <li>Подготовка:</li>
+     * <ul>
+     * <li>Определено несуществующее название теста (пустая строка).</li>
+     * </ul>
+     * <br>
+     * <li>Действия:</li>
+     * <ul>
+     * <li>Вызов метода {@code testQueryService.findAllByTitle(testTitle)}.</li>
+     * </ul>
+     * <br>
+     * <li>Проверки:</li>
+     * <ul>
+     * <li>Проверить, что возвращенный список является пустым ({@code isEmpty}).</li>
+     * </ul>
+     * </ol></b>
+     */
     @Test
     @DisplayName("Поиск тестов по несуществующего названию")
     void shouldReturnEmptyList_WhenTitleUnknown() {
@@ -105,6 +170,28 @@ public class TestQueryServiceTest extends AbstractIntegrationPostgresTest {
         assertThat(tests).isEmpty();
     }
 
+    /**
+     * <p>Тестирование поиска тестов при наличии нескольких тестов с одинаковым названием.
+     * Проверяется, что метод находит все тесты с заданным названием, даже если их несколько.</p>
+     * <br>
+     * <b><ol>
+     * <li>Подготовка:</li>
+     * <ul>
+     * <li>Создать и сохранить в БД два новых объекта {@code TestModel} ({@code testNew1}, {@code testNew2}) с одинаковым названием ("Duplicate Title"), но разными ID и описаниями.</li>
+     * </ul>
+     * <br>
+     * <li>Действия:</li>
+     * <ul>
+     * <li>Вызов метода {@code testQueryService.findAllByTitle(testTitle)}.</li>
+     * </ul>
+     * <br>
+     * <li>Проверки:</li>
+     * <ul>
+     * <li>Проверить, что возвращенный список содержит ровно 2 элемента.</li>
+     * <li>Проверить, что названия обоих найденных тестов совпадают, а их ID и описания различаются.</li>
+     * </ul>
+     * </ol></b>
+     */
     @Test
     @DisplayName("Поиск нескольких тестов с одинаковым названием")
     void shouldFindAllTestsWithSameTitleByTitle() {
@@ -125,11 +212,36 @@ public class TestQueryServiceTest extends AbstractIntegrationPostgresTest {
         assertThat(testFound1.getDescription()).isNotEqualTo(testFound2.getDescription());
     }
 
+    /**
+     * <p>Тестирование поиска тестов по списку названий тем (топиков).
+     * Проверяется корректность поиска по одной теме, по нескольким темам одновременно и по несуществующей теме.</p>
+     * <br>
+     * <b><ol>
+     * <li>Подготовка:</li>
+     * <ul>
+     * <li>Тест 1 связан с {@code topic1} и {@code topicCommon}.</li>
+     * <li>Тест 2 связан с {@code topic2} и {@code topicCommon}.</li>
+     * </ul>
+     * <br>
+     * <li>Действия:</li>
+     * <ul>
+     * <li>Вызвать метод {@code testQueryService.findTestsByTopicsTitle()} с различными списками: ['Topic 1'], ['Topic Common'], ['Topic 1', 'Topic Common'], ['Unknown Topic'].</li>
+     * </ul>
+     * <br>
+     * <li>Проверки:</li>
+     * <ul>
+     * <li>По {@code topic1} найден 1 тест.</li>
+     * <li>По {@code topicCommon} найдено 2 теста ("The test 1", "The test 2").</li>
+     * <li>По комбинации {@code topic1} и {@code topicCommon} найдено 2 теста.</li>
+     * <li>По запросу 'Unknown Topic' возвращен пустой список.</li>
+     * </ul>
+     * </ol></b>
+     */
     @Test
     @DisplayName("Поиск тестов по списку названий тем")
     void shouldFindTestsByTopicTitles() {
-        String topicTitle1 = "Topic 1";
-        String topicTitle2 = "Topic Common";
+        String topicTitle1 = topic1.getTitle();
+        String topicTitle2 = topicCommon.getTitle();
 
         List<TestModel> testsFoundByTopicTitle1 = testQueryService.findTestsByTopicsTitle(List.of(topicTitle1));
         List<TestModel> testsFoundByTopicTitle2 = testQueryService.findTestsByTopicsTitle(List.of(topicTitle2));
@@ -146,6 +258,30 @@ public class TestQueryServiceTest extends AbstractIntegrationPostgresTest {
         assertThat(resEmpty).isEmpty();
     }
 
+    /**
+     * <p>Тестирование получения всех тестов с принудительной подгрузкой (FETCH JOIN) связанных сущностей:
+     * автора ({@code author}) и тем ({@code testTopics}).
+     * Проверяется, что поля связанных объектов инициализированы, что предотвращает проблему N+1.</p>
+     * <br>
+     * <b><ol>
+     * <li>Подготовка:</li>
+     * <ul>
+     * <li>Тестовая среда инициализирована методом {@code setup()}.</li>
+     * </ul>
+     * <br>
+     * <li>Действия:</li>
+     * <ul>
+     * <li>Вызов метода {@code testQueryService.findAllWithAuthorAndTopics()}.</li>
+     * </ul>
+     * <br>
+     * <li>Проверки:</li>
+     * <ul>
+     * <li>Удостовериться, что список содержит тесты с ожидаемыми заголовками.</li>
+     * <li>Удостовериться, что у всех тестов загружено поле {@code author} с корректным именем пользователя.</li>
+     * <li>Удостовериться, что для теста "The test 1" корректно загружены связанные темы (названия соответствуют ожидаемым, например "Topic Common").</li>
+     * </ul>
+     * </ol></b>
+     */
     @Test
     @DisplayName("Поиск всех тестов с подгрузкой авторов и тем (FETCH JOIN)")
     void shouldFindAllTestsWithAuthorAndTopics() {

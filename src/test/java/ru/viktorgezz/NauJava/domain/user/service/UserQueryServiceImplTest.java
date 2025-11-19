@@ -36,6 +36,30 @@ class UserQueryServiceImplTest {
     @InjectMocks
     private UserQueryServiceImpl serviceUserQuery;
 
+    /**
+     * <p>Тестирование успешного получения объекта {@code User} по имени пользователя (username).
+     * Проверяется, что сервис возвращает корректный объект, если он найден в репозитории.</p>
+     * <br>
+     * <b><ol>
+     * <li>Подготовка:</li>
+     * <ul>
+     * <li>Создается ожидаемый объект {@code User}.</li>
+     * <li>Настраивается Мок-объект {@code repoUser}: при вызове {@code findByUsername()} возвращается {@code Optional.of(userExpected)}.</li>
+     * </ul>
+     * <br>
+     * <li>Действия:</li>
+     * <ul>
+     * <li>Вызывается метод {@code serviceUserQuery.getByUsername(usernameTarget)}.</li>
+     * </ul>
+     * <br>
+     * <li>Проверки:</li>
+     * <ul>
+     * <li>Проверить, что возвращенный объект не {@code null} и соответствует ожидаемому объекту.</li>
+     * <li>Проверить, что у возвращенного объекта корректное имя пользователя.</li>
+     * <li>Проверить, что метод {@code repoUser.findByUsername()} был вызван.</li>
+     * </ul>
+     * </ol></b>
+     */
     @Test
     @DisplayName("getByUsername: успешно возвращает пользователя, если он найден в БД")
     void getByUsername_ShouldReturnUser_WhenExists() {
@@ -56,6 +80,30 @@ class UserQueryServiceImplTest {
         verify(repoUser).findByUsername(usernameTarget);
     }
 
+    /**
+     * <p>Тестирование поведения метода {@code getByUsername} в случае, когда пользователь с
+     * заданным именем не найден в репозитории. Ожидается выброс {@code BusinessException}
+     * с кодом ошибки {@code USER_NOT_FOUND}.</p>
+     * <br>
+     * <b><ol>
+     * <li>Подготовка:</li>
+     * <ul>
+     * <li>Настраивается Мок-объект {@code repoUser}: при вызове {@code findByUsername()} возвращается {@code Optional.empty()}.</li>
+     * </ul>
+     * <br>
+     * <li>Действия:</li>
+     * <ul>
+     * <li>Вызывается метод {@code serviceUserQuery.getByUsername(usernameUnknown)}.</li>
+     * </ul>
+     * <br>
+     * <li>Проверки:</li>
+     * <ul>
+     * <li>Проверить, что при вызове выбрасывается исключение типа {@code BusinessException}.</li>
+     * <li>Проверить, что код ошибки в исключении равен {@code ErrorCode.USER_NOT_FOUND}.</li>
+     * <li>Проверить, что метод {@code repoUser.findByUsername()} был вызван.</li>
+     * </ul>
+     * </ol></b>
+     */
     @Test
     @DisplayName("getByUsername: выбрасывает BusinessException, если пользователь не найден")
     void getByUsername_ShouldThrowBusinessException_WhenUserNotFound() {
@@ -71,6 +119,31 @@ class UserQueryServiceImplTest {
         verify(repoUser).findByUsername(usernameUnknown);
     }
 
+    /**
+     * <p>Тестирование успешного получения списка пользователей по заданной роли.
+     * Проверяется, что сервис корректно возвращает список, полученный от репозитория.</p>
+     * <br>
+     * <b><ol>
+     * <li>Подготовка:</li>
+     * <ul>
+     * <li>Определяется целевая роль ({@code Role.USER}).</li>
+     * <li>Создается список ожидаемых объектов {@code User}, имеющих эту роль.</li>
+     * <li>Настраивается Мок-объект {@code repoUser}: при вызове {@code findAllByRole(roleTarget)} возвращается ожидаемый список.</li>
+     * </ul>
+     * <br>
+     * <li>Действия:</li>
+     * <ul>
+     * <li>Вызывается метод {@code serviceUserQuery.findAllByRole(roleTarget)}.</li>
+     * </ul>
+     * <br>
+     * <li>Проверки:</li>
+     * <ul>
+     * <li>Проверить, что возвращенный список имеет ожидаемый размер (2).</li>
+     * <li>Проверить, что список содержит именно ожидаемые объекты пользователей.</li>
+     * <li>Проверить, что метод {@code repoUser.findAllByRole()} был вызван.</li>
+     * </ul>
+     * </ol></b>
+     */
     @Test
     @DisplayName("findAllByRole: возвращает список пользователей с заданной ролью")
     void findAllByRole_ShouldReturnList_WhenUsersExist() {
@@ -92,6 +165,29 @@ class UserQueryServiceImplTest {
         verify(repoUser).findAllByRole(roleTarget);
     }
 
+    /**
+     * <p>Тестирование получения списка пользователей по роли, если в репозитории нет
+     * пользователей с такой ролью. Ожидается возврат пустого списка.</p>
+     * <br>
+     * <b><ol>
+     * <li>Подготовка:</li>
+     * <ul>
+     * <li>Определяется целевая роль ({@code Role.ADMIN}).</li>
+     * <li>Настраивается Мок-объект {@code repoUser}: при вызове {@code findAllByRole(roleTarget)} возвращается пустой список ({@code Collections.emptyList()}).</li>
+     * </ul>
+     * <br>
+     * <li>Действия:</li>
+     * <ul>
+     * <li>Вызывается метод {@code serviceUserQuery.findAllByRole(roleTarget)}.</li>
+     * </ul>
+     * <br>
+     * <li>Проверки:</li>
+     * <ul>
+     * <li>Проверить, что возвращенный список является пустым.</li>
+     * <li>Проверить, что метод {@code repoUser.findAllByRole()} был вызван.</li>
+     * </ul>
+     * </ol></b>
+     */
     @Test
     @DisplayName("findAllByRole: возвращает пустой список, если пользователей с ролью нет")
     void findAllByRole_ShouldReturnEmptyList_WhenNoMatches() {
@@ -106,6 +202,29 @@ class UserQueryServiceImplTest {
         verify(repoUser).findAllByRole(roleTarget);
     }
 
+    /**
+     * <p>Тестирование метода подсчета общего числа пользователей. Проверяется, что
+     * сервис корректно возвращает значение, полученное от репозитория.</p>
+     * <br>
+     * <b><ol>
+     * <li>Подготовка:</li>
+     * <ul>
+     * <li>Определяется ожидаемое количество пользователей ({@code 100L}).</li>
+     * <li>Настраивается Мок-объект {@code repoUser}: при вызове {@code getCountUsers()} возвращается ожидаемое число.</li>
+     * </ul>
+     * <br>
+     * <li>Действия:</li>
+     * <ul>
+     * <li>Вызывается метод {@code serviceUserQuery.computeCountUsers()}.</li>
+     * </ul>
+     * <br>
+     * <li>Проверки:</li>
+     * <ul>
+     * <li>Проверить, что возвращенное значение ({@code long countActual}) равно ожидаемому.</li>
+     * <li>Проверить, что метод {@code repoUser.getCountUsers()} был вызван.</li>
+     * </ul>
+     * </ol></b>
+     */
     @Test
     @DisplayName("computeCountUsers: возвращает корректное число пользователей")
     void computeCountUsers_ShouldReturnCount() {
@@ -120,6 +239,30 @@ class UserQueryServiceImplTest {
         verify(repoUser).getCountUsers();
     }
 
+    /**
+     * <p>Тестирование успешной реализации метода {@code loadUserByUsername} из {@code UserDetailsService}
+     * для Spring Security. Проверяется, что при наличии пользователя возвращается корректный объект {@code UserDetails}.</p>
+     * <br>
+     * <b><ol>
+     * <li>Подготовка:</li>
+     * <ul>
+     * <li>Создается объект {@code User} для имитации найденной сущности.</li>
+     * <li>Настраивается Мок-объект {@code repoUser}: при вызове {@code findByUsername()} возвращается {@code Optional.of(userEntity)}.</li>
+     * </ul>
+     * <br>
+     * <li>Действия:</li>
+     * <ul>
+     * <li>Вызывается метод {@code serviceUserQuery.loadUserByUsername(usernameTarget)}.</li>
+     * </ul>
+     * <br>
+     * <li>Проверки:</li>
+     * <ul>
+     * <li>Проверить, что возвращенный объект не {@code null}.</li>
+     * <li>Проверить, что имя пользователя в {@code UserDetails} соответствует ожидаемому.</li>
+     * <li>Проверить, что метод {@code repoUser.findByUsername()} был вызван.</li>
+     * </ul>
+     * </ol></b>
+     */
     @Test
     @DisplayName("loadUserByUsername: успешно возвращает UserDetails для Spring Security")
     void loadUserByUsername_ShouldReturnUserDetails_WhenUserExists() {
@@ -137,6 +280,32 @@ class UserQueryServiceImplTest {
         verify(repoUser).findByUsername(usernameTarget);
     }
 
+    /**
+     * <p>Тестирование реализации метода {@code loadUserByUsername} при отсутствии пользователя.
+     * Проверяется, что в этом случае выбрасывается стандартное исключение Spring Security
+     * {@code UsernameNotFoundException}.</p>
+     * <br>
+     * <b><ol>
+     * <li>Подготовка:</li>
+     * <ul>
+     * <li>Определяется отсутствующее имя пользователя ({@code usernameMissing}).</li>
+     * <li>Настраивается Мок-объект {@code repoUser}: при вызове {@code findByUsername()} возвращается {@code Optional.empty()}.</li>
+     * </ul>
+     * <br>
+     * <li>Действия:</li>
+     * <ul>
+     * <li>Вызывается метод {@code serviceUserQuery.loadUserByUsername(usernameMissing)}.</li>
+     * </ul>
+     * <br>
+     * <li>Проверки:</li>
+     * <ul>
+     * <li>Проверить, что при вызове выбрасывается исключение типа {@code UsernameNotFoundException}.</li>
+     * <li>Проверить, что сообщение исключения содержит имя пользователя, которое не было найдено.</li>
+     * <li>Проверить, что метод {@code repoUser.findByUsername()} был вызван.</li>
+     * <li>Проверить, что других взаимодействий с моком {@code repoUser} не было.</li>
+     * </ul>
+     * </ol></b>
+     */
     @Test
     @DisplayName("loadUserByUsername: выбрасывает UsernameNotFoundException, если пользователь не найден")
     void loadUserByUsername_ShouldThrowException_WhenUserNotFound() {

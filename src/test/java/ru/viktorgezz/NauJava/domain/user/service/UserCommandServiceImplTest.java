@@ -25,6 +25,27 @@ class UserCommandServiceImplTest {
     @InjectMocks
     private UserCommandServiceImpl serviceUserCommand;
 
+    /**
+     * <p>Тестирование успешного сохранения объекта {@code User}. Проверяется, что
+     * метод сервиса корректно вызывает соответствующий метод {@code save} репозитория.</p>
+     * <br>
+     * <b><ol>
+     * <li>Подготовка:</li>
+     * <ul>
+     * <li>Создается валидный случайный объект {@code User} ({@code userToSave}).</li>
+     * </ul>
+     * <br>
+     * <li>Действия:</li>
+     * <ul>
+     * <li>Вызывается метод {@code serviceUserCommand.save(userToSave)}.</li>
+     * </ul>
+     * <br>
+     * <li>Проверки:</li>
+     * <ul>
+     * <li>Проверить, что метод {@code repoUser.save(userToSave)} был вызван ровно один раз с переданным объектом.</li>
+     * </ul>
+     * </ol></b>
+     */
     @Test
     @DisplayName("save: успешно вызывает метод репозитория для сохранения пользователя")
     void save_ShouldCallRepoSave_WhenUserIsValid() {
@@ -35,6 +56,31 @@ class UserCommandServiceImplTest {
         verify(repoUser).save(userToSave);
     }
 
+    /**
+     * <p>Тестирование поведения метода {@code save} при передаче {@code null} в качестве аргумента.
+     * Проверяется, что выбрасывается исключение {@code IllegalArgumentException},
+     * имитируя стандартное поведение Spring Data Repository.</p>
+     * <br>
+     * <b><ol>
+     * <li>Подготовка:</li>
+     * <ul>
+     * <li>Определяется ожидаемое сообщение исключения: "Entity must not be null".</li>
+     * <li>Настраивается Мок-объект {@code repoUser}: при вызове {@code save(null)} он должен выбросить {@code IllegalArgumentException} с ожидаемым сообщением.</li>
+     * </ul>
+     * <br>
+     * <li>Действия:</li>
+     * <ul>
+     * <li>Вызывается метод {@code serviceUserCommand.save(null)}.</li>
+     * </ul>
+     * <br>
+     * <li>Проверки:</li>
+     * <ul>
+     * <li>Проверить, что при вызове метода выбрасывается исключение типа {@code IllegalArgumentException}.</li>
+     * <li>Проверить, что сообщение выброшенного исключения соответствует ожидаемому сообщению.</li>
+     * <li>Проверить, что метод {@code repoUser.save(null)} был вызван ровно один раз.</li>
+     * </ul>
+     * </ol></b>
+     */
     @Test
     @DisplayName("save: выбрасывает IllegalArgumentException, если передан null (стандартное поведение Spring Data)")
     void save_ShouldThrowException_WhenUserIsNull() {

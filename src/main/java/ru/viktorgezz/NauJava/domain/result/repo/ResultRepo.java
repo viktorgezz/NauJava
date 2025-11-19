@@ -19,7 +19,8 @@ public interface ResultRepo extends CrudRepository<Result, Long> {
 
     /**
      * Находит все пройденные тесты пользователя с определенной оценкой
-     * @param grade Оценка за текст
+     *
+     * @param grade  Оценка за текст
      * @param idUser id пользователя
      * @return List<Result>
      */
@@ -27,6 +28,7 @@ public interface ResultRepo extends CrudRepository<Result, Long> {
 
     /**
      * Возвращает все пройденные тесты с балами ниже определенного числа
+     *
      * @param maxScore максимально количество балов, не включительно
      * @return List<Result>
      */
@@ -37,10 +39,11 @@ public interface ResultRepo extends CrudRepository<Result, Long> {
     @NonNull
     List<Result> findAll();
 
-    @Query(
-            "SELECT r FROM Result r " +
-            "LEFT JOIN FETCH r.participant " +
-            "LEFT JOIN FETCH r.test"
+    @Query("""
+            SELECT r FROM Result r
+            LEFT JOIN FETCH r.participant
+            LEFT JOIN FETCH r.test
+            """
     )
     List<Result> findAllWithParticipantUsernameAndTitleTest();
 

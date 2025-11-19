@@ -16,6 +16,7 @@ public interface TestRepo extends CrudRepository<TestModel, Long> {
 
     /**
      * Поиск тестов по названию
+     *
      * @param title название теста
      * @return List<TestModel>
      */
@@ -23,6 +24,7 @@ public interface TestRepo extends CrudRepository<TestModel, Long> {
 
     /**
      * Поиск тестов по списку названий тем.
+     *
      * @param topicTitles Список названий тем.
      * @return List<TestModel> Список уникальных тестов, связанных хотя бы с одной из указанных тем.
      */
@@ -34,9 +36,12 @@ public interface TestRepo extends CrudRepository<TestModel, Long> {
      *
      * @return List<TestModel> все тесты с подгруженными автором и темами
      */
-    @Query("SELECT DISTINCT t FROM TestModel t " +
-            "LEFT JOIN FETCH t.author " +
-            "LEFT JOIN FETCH t.testTopics tt " +
-            "LEFT JOIN FETCH tt.topic")
+    @Query("""
+               SELECT DISTINCT t FROM TestModel t
+               LEFT JOIN FETCH t.author
+               LEFT JOIN FETCH t.testTopics tt
+               LEFT JOIN FETCH tt.topic
+            """
+    )
     List<TestModel> findAllWithAuthorAndTopics();
 }

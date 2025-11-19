@@ -71,5 +71,5 @@ public abstract class AbstractIntegrationControllerTest extends AbstractIntegrat
                 .build();
     }
 
-    abstract protected Role setRole();
+    protected abstract Role setRole();
 }

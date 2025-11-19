@@ -79,5 +79,5 @@ public abstract class AbstractUiTest extends AbstractIntegrationPostgresTest {
         driverBrowser.manage().window().maximize();
     }
 
-    abstract protected Role setRole();
+    protected abstract Role setRole();
 }

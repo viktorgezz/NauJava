@@ -17,10 +17,13 @@ public interface TopicRepo extends CrudRepository<Topic, Long> {
     @NonNull
     List<Topic> findAll();
 
-    @Query("SELECT DISTINCT topic FROM Topic topic " +
-            "JOIN FETCH topic.testTopics testTopic " +
-            "JOIN FETCH testTopic.test test " +
-            "WHERE test.id = :idTest")
+    @Query("""
+            SELECT DISTINCT topic FROM Topic topic
+            JOIN FETCH topic.testTopics testTopic
+            JOIN FETCH testTopic.test test
+            WHERE test.id = :idTest
+            """
+    )
     List<Topic> findAllByIdTestModel(@Param("idTest") Long idTestModel);
 
 }
