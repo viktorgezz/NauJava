@@ -1,17 +1,20 @@
 package ru.viktorgezz.NauJava.security.service;
 
 import io.jsonwebtoken.Claims;
+import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.viktorgezz.NauJava.security.util.KeyUtils;
-import ru.viktorgezz.NauJava.security.RefreshToken;
-import ru.viktorgezz.NauJava.security.RefreshTokenRepo;
 import ru.viktorgezz.NauJava.domain.user.User;
 import ru.viktorgezz.NauJava.domain.user.service.intrf.UserQueryService;
+import ru.viktorgezz.NauJava.exception.security.InvalidJwtTokenException;
+import ru.viktorgezz.NauJava.exception.security.TokenExpiredException;
 import ru.viktorgezz.NauJava.security.JwtProperties;
+import ru.viktorgezz.NauJava.security.RefreshToken;
+import ru.viktorgezz.NauJava.security.RefreshTokenRepo;
+import ru.viktorgezz.NauJava.security.util.KeyUtils;
 
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -73,7 +76,6 @@ public class JwtServiceImpl implements JwtService {
                 new Date(System.currentTimeMillis() + refreshTokenExpiration)
         );
 
-
         userFound.getRefreshTokens().add(token);
         refreshTokenRepo.save(token);
         return refreshToken;
@@ -85,17 +87,16 @@ public class JwtServiceImpl implements JwtService {
     }
 
     public String extractUsername(String token) {
-        return extractClaims(token).getSubject();
+        return extractClaimsStrict(token).getSubject();
     }
 
     public String refreshToken(final String refreshToken) {
-        final Claims claims = extractClaims(refreshToken);
+        final Claims claims = extractClaimsAllowExpired(refreshToken);
         final String username = claims.getSubject();
         if (!"REFRESH_TOKEN".equals(claims.get(TOKEN_TYPE))) {
-            throw new RuntimeException("Invalid refresh token");
-        }
-        if (isTokenExpired(refreshToken) || isRefreshTokenWithdrown(refreshToken, username)) {
-            throw new RuntimeException("Refresh token expired");
+            throw new InvalidJwtTokenException("Invalid refresh token");
+        } else if (isExpired(claims) || isRefreshTokenWithdrown(refreshToken, username)) {
+            throw new TokenExpiredException("Refresh token expired");
         }
         return generateAccessToken(username);
     }
@@ -120,31 +121,52 @@ public class JwtServiceImpl implements JwtService {
     }
 
     private boolean isTokenExpired(String token) {
-        return extractClaims(token).getExpiration()
-                .before(new Date());
+        return isExpired(extractClaimsStrict(token));
+    }
+
+    private boolean isExpired(Claims claims) {
+        return claims.getExpiration().before(new Date(System.currentTimeMillis()));
+    }
+
+    private Claims extractClaimsAllowExpired(String token) {
+        try {
+            return extractClaims(token);
+        } catch (final ExpiredJwtException e) {
+            return e.getClaims();
+        } catch (final JwtException e) {
+            throw new InvalidJwtTokenException(e.getMessage());
+        }
+    }
+
+    private Claims extractClaimsStrict(String token) {
+        try {
+            return extractClaims(token);
+        } catch (final ExpiredJwtException e) {
+            throw new TokenExpiredException("Invalid access token");
+        } catch (final JwtException e) {
+            throw new InvalidJwtTokenException(e.getMessage());
+        }
     }
 
     private Claims extractClaims(String token) {
-        try {
-            return Jwts.parser()
-                    .verifyWith(publicKey)
-                    .build()
-                    .parseSignedClaims(token)
-                    .getPayload();
-        } catch (final JwtException ex) {
-            throw new RuntimeException("Invalid JWT token", ex);
-        }
+        return Jwts.parser()
+                .verifyWith(publicKey)
+                .build()
+                .parseSignedClaims(token)
+                .getPayload();
     }
 
     private boolean isRefreshTokenWithdrown(String refreshToken, String username) {
         if (refreshToken == null) {
-            return false;
+            return true;
         }
-        return refreshTokenRepo
+
+        boolean tokenExists = refreshTokenRepo
                 .findRefreshTokensByUsername(username)
                 .stream()
                 .map(RefreshToken::getRefreshToken)
                 .toList()
                 .contains(refreshToken);
+        return !tokenExists;
     }
 }

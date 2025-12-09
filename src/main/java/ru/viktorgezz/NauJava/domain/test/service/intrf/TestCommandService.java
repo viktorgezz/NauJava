@@ -1,9 +1,8 @@
 package ru.viktorgezz.NauJava.domain.test.service.intrf;
 
 import ru.viktorgezz.NauJava.domain.test.TestModel;
-import ru.viktorgezz.NauJava.domain.test.dto.TestRequestDto;
-import ru.viktorgezz.NauJava.domain.test.dto.TestRequestThymeleafDto;
-import ru.viktorgezz.NauJava.domain.user.User;
+import ru.viktorgezz.NauJava.domain.test.dto.TestMetadataRequestDto;
+import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateTestContentDto;
 
 /**
  * Контракт сервиса для управления тестами {@link TestModel}.
@@ -11,21 +10,19 @@ import ru.viktorgezz.NauJava.domain.user.User;
 public interface TestCommandService {
 
     /**
-     * Создает новый тест вместе с его вопросами и связями с темами.
+     * Обновляет метаданные теста (название, описание, статус, темы).
+     * Если ID теста указан, обновляет существующий тест, иначе создает новый.
      *
-     * @param createRequest DTO с данными для создания теста.
-     * @param author Аутентифицированный пользователь, который является автором теста.
-     * @return Созданный и сохраненный объект TestModel.
+     * @param testDto DTO с метаданными теста.
+     * @return ID обновленного или созданного теста.
      */
-    TestModel createTest(TestRequestDto createRequest, User author);
+    Long updateTestMetadata(TestMetadataRequestDto testDto);
 
     /**
-     * Создает новый тест с темами.
+     * Обновляет содержимое теста (вопросы и варианты ответов).
      *
-     * @param testDto DTO с данными для создания теста c Thymeleaf.
-     * @param author  Аутентифицированный пользователь, который является автором теста.
-     * @return Созданный и сохраненный объект TestModel.
+     * @param testDto DTO с содержимым теста для обновления.
      */
-    TestModel createTestThymeleaf(TestRequestThymeleafDto testDto, User author);
+    void updateTestContent(TestUpdateTestContentDto testDto);
 
 }

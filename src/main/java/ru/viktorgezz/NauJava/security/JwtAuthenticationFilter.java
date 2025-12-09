@@ -2,7 +2,6 @@ package ru.viktorgezz.NauJava.security;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.jspecify.annotations.NonNull;
@@ -17,11 +16,11 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import ru.viktorgezz.NauJava.exception.security.InvalidJwtTokenException;
+import ru.viktorgezz.NauJava.exception.security.TokenExpiredException;
 import ru.viktorgezz.NauJava.security.service.JwtService;
-import ru.viktorgezz.NauJava.security.util.CookieUtil;
 
 import java.io.IOException;
-import java.util.Arrays;
 
 /**
  * Фильтр для аутентификации по JWT.
@@ -41,17 +40,14 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-    private final JwtProperties jwtProperties;
 
     @Autowired
     public JwtAuthenticationFilter(
             JwtService jwtService,
-            UserDetailsService userDetailsService,
-            JwtProperties jwtProperties
+            UserDetailsService userDetailsService
     ) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
-        this.jwtProperties = jwtProperties;
     }
 
     @Override
@@ -61,20 +57,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-        String jwt = getTokenFromRequest(request, response);
-
-        if (jwt == null || SecurityContextHolder.getContext().getAuthentication() != null) {
-            filterChain.doFilter(request, response);
-            return;
-        }
-
         try {
-            final String username = jwtService.extractUsername(jwt);
+            String tokenAccess = getAccessToken(request);
+
+            if (tokenAccess == null || SecurityContextHolder.getContext().getAuthentication() != null) {
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            final String username = jwtService.extractUsername(tokenAccess);
 
             if (username != null) {
                 final UserDetails userDetails = userDetailsService.loadUserByUsername(username);
 
-                if (jwtService.validateToken(jwt, userDetails.getUsername())) {
+                if (jwtService.validateToken(tokenAccess, userDetails.getUsername())) {
                     final UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                             userDetails,
                             null,
@@ -85,62 +81,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     log.debug("User '{}' authenticated successfully.", username);
                 }
             }
+        } catch (TokenExpiredException | InvalidJwtTokenException e) {
+            log.debug("{}", e.getMessage());
         } catch (Exception e) {
-            log.warn("Invalid JWT Token: {}", e.getMessage(), e);
+            log.error("{}", e.getMessage(), e);
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private String getTokenFromRequest(HttpServletRequest request, HttpServletResponse response) {
+    private String getAccessToken(HttpServletRequest request) {
         final String authHeader = request.getHeader(HttpHeaders.AUTHORIZATION);
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             return authHeader.substring(7);
         }
-
-        String accessCookie = getCookieValue(request, "accessToken");
-        if (accessCookie != null) {
-            try {
-                jwtService.extractUsername(accessCookie);
-                return accessCookie;
-            } catch (Exception ex) {
-                log.debug("Access token from cookie expired, trying to refresh.");
-                return tryRefresh(request, response);
-            }
-        }
-
-        return tryRefresh(request, response);
-    }
-
-    private String tryRefresh(HttpServletRequest request, HttpServletResponse response) {
-        try {
-            String refresh = getCookieValue(request, "refreshToken");
-            if (refresh == null) {
-                return null;
-            }
-            String newAccess = jwtService.refreshToken(refresh);
-
-            Cookie access = CookieUtil.createCookieForJwtToken(
-                    newAccess, "accessToken", jwtProperties.getAccessExpirationSec()
-            );
-            response.addCookie(access);
-            log.debug("Refreshed access token via cookie.");
-            return newAccess;
-        } catch (Exception e) {
-            log.debug("Refresh via cookie failed: {}", e.getMessage());
-            return null;
-        }
-    }
-
-    private String getCookieValue(HttpServletRequest request, String name) {
-        Cookie[] cookies = request.getCookies();
-        if (cookies == null) {
-            return null;
-        }
-        return Arrays.stream(cookies)
-                .filter(c -> name.equals(c.getName()))
-                .map(Cookie::getValue)
-                .findFirst()
-                .orElse(null);
+        return null;
     }
 }

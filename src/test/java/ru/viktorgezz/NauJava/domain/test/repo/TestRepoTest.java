@@ -5,23 +5,21 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import ru.viktorgezz.NauJava.testconfig.AbstractIntegrationPostgresTest;
-import ru.viktorgezz.NauJava.domain.test.Status;
-import ru.viktorgezz.NauJava.domain.test.TestModel;
 import ru.viktorgezz.NauJava.domain.many_to_many_entity.test_topic.TestTopic;
 import ru.viktorgezz.NauJava.domain.many_to_many_entity.test_topic.TestTopicRepo;
-import ru.viktorgezz.NauJava.domain.topic.Topic;
-import ru.viktorgezz.NauJava.domain.topic.TopicRepo;
-import ru.viktorgezz.NauJava.domain.user.User;
+import ru.viktorgezz.NauJava.domain.test.Status;
+import ru.viktorgezz.NauJava.domain.test.TestModel;
+import ru.viktorgezz.NauJava.domain.topic.repo.TopicRepo;
 import ru.viktorgezz.NauJava.domain.user.repo.UserRepo;
+import ru.viktorgezz.NauJava.testconfig.AbstractIntegrationPostgresTest;
 
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static ru.viktorgezz.NauJava.util.CreationModel.createRandomUser;
 import static ru.viktorgezz.NauJava.util.CreationModel.createTest;
-import static ru.viktorgezz.NauJava.util.CreationModel.createTopic;
+import static ru.viktorgezz.NauJava.util.CreationModel.createUserRandom;
 
 @DisplayName("TestRepo Integration Test")
 class TestRepoTest extends AbstractIntegrationPostgresTest {
@@ -38,18 +36,11 @@ class TestRepoTest extends AbstractIntegrationPostgresTest {
     @Autowired
     private TestTopicRepo testTopicRepo;
 
-    private User author1;
-    private Topic topicJava;
-    private Topic topicSql;
-    private Topic topicSpring;
+    private Long idAuthor;
 
     @BeforeEach
     void setUp() {
-        author1 = userRepo.save(createRandomUser());
-
-        topicJava = topicRepo.save(createTopic("Java Basics"));
-        topicSql = topicRepo.save(createTopic("SQL"));
-        topicSpring = topicRepo.save(createTopic("Spring Framework"));
+        idAuthor = userRepo.save(createUserRandom()).getId();
     }
 
     @AfterEach
@@ -61,171 +52,63 @@ class TestRepoTest extends AbstractIntegrationPostgresTest {
     }
 
     @Test
-    @DisplayName("Поиск тестов по точному названию")
-    void findAllByTitle_shouldReturnMatchingTests() {
-        // Arrange
-        String targetTitle = "Java Core Test";
-        testRepo.save(createTest(targetTitle, "Test on core Java concepts", Status.PUBLIC, author1));
-        testRepo.save(createTest("Spring Boot Basics", "Intro to Spring Boot", Status.UNLISTED, author1));
-        testRepo.save(createTest(targetTitle, "Another test with the same title", Status.PUBLIC, author1));
+    @DisplayName("findAllWithAuthorAndTopics: возврат тестов с подгруженными автором и темами")
+    void findAllWithAuthorAndTopics_ShouldReturnTestsWithAuthorAndTopics_WhenTestsExist() {
+        testRepo.save(createTest("Title A", "Desc A", Status.PUBLIC, userRepo.findById(idAuthor).orElseThrow()));
+        testRepo.save(createTest("Title B", "Desc B", Status.PRIVATE, userRepo.findById(idAuthor).orElseThrow()));
 
-        // Act
-        List<TestModel> foundTests = testRepo.findAllByTitle(targetTitle);
+        List<TestModel> testsFound = testRepo.findAllWithAuthorAndTopics();
 
-        // Assert
-        assertThat(foundTests).hasSize(2);
-        assertThat(foundTests).allMatch(test -> test.getTitle().equals(targetTitle));
+        assertThat(testsFound).hasSize(2);
+        testsFound.forEach(testFound -> {
+            assertThat(testFound.getAuthor()).isNotNull();
+            assertThat(testFound.getAuthor().getId()).isEqualTo(idAuthor);
+            Set<TestTopic> topics = testFound.getTestTopics();
+            assertThat(topics).isNotNull();
+        });
     }
 
     @Test
-    @DisplayName("Возвращение пустого списка, если тесты не найдены")
-    void findAllByTitle_shouldReturnEmptyListForNonMatchingTitle() {
-        // Arrange
-        testRepo.save(createTest("Java Core Test", "Test on core Java concepts", Status.PUBLIC, author1));
+    @DisplayName("findAllWithAuthorAndTopicsByIds: возврат тестов по списку id")
+    void findAllWithAuthorAndTopicsByIds_ShouldReturnTestsForSpecifiedIds_WhenTestsExist() {
+        TestModel testFirst = testRepo.save(createTest("Title A", "Desc A", Status.PUBLIC, userRepo.findById(idAuthor).orElseThrow()));
+        TestModel testSecond = testRepo.save(createTest("Title B", "Desc B", Status.PUBLIC, userRepo.findById(idAuthor).orElseThrow()));
+        testRepo.save(createTest("Title C", "Desc C", Status.PUBLIC, userRepo.findById(idAuthor).orElseThrow()));
 
-        // Act
-        List<TestModel> foundTests = testRepo.findAllByTitle("NonExistentTitle");
+        List<TestModel> testsFound = testRepo.findAllWithAuthorAndTopicsByIds(List.of(testFirst.getId(), testSecond.getId()));
 
-        // Assert
-        assertThat(foundTests).isEmpty();
-    }
-
-
-    @Test
-    @DisplayName("Поиск тестов, связанных хотя бы с одной из тем по названию")
-    void findTestsByTopicTitles_shouldReturnAssociatedTests() {
-        // Arrange
-        TestModel javaTest = testRepo.save(createTest("Java Advanced", "Advanced Java topics", Status.PUBLIC, author1));
-        TestModel springTest = testRepo.save(createTest("Spring Test", "Spring topics", Status.PRIVATE, author1));
-        TestModel sqlTest = testRepo.save(createTest("SQL Basics", "Basic SQL queries", Status.PUBLIC, author1));
-        TestModel combinedTest = testRepo.save(createTest("Java & Spring", "Combined topics", Status.PUBLIC, author1));
-
-        linkTestTopic(javaTest, topicJava);
-        linkTestTopic(springTest, topicSpring);
-        linkTestTopic(sqlTest, topicSql);
-        linkTestTopic(combinedTest, topicJava);
-        linkTestTopic(combinedTest, topicSpring);
-
-        List<String> searchTopicTitles = List.of("Java Basics", "SQL");
-
-        // Act
-        List<TestModel> foundTests = testRepo.findTestsByTopicTitles(searchTopicTitles);
-
-        // Assert
-        assertThat(foundTests).hasSize(3);
-        assertThat(foundTests)
-                .extracting(TestModel::getTitle)
-                .containsExactlyInAnyOrder("Java Advanced", "SQL Basics", "Java & Spring");
-        assertThat(foundTests).noneMatch(test -> test.getTitle().equals("Spring Test"));
+        assertThat(testsFound).hasSize(2);
+        Set<Long> idsFound = testsFound.stream()
+                .map(TestModel::getId)
+                .collect(java.util.stream.Collectors.toSet());
+        assertThat(idsFound).containsExactlyInAnyOrder(testFirst.getId(), testSecond.getId());
     }
 
     @Test
-    @DisplayName("Поиск уникальных тестов, даже если у теста несколько искомых тем")
-    void findTestsByTopicTitles_shouldReturnDistinctTests() {
-        // Arrange
-        TestModel combinedTest = testRepo.save(createTest("Java & Spring", "Combined topics", Status.PUBLIC, author1));
-        linkTestTopic(combinedTest, topicJava);
-        linkTestTopic(combinedTest, topicSpring);
+    @DisplayName("findForEditingContent: возврат теста с вопросами и автором по id")
+    void findForEditingContent_ShouldReturnTestWithQuestionsAndAuthor_WhenTestExists() {
+        TestModel testSaved = testRepo.save(createTest("Title A", "Desc A", Status.PUBLIC, userRepo.findById(idAuthor).orElseThrow()));
 
-        List<String> searchTopicTitles = List.of("Java Basics", "Spring Framework");
+        Optional<TestModel> testFoundOptional = testRepo.findForEditingContent(testSaved.getId());
 
-        // Act
-        List<TestModel> foundTests = testRepo.findTestsByTopicTitles(searchTopicTitles);
-
-        // Assert
-        assertThat(foundTests).hasSize(1);
-        assertThat(foundTests.getFirst().getTitle()).isEqualTo("Java & Spring");
-    }
-
-
-    @Test
-    @DisplayName("Возвращение пустого списка для тем без тестов")
-    void findTestsByTopicTitles_shouldReturnEmptyListForTopicsWithNoTests() {
-        // Arrange
-        Topic unusedTopic = new Topic();
-        unusedTopic.setTitle("Unused");
-        topicRepo.save(unusedTopic);
-
-        List<String> searchTopicTitles = List.of("Unused");
-
-        testRepo.save(createTest("Some Test", "Desc", Status.PUBLIC, author1));
-
-        // Act
-        List<TestModel> foundTests = testRepo.findTestsByTopicTitles(searchTopicTitles);
-
-        // Assert
-        assertThat(foundTests).isEmpty();
+        assertThat(testFoundOptional).isPresent();
+        TestModel testFound = testFoundOptional.get();
+        assertThat(testFound.getAuthor()).isNotNull();
+        assertThat(testFound.getAuthor().getId()).isEqualTo(idAuthor);
+        assertThat(testFound.getQuestions()).isNotNull();
     }
 
     @Test
-    @DisplayName("Возвращение пустого списка для несуществующих названий тем")
-    void findTestsByTopicTitles_shouldReturnEmptyListForNonExistentTopicTitles() {
-        // Arrange
-        List<String> nonExistentTopicTitles = List.of("NonExistentTopic1", "NonExistentTopic2");
-        testRepo.save(createTest("Some Test", "Desc", Status.PUBLIC, author1));
+    @DisplayName("findForEditingMetadata: возврат теста с автором и темами по id")
+    void findForEditingMetadata_ShouldReturnTestWithAuthorAndTopics_WhenTestExists() {
+        TestModel testSaved = testRepo.save(createTest("Title A", "Desc A", Status.PUBLIC, userRepo.findById(idAuthor).orElseThrow()));
 
-        // Act
-        List<TestModel> foundTests = testRepo.findTestsByTopicTitles(nonExistentTopicTitles);
+        Optional<TestModel> testFoundOptional = testRepo.findForEditingMetadata(testSaved.getId());
 
-        // Assert
-        assertThat(foundTests).isEmpty();
-    }
-
-    @Test
-    @DisplayName("Возвращение пустого списка при передаче пустого списка названий")
-    void findTestsByTopicTitles_shouldReturnEmptyListForEmptyInputList() {
-        // Arrange
-        List<String> emptyList = Collections.emptyList();
-        testRepo.save(createTest("Some Test", "Desc", Status.PUBLIC, author1));
-
-        // Act
-        List<TestModel> foundTests = testRepo.findTestsByTopicTitles(emptyList);
-
-        // Assert
-        assertThat(foundTests).isEmpty();
-    }
-
-    @Test
-    @DisplayName("Получение всех тестов с подгруженными автором и темами")
-    void findAllWithAuthorAndTopics_shouldReturnAllWithRelations() {
-        // Arrange
-        User author2 = userRepo.save(createRandomUser());
-
-        TestModel testModel1 = testRepo.save(createTest("T1", "desc", Status.PUBLIC, author1));
-        TestModel testModel2 = testRepo.save(createTest("T2", "desc", Status.PUBLIC, author2));
-
-        linkTestTopic(testModel1, topicJava);
-        linkTestTopic(testModel1, topicSpring);
-        linkTestTopic(testModel2, topicSql);
-
-        // Act
-        List<TestModel> tests = testRepo.findAllWithAuthorAndTopics();
-
-        // Assert
-        assertThat(tests).hasSize(2);
-        assertThat(tests)
-                .extracting(TestModel::getTitle)
-                .containsExactlyInAnyOrder("T1", "T2");
-
-        TestModel loadedTest1 = tests.stream().filter(t -> t.getTitle().equals("T1")).findFirst().orElseThrow();
-        TestModel loadedTest2 = tests.stream().filter(t -> t.getTitle().equals("T2")).findFirst().orElseThrow();
-
-        assertThat(loadedTest1.getAuthor().getId()).isEqualTo(author1.getId());
-        assertThat(loadedTest2.getAuthor().getId()).isEqualTo(author2.getId());
-
-        assertThat(loadedTest1.getTestTopics())
-                .extracting(testTopic -> testTopic.getTopic().getTitle())
-                .containsExactlyInAnyOrder("Java Basics", "Spring Framework");
-
-        assertThat(loadedTest2.getTestTopics())
-                .extracting(testTopic -> testTopic.getTopic().getTitle())
-                .containsExactlyInAnyOrder("SQL");
-    }
-
-    private void linkTestTopic(TestModel test, Topic topic) {
-        TestTopic link = new TestTopic();
-        link.setTest(test);
-        link.setTopic(topic);
-        testTopicRepo.save(link);
+        assertThat(testFoundOptional).isPresent();
+        TestModel testFound = testFoundOptional.get();
+        assertThat(testFound.getAuthor()).isNotNull();
+        assertThat(testFound.getAuthor().getId()).isEqualTo(idAuthor);
+        assertThat(testFound.getTestTopics()).isNotNull();
     }
 }

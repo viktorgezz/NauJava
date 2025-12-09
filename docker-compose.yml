@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   db:
@@ -13,10 +13,28 @@ services:
     volumes:
       - postgres-data:/var/lib/postgresql
     healthcheck:
-      test: [ "CMD", "pg_isready", "-U", "${POSTGRESQL_USERNAME}" ]
+      test: ["CMD", "pg_isready", "-U", "${POSTGRESQL_USERNAME}"]
       interval: 10s
       timeout: 5s
       retries: 5
+
+  frontend:
+    build:
+      context: ./frontend/testing-system
+      dockerfile: Dockerfile
+    container_name: testing-system-frontend
+    ports:
+      - "5173:5173"
+    environment:
+      - VITE_BACKEND_API_URL=${VITE_BACKEND_API_URL:-http://localhost:8080}
+    volumes:
+      - ./frontend/testing-system/src:/app/src
+      - ./frontend/testing-system/public:/app/public
+      - ./frontend/testing-system/index.html:/app/index.html
+      - ./frontend/testing-system/vite.config.js:/app/vite.config.js
+      - /app/node_modules
+    stdin_open: true
+    tty: true
 
 volumes:
   postgres-data:

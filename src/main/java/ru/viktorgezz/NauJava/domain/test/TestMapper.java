@@ -1,7 +1,9 @@
 package ru.viktorgezz.NauJava.domain.test;
 
-import ru.viktorgezz.NauJava.domain.test.dto.AuthorDto;
-import ru.viktorgezz.NauJava.domain.test.dto.TestResponseDto;
+import ru.viktorgezz.NauJava.domain.test.dto.TestMetadataResponseDto;
+import ru.viktorgezz.NauJava.domain.topic.Topic;
+
+import java.util.stream.Collectors;
 
 /**
  * Маппер для конвертации {@link TestModel} в DTO.
@@ -9,30 +11,34 @@ import ru.viktorgezz.NauJava.domain.test.dto.TestResponseDto;
 public class TestMapper {
 
     /**
-     * Конвертирует {@link TestModel} в {@link TestResponseDto}.
+     * Конвертирует {@link TestModel} в {@link TestMetadataResponseDto}.
      *
      * @param testModel модель теста
      * @return DTO теста
      */
-    public static TestResponseDto toDto(TestModel testModel) {
+    public static TestMetadataResponseDto toDto(TestModel testModel) {
         if (testModel == null) {
             return null;
         }
 
-        AuthorDto authorDto = null;
+        TestMetadataResponseDto.AuthorDto authorDto = null;
         if (testModel.getAuthor() != null) {
-            authorDto = new AuthorDto(
+            authorDto = new TestMetadataResponseDto.AuthorDto(
                     testModel.getAuthor().getId(),
                     testModel.getAuthor().getUsername()
             );
         }
 
-        return new TestResponseDto(
+        return new TestMetadataResponseDto(
                 testModel.getId(),
                 testModel.getTitle(),
                 testModel.getDescription(),
                 testModel.getStatus(),
-                authorDto
+                authorDto,
+                testModel.getTopics()
+                        .stream()
+                        .map(Topic::getTitle)
+                        .collect(Collectors.toSet())
         );
     }
 }

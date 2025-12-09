@@ -1,8 +1,10 @@
 package ru.viktorgezz.NauJava.domain.test.service.intrf;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ru.viktorgezz.NauJava.domain.test.TestModel;
-
-import java.util.List;
+import ru.viktorgezz.NauJava.domain.test.dto.TestToPassDto;
+import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateTestContentDto;
 
 /**
  * Контракт сервиса для чтения тестов {@link TestModel}.
@@ -10,29 +12,47 @@ import java.util.List;
 public interface TestQueryService {
 
     /**
-     * Возвращение всех тестов с ленивыми инициализация
-     * @return List<TestModel>
+     * Находит тест по ID.
+     *
+     * @param id ID теста.
+     * @return найденный тест.
+     * @throws jakarta.persistence.EntityNotFoundException если тест с таким ID не найден.
      */
-    List<TestModel> findAll();
+    TestModel findById(Long id);
 
     /**
-     * Поиск тестов по названию
-     * @param title название теста
-     * @return List<TestModel>
+     * Получает тест для прохождения по ID и преобразует его в DTO.
+     *
+     * @param id ID теста.
+     * @return DTO теста с вопросами и вариантами ответов для прохождения.
+     * @throws jakarta.persistence.EntityNotFoundException если тест с таким ID не найден.
      */
-    List<TestModel> findAllByTitle(String title);
+    TestToPassDto findTestToPassById(Long id);
 
     /**
-     * Поиск тестов по списку названий тем.
-     * @param topicTitles Список названий тем.
-     * @return List<TestModel> Список уникальных тестов, связанных хотя бы с одной из указанных тем.
+     * Получает тест по ID с полным содержимым для редактирования.
+     *
+     * @param id ID теста.
+     * @return DTO теста с полным содержимым (вопросы и варианты ответов).
+     * @throws jakarta.persistence.EntityNotFoundException если тест с таким ID не найден.
      */
-    List<TestModel> findTestsByTopicsTitle(List<String> topicTitles);
+    TestUpdateTestContentDto findByIdWithContent(Long id);
 
     /**
-     * Получить все тесты со связанными автором и темами.
-     * @return List<TestModel> все тесты с подгруженными автором и темами
+     * Получает все тесты с информацией об авторе и темах с пагинацией.
+     *
+     * @param pageable параметры пагинации.
+     * @return страница тестов.
      */
-    List<TestModel> findAllWithAuthorAndTopics();
+    Page<TestModel> findAllWithAuthorAndTopics(Pageable pageable);
+
+    /**
+     * Ищет тесты по названию с пагинацией.
+     *
+     * @param title название теста для поиска.
+     * @param pageable параметры пагинации.
+     * @return страница найденных тестов.
+     */
+    Page<TestModel> findByTitle(String title, Pageable pageable);
 
 }

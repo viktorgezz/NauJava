@@ -1,9 +1,8 @@
 package ru.viktorgezz.NauJava.domain.result.service.intrf;
 
-import ru.viktorgezz.NauJava.domain.result.Grade;
 import ru.viktorgezz.NauJava.domain.result.Result;
+import ru.viktorgezz.NauJava.domain.result.dto.ResultResponseDto;
 
-import java.math.BigDecimal;
 import java.util.List;
 
 
@@ -13,21 +12,17 @@ import java.util.List;
 public interface ResultQueryService {
 
     /**
-     * Находит все пройденные тесты пользователя с определенной оценкой
-     * @param grade Оценка за текст
-     * @param idUser id пользователя
-     * @return List<Result>
+     * Получает результат теста по ID и преобразует его в DTO с полной информацией.
+     *
+     * @param id ID результата теста.
+     * @return DTO результата теста с вопросами и ответами пользователя.
      */
-    List<Result> findAllByGradeAndParticipantId(Grade grade, Long idUser);
+    ResultResponseDto getTestResultDto(Long id);
 
     /**
-     * Возвращает все пройденные тесты с балами ниже определенного числа
-     * @param maxScore максимально количество балов, не включительно
-     * @return List<Result>
+     * Получает все результаты тестов с информацией об участнике и названии теста.
+     *
+     * @return список всех результатов тестов.
      */
-    List<Result> findWithScoreLessThan(BigDecimal maxScore);
-
-    List<Result> findAll();
-
     List<Result> findAllWithParticipantUsernameAndTitleTest();
 }

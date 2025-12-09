@@ -52,7 +52,7 @@ public interface JwtService {
     /**
      * Удаляет (аннулирует) указанный Refresh Token.
      *
-     * @param refreshToken Refresh Token, который будет удален удалены.
+     * @param refreshToken Refresh Token, который будет удален.
      */
     void dropRefreshToken(String refreshToken);
 }

@@ -1,19 +1,13 @@
 package ru.viktorgezz.NauJava.domain.result.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
-import ru.viktorgezz.NauJava.domain.result.Grade;
+import org.springframework.web.bind.annotation.*;
 import ru.viktorgezz.NauJava.domain.result.Result;
-import ru.viktorgezz.NauJava.domain.result.ResultMapper;
+import ru.viktorgezz.NauJava.domain.result.dto.ResultRequestDto;
 import ru.viktorgezz.NauJava.domain.result.dto.ResultResponseDto;
+import ru.viktorgezz.NauJava.domain.result.service.intrf.ResultCommandService;
 import ru.viktorgezz.NauJava.domain.result.service.intrf.ResultQueryService;
-
-import java.math.BigDecimal;
-import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * REST-контроллер для чтения результатов прохождения тестов {@link Result}.
@@ -23,28 +17,26 @@ import java.util.stream.Collectors;
 public class ResultController {
 
     private final ResultQueryService resultQueryService;
+    private final ResultCommandService resultCommandService;
 
     @Autowired
-    public ResultController(ResultQueryService resultQueryService) {
+    public ResultController(
+            ResultQueryService resultQueryService,
+            ResultCommandService resultCommandService
+    ) {
         this.resultQueryService = resultQueryService;
+        this.resultCommandService = resultCommandService;
     }
 
-    @GetMapping("/search/grade-and-participant")
-    public List<ResultResponseDto> getResultsByGradeAndParticipant(
-            @RequestParam Grade grade,
-            @RequestParam Long idParticipant
-            ) {
-        return resultQueryService.findAllByGradeAndParticipantId(grade, idParticipant)
-                .stream()
-                .map(ResultMapper::toDto)
-                .collect(Collectors.toList());
+    @PostMapping
+    public Long createTestResult(@RequestBody @Valid ResultRequestDto resultRequestDto) {
+        Long idResult = resultCommandService.initiateCompilationResult(resultRequestDto);
+        resultCommandService.compilateResultAsync(resultRequestDto.idQuestionToUserAnswers(), idResult);
+        return idResult;
     }
 
-    @GetMapping("/search/score-less-than")
-    public List<ResultResponseDto> getResultsLessScore(@RequestParam BigDecimal maxScore) {
-        return resultQueryService.findWithScoreLessThan(maxScore)
-                .stream()
-                .map(ResultMapper::toDto)
-                .collect(Collectors.toList());
+    @GetMapping("/{id}")
+    public ResultResponseDto findTestResult(@PathVariable Long id) {
+        return resultQueryService.getTestResultDto(id);
     }
 }

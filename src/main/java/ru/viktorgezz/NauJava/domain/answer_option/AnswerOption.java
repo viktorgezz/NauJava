@@ -24,7 +24,7 @@ public class AnswerOption {
     @Column(name = "is_correct")
     private boolean isCorrect;
 
-    @Column(nullable = true)
+    @Column()
     private String explanation;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -40,6 +40,14 @@ public class AnswerOption {
     private List<UserAnswer> userAnswers = new ArrayList<>();
 
     public AnswerOption() {
+    }
+
+    public AnswerOption(String text, boolean isCorrect, String explanation, Question question, List<UserAnswer> userAnswers) {
+        this.text = text;
+        this.isCorrect = isCorrect;
+        this.explanation = explanation;
+        this.question = question;
+        this.userAnswers = userAnswers;
     }
 
     public Long getId() {

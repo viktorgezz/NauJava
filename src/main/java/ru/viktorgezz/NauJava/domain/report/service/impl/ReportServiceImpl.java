@@ -154,7 +154,7 @@ public class ReportServiceImpl implements ReportService {
     }
 
     private ReportUserCountResultsResponse handleGenerationError(Long idReport, Throwable ex) {
-        log.error("Ошибка при генерации отчета id={}: {}", idReport, ex.getMessage(), ex);
+        log.error("Ошибка при генерации отчета idTest={}: {}", idReport, ex.getMessage(), ex);
         reportStatusUpdater.saveErrorStatus(idReport);
         throw (RuntimeException) ex;
     }

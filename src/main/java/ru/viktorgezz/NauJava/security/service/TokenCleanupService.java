@@ -10,6 +10,9 @@ import ru.viktorgezz.NauJava.security.RefreshTokenRepo;
 
 import java.util.Date;
 
+/**
+ * Сервис для периодической очистки истекших refresh токенов из базы данных.
+ */
 @Service
 public class TokenCleanupService {
 

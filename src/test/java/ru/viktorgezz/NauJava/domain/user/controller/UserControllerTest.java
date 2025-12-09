@@ -10,11 +10,11 @@ import org.springframework.context.annotation.FilterType;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
-import ru.viktorgezz.NauJava.domain.user.controller.UserController;
 import ru.viktorgezz.NauJava.security.JwtAuthenticationFilter;
 import ru.viktorgezz.NauJava.domain.user.Role;
 import ru.viktorgezz.NauJava.domain.user.service.intrf.UserQueryService;
-import ru.viktorgezz.NauJava.util.GeneratorRandomModel;
+import ru.viktorgezz.NauJava.util.CreationModel;
+import ru.viktorgezz.NauJava.util.GeneratorRandom;
 import ru.viktorgezz.NauJava.exception.BusinessException;
 import ru.viktorgezz.NauJava.exception.ErrorCode;
 
@@ -26,6 +26,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static ru.viktorgezz.NauJava.util.CreationModel.createUserRandom;
 
 /**
  * Тесты веб-слоя для {@link UserController}.
@@ -49,7 +50,7 @@ class UserControllerTest {
     @Test
     @DisplayName("GET /users/search/username возвращает пользователя по username")
     void getUserByUsername_returnsUser() throws Exception {
-        var user = GeneratorRandomModel.getRandomUser();
+        var user = createUserRandom();
         user.setUsername("alice");
         user.setId(100L);
 
@@ -87,12 +88,12 @@ class UserControllerTest {
     @Test
     @DisplayName("GET /users/search/role возвращает пользователей по роли")
     void getUsersByRole_returnsUsers() throws Exception {
-        var user1 = GeneratorRandomModel.getRandomUser();
+        var user1 = createUserRandom();
         user1.setId(1L);
         user1.setRole(Role.ADMIN);
         user1.setUsername("admin1");
 
-        var user2 = GeneratorRandomModel.getRandomUser();
+        var user2 = createUserRandom();
         user2.setId(2L);
         user2.setRole(Role.ADMIN);
         user2.setUsername("admin2");

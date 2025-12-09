@@ -28,5 +28,5 @@ public interface UserCountResultReportRepo extends CrudRepository<ReportUserCoun
             WHERE report.id = :idReport
             """
     )
-    Optional<ReportUserCountResultsModel> findByIdWithResults(@Param("idReport") Long id);
+    Optional<ReportUserCountResultsModel> findByIdWithResults(@Param("idReport") Long idTest);
 }

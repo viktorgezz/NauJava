@@ -29,9 +29,9 @@ public class ReportController {
         return idNewReport;
     }
 
-    @GetMapping("/{id_report}")
-    public ReportUserCountResultsResponse getById(@PathVariable(name = "id_report") Long idReport) {
-        return reportService.findById(idReport);
+    @GetMapping("/{id}")
+    public ReportUserCountResultsResponse getById(@PathVariable(name = "id") Long id) {
+        return reportService.findById(id);
     }
 
     @GetMapping

@@ -14,7 +14,7 @@ import java.util.List;
  */
 @Entity
 @Table(name = "questions")
-    public class Question {
+public class Question {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -30,8 +30,11 @@ import java.util.List;
     @Column(precision = 4, scale = 2)
     private BigDecimal point = new BigDecimal("1.00");
 
-    @Column(name = "correct_text_answer", nullable = true, length = 255)
-    private String correctTextAnswer;
+    @Column(name = "allow_mistakes")
+    private boolean allowMistakes = false;
+
+    @Column(name = "correct_text_answers")
+    private List<String> correctTextAnswers = new ArrayList<>();
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "id_test")
@@ -54,6 +57,16 @@ import java.util.List;
     private List<UserAnswer> userAnswers = new ArrayList<>();
 
     public Question() {
+    }
+
+    public Question(String text, Type type, BigDecimal point, List<String> correctTextAnswers, TestModel test, List<AnswerOption> answerOptions, List<UserAnswer> userAnswers) {
+        this.text = text;
+        this.type = type;
+        this.point = point;
+        this.correctTextAnswers = correctTextAnswers;
+        this.test = test;
+        this.answerOptions = answerOptions;
+        this.userAnswers = userAnswers;
     }
 
     public Question(String text, Type type) {
@@ -81,6 +94,14 @@ import java.util.List;
         return type;
     }
 
+    public boolean isAllowMistakes() {
+        return allowMistakes;
+    }
+
+    public void setAllowMistakes(boolean allowMistakes) {
+        this.allowMistakes = allowMistakes;
+    }
+
     public void setType(Type type) {
         this.type = type;
     }
@@ -93,12 +114,12 @@ import java.util.List;
         this.point = point;
     }
 
-    public String getCorrectTextAnswer() {
-        return correctTextAnswer;
+    public List<String> getCorrectTextAnswers() {
+        return correctTextAnswers;
     }
 
-    public void setCorrectTextAnswer(String correctTextAnswer) {
-        this.correctTextAnswer = correctTextAnswer;
+    public void setCorrectTextAnswers(List<String> correctTextAnswer) {
+        this.correctTextAnswers = correctTextAnswer;
     }
 
     public TestModel getTest() {

@@ -24,4 +24,5 @@ management:
 security:
   jwt:
     access-expiration-ms: 600000
-    refresh-expiration-ms: 3600000
+    refresh-expiration-ms: 600000
+  origin-fronted: http://localhost:5173

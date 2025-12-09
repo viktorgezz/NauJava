@@ -37,7 +37,7 @@ public class ReportStatusUpdater {
                 .orElseThrow(() -> new BusinessException(ErrorCode.REPORT_NOT_FOUND, idReport));
         report.setStatus(StatusReport.ERROR);
         userCountResultReportRepo.save(report);
-        log.debug("Статус ERROR успешно сохранен для отчета id={}", idReport);
+        log.debug("Статус ERROR успешно сохранен для отчета idTest={}", idReport);
     }
 
     @Transactional

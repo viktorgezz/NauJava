@@ -36,7 +36,7 @@
                 </thead>
                 <tbody>
                 <tr th:each="report : ${allReports}">
-                    <td th:text="${report.id}">-</td>
+                    <td th:text="${report.idTest}">-</td>
                     <td th:text="${report.status}">-</td>
                     <td th:text="${report.countUsers}">-</td>
                     <td th:text="${report.timeSpentCommonMillis}">-</td>
@@ -61,7 +61,7 @@
     </div>
 
     <div th:if="${singleReport != null}" class="section report-details">
-        <h3 th:text="'Детали отчета: ID ' + ${singleReport.id}">Детали отчета</h3>
+        <h3 th:text="'Детали отчета: ID ' + ${singleReport.idTest}">Детали отчета</h3>
 
         <p><strong>Статус:</strong> <span th:text="${singleReport.status}"></span></p>
         <p><strong>Кол-во пользователей:</strong> <span th:text="${singleReport.countUsers}"></span></p>

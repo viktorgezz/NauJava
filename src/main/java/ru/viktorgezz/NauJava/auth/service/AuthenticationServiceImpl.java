@@ -12,13 +12,15 @@ import ru.viktorgezz.NauJava.auth.dto.AuthenticationRequest;
 import ru.viktorgezz.NauJava.auth.dto.AuthenticationResponse;
 import ru.viktorgezz.NauJava.auth.dto.RefreshRequest;
 import ru.viktorgezz.NauJava.auth.dto.RegistrationRequest;
-import ru.viktorgezz.NauJava.exception.BusinessException;
-import ru.viktorgezz.NauJava.exception.ErrorCode;
-import ru.viktorgezz.NauJava.security.service.JwtService;
 import ru.viktorgezz.NauJava.domain.user.Role;
 import ru.viktorgezz.NauJava.domain.user.User;
 import ru.viktorgezz.NauJava.domain.user.UserMapper;
 import ru.viktorgezz.NauJava.domain.user.service.intrf.UserCommandService;
+import ru.viktorgezz.NauJava.exception.BusinessException;
+import ru.viktorgezz.NauJava.exception.ErrorCode;
+import ru.viktorgezz.NauJava.exception.security.InvalidJwtTokenException;
+import ru.viktorgezz.NauJava.exception.security.TokenExpiredException;
+import ru.viktorgezz.NauJava.security.service.JwtService;
 
 /**
  * Сервис аутентификации пользователей. Реализует {@link AuthenticationService}.
@@ -79,14 +81,19 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Override
     public AuthenticationResponse refreshToken(RefreshRequest request) {
-        final String accessNewToken = jwtService.refreshToken(request.refreshToken());
-        final String tokenType = "Bearer";
+        try {
+            final String accessNewToken = jwtService.refreshToken(request.refreshToken());
+            final String tokenType = "Bearer";
 
-        return new AuthenticationResponse(
-                accessNewToken,
-                request.refreshToken(),
-                tokenType
-        );
+            return new AuthenticationResponse(
+                    accessNewToken,
+                    request.refreshToken(),
+                    tokenType
+            );
+        } catch (InvalidJwtTokenException | TokenExpiredException e) {
+            log.debug("Refresh token expired/invalid: {}", e.getMessage());
+            throw new BusinessException(ErrorCode.TOKEN_REFRESH_EXPIRED);
+        }
     }
 
     @Override

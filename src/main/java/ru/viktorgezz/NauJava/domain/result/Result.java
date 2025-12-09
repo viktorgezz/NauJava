@@ -1,7 +1,6 @@
 package ru.viktorgezz.NauJava.domain.result;
 
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.PositiveOrZero;
 import org.hibernate.proxy.HibernateProxy;
 import ru.viktorgezz.NauJava.domain.test.TestModel;
@@ -26,11 +25,10 @@ public class Result {
     private Long id;
 
     @PositiveOrZero
-    @Max(value = 100)
-    @Column(precision = 5, scale = 2)
+    @Column(scale = 2)
     private BigDecimal score;
 
-    @Column(nullable = false)
+    @Column()
     @Enumerated(EnumType.STRING)
     private Grade grade;
 
@@ -55,6 +53,13 @@ public class Result {
             orphanRemoval = true
     )
     private List<UserAnswer> userAnswers = new ArrayList<>();
+
+    public Result(int timeSpentSeconds, LocalDateTime completedAt, User participant, TestModel test) {
+        this.timeSpentSeconds = timeSpentSeconds;
+        this.completedAt = completedAt;
+        this.participant = participant;
+        this.test = test;
+    }
 
     public Result() {
     }

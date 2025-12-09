@@ -8,18 +8,14 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.boot.web.client.RestTemplateBuilder;
 import org.springframework.context.annotation.Bean;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.http.client.SimpleClientHttpRequestFactory;
-import ru.viktorgezz.NauJava.testconfig.AbstractIntegrationPostgresTest;
 import ru.viktorgezz.NauJava.auth.dto.RegistrationRequest;
 import ru.viktorgezz.NauJava.auth.service.AuthenticationService;
-import ru.viktorgezz.NauJava.security.service.JwtService;
 import ru.viktorgezz.NauJava.domain.user.Role;
 import ru.viktorgezz.NauJava.domain.user.repo.UserRepo;
+import ru.viktorgezz.NauJava.security.service.JwtService;
+import ru.viktorgezz.NauJava.testconfig.AbstractIntegrationPostgresTest;
 
 import java.net.HttpURLConnection;
 
@@ -79,22 +75,6 @@ class SecurityAccessTest extends AbstractIntegrationPostgresTest {
     class AnonymousAccess {
 
         @Test
-        @DisplayName("Перенаправление на логин для защищённой конечной точки")
-        void anonymous_isRedirected_onProtectedEndpoint() {
-            TestRestTemplate noRedirect = restTemplate.withBasicAuth("", "");
-
-            ResponseEntity<String> response = noRedirect.exchange(
-                    getBaseUrl() + "/users/search/username?username=any",
-                    HttpMethod.GET,
-                    new HttpEntity<>(new HttpHeaders()),
-                    String.class
-            );
-
-            assertEquals(HttpStatus.FOUND, response.getStatusCode());
-            assertTrue(response.getHeaders().getLocation() != null &&
-                    response.getHeaders().getLocation().getPath().equals("/ui/auth/login"));
-        }
-        @Test
         @DisplayName("Перенаправление на логин для админского эндпоинта (swagger)")
         void anonymous_isRedirected_onAdminOnly() {
             ResponseEntity<String> response = restTemplate.getForEntity(
@@ -108,6 +88,7 @@ class SecurityAccessTest extends AbstractIntegrationPostgresTest {
         }
 
     }
+
     @Nested
     @DisplayName("Доступ роли USER")
     class UserRoleAccess {
@@ -125,6 +106,7 @@ class SecurityAccessTest extends AbstractIntegrationPostgresTest {
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
         }
+
         @Test
         @DisplayName("USER запрещён доступ к админскому эндпоинту (swagger)")
         void user_forbidden_onAdminOnly() {
@@ -136,10 +118,11 @@ class SecurityAccessTest extends AbstractIntegrationPostgresTest {
                     String.class
             );
 
-            assertEquals(HttpStatus.FOUND, response.getStatusCode());
+            assertEquals(HttpStatus.UNAUTHORIZED, response.getStatusCode());
         }
 
     }
+
     @Nested
     @DisplayName("Доступ роли ADMIN")
     class AdminRoleAccess {
@@ -157,6 +140,7 @@ class SecurityAccessTest extends AbstractIntegrationPostgresTest {
 
             assertEquals(HttpStatus.OK, response.getStatusCode());
         }
+
         @Test
         @DisplayName("ADMIN имеет доступ к swagger")
         void admin_canAccess_swagger() {

@@ -64,7 +64,7 @@ class UserQueryServiceImplTest {
     @DisplayName("getByUsername: успешно возвращает пользователя, если он найден в БД")
     void getByUsername_ShouldReturnUser_WhenExists() {
         String usernameTarget = "test_user";
-        User userExpected = CreationModel.createRandomUser();
+        User userExpected = CreationModel.createUserRandom();
         userExpected.setUsername(usernameTarget);
 
         when(repoUser.findByUsername(usernameTarget)).thenReturn(Optional.of(userExpected));
@@ -148,8 +148,8 @@ class UserQueryServiceImplTest {
     @DisplayName("findAllByRole: возвращает список пользователей с заданной ролью")
     void findAllByRole_ShouldReturnList_WhenUsersExist() {
         Role roleTarget = Role.USER;
-        User userFirst = CreationModel.createRandomUser();
-        User userSecond = CreationModel.createRandomUser();
+        User userFirst = CreationModel.createUserRandom();
+        User userSecond = CreationModel.createUserRandom();
         userFirst.setRole(roleTarget);
         userSecond.setRole(roleTarget);
         List<User> listExpected = List.of(userFirst, userSecond);
@@ -267,7 +267,7 @@ class UserQueryServiceImplTest {
     @DisplayName("loadUserByUsername: успешно возвращает UserDetails для Spring Security")
     void loadUserByUsername_ShouldReturnUserDetails_WhenUserExists() {
         String usernameTarget = "security_user";
-        User userEntity = CreationModel.createRandomUser();
+        User userEntity = CreationModel.createUserRandom();
         userEntity.setUsername(usernameTarget);
 
         when(repoUser.findByUsername(usernameTarget)).thenReturn(Optional.of(userEntity));

@@ -35,7 +35,7 @@ import java.util.concurrent.ExecutionException;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static ru.viktorgezz.NauJava.util.CreationModel.createRandomUser;
+import static ru.viktorgezz.NauJava.util.CreationModel.createUserRandom;
 import static ru.viktorgezz.NauJava.util.CreationModel.createResult;
 import static ru.viktorgezz.NauJava.util.CreationModel.createTest;
 import static ru.viktorgezz.NauJava.util.CreationModel.createUserCountResultReportModel;
@@ -64,8 +64,8 @@ class ReportServiceTest extends AbstractIntegrationPostgresTest {
 
     @BeforeEach
     void setUp() {
-        User testAuthor = userRepo.save(createRandomUser());
-        participant = userRepo.save(createRandomUser());
+        User testAuthor = userRepo.save(createUserRandom());
+        participant = userRepo.save(createUserRandom());
 
         testModel = testRepo.save(createTest(
                 "Integration Test",
