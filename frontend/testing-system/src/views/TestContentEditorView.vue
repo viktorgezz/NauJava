@@ -270,6 +270,7 @@ const loadTestContent = async (restoreFromStorage = false) => {
         ...ao,
         tempId: ao.idAnswerOption ? null : `temp-${Date.now()}-${Math.random()}`,
       })),
+      allowMistakes: q.allowMistakes || false,
       tempId: q.idQuestion ? null : `temp-${Date.now()}-${Math.random()}`,
     }))
     
@@ -331,6 +332,7 @@ const addQuestion = () => {
         tempId: `temp-${Date.now()}-2`,
       },
     ],
+    allowMistakes: false,
     tempId: `temp-${Date.now()}`,
   }
 
@@ -490,6 +492,7 @@ const handleSave = async () => {
           isCorrect: ao.isCorrect || false,
           explanation: ao.explanation || null,
         })),
+        allowMistakes: q.type === 'MULTIPLE_CHOICE' ? (q.allowMistakes || false) : false,
       })),
     }
 

@@ -14,7 +14,7 @@ public interface TopicService {
     /**
      * Сохраняет темы и связывает их с тестом.
      *
-     * @param topics множество тем для сохранения и связи.
+     * @param topics  множество тем для сохранения и связи.
      * @param testNew тест для связи с темами.
      */
     void saveAndLinkAll(Set<Topic> topics, TestModel testNew);

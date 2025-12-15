@@ -10,9 +10,10 @@ import ru.viktorgezz.NauJava.domain.report.model.ReportResultData;
 import ru.viktorgezz.NauJava.domain.report.model.ReportUserCountResultsModel;
 import ru.viktorgezz.NauJava.domain.result.Grade;
 import ru.viktorgezz.NauJava.domain.result.Result;
+import ru.viktorgezz.NauJava.domain.result.dto.ResultShortMetadataResponseDto;
 import ru.viktorgezz.NauJava.domain.test.Status;
 import ru.viktorgezz.NauJava.domain.test.TestModel;
-import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateTestContentDto;
+import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateContentDto;
 import ru.viktorgezz.NauJava.domain.topic.Topic;
 import ru.viktorgezz.NauJava.domain.user.User;
 import ru.viktorgezz.NauJava.domain.user_answer.UserAnswer;
@@ -132,9 +133,9 @@ public class CreationModel {
         );
     }
 
-    public static TestUpdateTestContentDto.AnswerOptionDto createAnswerOptionDtoNew(
+    public static TestUpdateContentDto.AnswerOptionDto createAnswerOptionDtoNew(
     ) {
-        return new TestUpdateTestContentDto.AnswerOptionDto(
+        return new TestUpdateContentDto.AnswerOptionDto(
                 null,
                 getRandomString(5),
                 getRandomBoolean(),
@@ -142,10 +143,10 @@ public class CreationModel {
         );
     }
 
-    public static TestUpdateTestContentDto.AnswerOptionDto createAnswerOptionDtoExisting(
+    public static TestUpdateContentDto.AnswerOptionDto createAnswerOptionDtoExisting(
             Long idAnswerOption
     ) {
-        return new TestUpdateTestContentDto.AnswerOptionDto(
+        return new TestUpdateContentDto.AnswerOptionDto(
                 idAnswerOption,
                 getRandomString(5),
                 getRandomBoolean(),
@@ -153,40 +154,42 @@ public class CreationModel {
         );
     }
 
-    public static TestUpdateTestContentDto.QuestionDto createQuestionDtoNew(
+    public static TestUpdateContentDto.QuestionDto createQuestionDtoNew(
             String textQuestion,
             Type typeQuestion,
             BigDecimal pointQuestion,
             List<String> correctTextAnswers,
-            List<TestUpdateTestContentDto.AnswerOptionDto> answerOptionsDto
+            List<TestUpdateContentDto.AnswerOptionDto> answerOptionsDto
     ) {
-        return new TestUpdateTestContentDto.QuestionDto(
+        return new TestUpdateContentDto.QuestionDto(
                 null,
                 textQuestion,
                 typeQuestion,
                 pointQuestion,
                 correctTextAnswers,
-                answerOptionsDto
+                answerOptionsDto,
+                false
         );
     }
 
-    public static TestUpdateTestContentDto.QuestionDto createQuestionDtoExisting(
+    public static TestUpdateContentDto.QuestionDto createQuestionDtoExisting(
             Long idQuestion,
             Type typeQuestion,
             List<String> correctTextAnswers,
-            List<TestUpdateTestContentDto.AnswerOptionDto> answerOptionsDto
+            List<TestUpdateContentDto.AnswerOptionDto> answerOptionsDto
     ) {
-        return new TestUpdateTestContentDto.QuestionDto(
+        return new TestUpdateContentDto.QuestionDto(
                 idQuestion,
                 getRandomQuestionText(),
                 typeQuestion,
                 getRandomPoint(),
                 correctTextAnswers,
-                answerOptionsDto
+                answerOptionsDto,
+                false
         );
     }
 
-    public static TestUpdateTestContentDto.QuestionDto createQuestionDtoOpenText(
+    public static TestUpdateContentDto.QuestionDto createQuestionDtoOpenText(
             List<String> correctTextAnswers
     ) {
         return createQuestionDtoNew(
@@ -198,8 +201,8 @@ public class CreationModel {
         );
     }
 
-    public static TestUpdateTestContentDto.QuestionDto createQuestionDtoSingleChoice(
-            List<TestUpdateTestContentDto.AnswerOptionDto> answerOptionsDto
+    public static TestUpdateContentDto.QuestionDto createQuestionDtoSingleChoice(
+            List<TestUpdateContentDto.AnswerOptionDto> answerOptionsDto
     ) {
         return createQuestionDtoNew(
                 getRandomQuestionText(),
@@ -210,9 +213,9 @@ public class CreationModel {
         );
     }
 
-    public static TestUpdateTestContentDto.QuestionDto createQuestionDtoExistingMultipleChoice(
+    public static TestUpdateContentDto.QuestionDto createQuestionDtoExistingMultipleChoice(
             Long idQuestion,
-            List<TestUpdateTestContentDto.AnswerOptionDto> answerOptionsDto
+            List<TestUpdateContentDto.AnswerOptionDto> answerOptionsDto
     ) {
         return createQuestionDtoExisting(idQuestion, Type.MULTIPLE_CHOICE, null, answerOptionsDto);
     }
@@ -332,5 +335,16 @@ public class CreationModel {
             boolean isCorrect
     ) {
         return new UserAnswer(textAnswer, isCorrect, result, question);
+    }
+
+    /**
+     * Создаёт ResultShortMetadataResponseDto с заданными параметрами.
+     */
+    public static ResultShortMetadataResponseDto createResultShortMetadataResponseDto(
+            BigDecimal point,
+            BigDecimal pointMax,
+            int timeSpentSeconds
+    ) {
+        return new ResultShortMetadataResponseDto(point, pointMax, timeSpentSeconds);
     }
 }

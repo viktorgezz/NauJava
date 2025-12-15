@@ -1,7 +1,11 @@
 package ru.viktorgezz.NauJava.domain.result.service.intrf;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import ru.viktorgezz.NauJava.domain.result.Result;
+import ru.viktorgezz.NauJava.domain.result.dto.ResultMetadataResponseDto;
 import ru.viktorgezz.NauJava.domain.result.dto.ResultResponseDto;
+import ru.viktorgezz.NauJava.domain.result.dto.ResultShortMetadataResponseDto;
 
 import java.util.List;
 
@@ -25,4 +29,8 @@ public interface ResultQueryService {
      * @return список всех результатов тестов.
      */
     List<Result> findAllWithParticipantUsernameAndTitleTest();
+
+    Page<ResultMetadataResponseDto> findUserResults(Pageable pageable);
+
+    List<ResultShortMetadataResponseDto> findResultLastThreeAttempts(Long idTest);
 }

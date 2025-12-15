@@ -11,7 +11,7 @@ import ru.viktorgezz.NauJava.domain.answer_option.service.intrf.AnswerOptionQuer
 import ru.viktorgezz.NauJava.domain.question.Question;
 import ru.viktorgezz.NauJava.domain.test.TestModel;
 import ru.viktorgezz.NauJava.domain.test.dto.TestToPassDto;
-import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateTestContentDto;
+import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateContentDto;
 import ru.viktorgezz.NauJava.domain.test.repo.TestPagingAndSortingRepo;
 import ru.viktorgezz.NauJava.domain.test.repo.TestRepo;
 import ru.viktorgezz.NauJava.domain.test.service.intrf.TestQueryService;
@@ -45,7 +45,7 @@ public class TestQueryServiceImpl implements TestQueryService {
 
     @Override
     public TestModel findById(Long id) {
-        return testRepo.findById(id).orElseThrow(EntityNotFoundException::new);
+        return testRepo.findByIdWithAuthor(id).orElseThrow(EntityNotFoundException::new);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class TestQueryServiceImpl implements TestQueryService {
     }
 
     @Override
-    public TestUpdateTestContentDto findByIdWithContent(Long id) {
+    public TestUpdateContentDto findByIdWithContent(Long id) {
         TestModel test = testRepo.findForEditingContent(id).orElseThrow(EntityNotFoundException::new);
 
         List<Long> idsQuestion = extractQuestionIds(test.getQuestions());
@@ -79,10 +79,10 @@ public class TestQueryServiceImpl implements TestQueryService {
                         .findAllAnswerOptionByIdsQuestionWithQuestion(idsQuestion)
         );
 
-        List<TestUpdateTestContentDto.QuestionDto> questionsDto = buildQuestionsDtoTestUpdate(
+        List<TestUpdateContentDto.QuestionDto> questionsDto = buildQuestionsDtoTestUpdate(
                 test.getQuestions(), idQuestionToAnswerOptions);
 
-        return new TestUpdateTestContentDto(
+        return new TestUpdateContentDto(
                 test.getId(),
                 questionsDto
         );

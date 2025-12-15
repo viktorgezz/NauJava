@@ -2,8 +2,16 @@ package ru.viktorgezz.NauJava.domain.result.controller;
 
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
+import org.springframework.data.web.PagedResourcesAssembler;
+import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.PagedModel;
 import org.springframework.web.bind.annotation.*;
 import ru.viktorgezz.NauJava.domain.result.Result;
+import ru.viktorgezz.NauJava.domain.result.dto.ResultMetadataResponseDto;
 import ru.viktorgezz.NauJava.domain.result.dto.ResultRequestDto;
 import ru.viktorgezz.NauJava.domain.result.dto.ResultResponseDto;
 import ru.viktorgezz.NauJava.domain.result.service.intrf.ResultCommandService;
@@ -18,14 +26,17 @@ public class ResultController {
 
     private final ResultQueryService resultQueryService;
     private final ResultCommandService resultCommandService;
+    private final PagedResourcesAssembler<ResultMetadataResponseDto> pagedResourcesAssembler;
 
     @Autowired
     public ResultController(
             ResultQueryService resultQueryService,
-            ResultCommandService resultCommandService
+            ResultCommandService resultCommandService,
+            PagedResourcesAssembler<ResultMetadataResponseDto> pagedResourcesAssembler
     ) {
         this.resultQueryService = resultQueryService;
         this.resultCommandService = resultCommandService;
+        this.pagedResourcesAssembler = pagedResourcesAssembler;
     }
 
     @PostMapping
@@ -38,5 +49,18 @@ public class ResultController {
     @GetMapping("/{id}")
     public ResultResponseDto findTestResult(@PathVariable Long id) {
         return resultQueryService.getTestResultDto(id);
+    }
+
+    @GetMapping
+    public PagedModel<EntityModel<ResultMetadataResponseDto>> getUserResults(
+            @PageableDefault(
+                    size = 20,
+                    sort = "completedAt",
+                    direction = Sort.Direction.DESC
+            )
+            Pageable pageable
+    ) {
+        Page<ResultMetadataResponseDto> page = resultQueryService.findUserResults(pageable);
+        return pagedResourcesAssembler.toModel(page);
     }
 }

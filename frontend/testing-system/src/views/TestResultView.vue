@@ -103,7 +103,8 @@
           class="question-card"
           :class="{
             'question-correct': isQuestionCorrect(question),
-            'question-incorrect': !isQuestionCorrect(question),
+            'question-partially-correct': isQuestionPartiallyCorrect(question),
+            'question-incorrect': !isQuestionCorrect(question) && !isQuestionPartiallyCorrect(question),
           }"
         >
           <div class="question-header">
@@ -112,10 +113,13 @@
               class="question-status"
               :class="{
                 'status-correct': isQuestionCorrect(question),
-                'status-incorrect': !isQuestionCorrect(question),
+                'status-partially-correct': isQuestionPartiallyCorrect(question),
+                'status-incorrect': !isQuestionCorrect(question) && !isQuestionPartiallyCorrect(question),
               }"
             >
-              {{ isQuestionCorrect(question) ? '✓ Правильно' : '✗ Неправильно' }}
+              <template v-if="isQuestionCorrect(question)">✓ Правильно</template>
+              <template v-else-if="isQuestionPartiallyCorrect(question)">⚠ Частично правильно</template>
+              <template v-else>✗ Неправильно</template>
             </span>
           </div>
 
@@ -296,6 +300,24 @@ const isQuestionCorrect = (question) => {
   if (selected.length !== correct.length) return false
 
   return selected.every((opt) => opt.isCorrect)
+}
+
+/**
+ * Проверяет, является ли вопрос частично правильным (для MULTIPLE_CHOICE с allowMistakes)
+ */
+const isQuestionPartiallyCorrect = (question) => {
+  if (!question || !question.userAnswersDto) return false
+  if (question.type !== 'MULTIPLE_CHOICE') return false
+  if (!question.allowMistakes) return false
+
+  const selected = question.userAnswersDto.filter((opt) => opt.isSelected)
+  const correct = question.userAnswersDto.filter((opt) => opt.isCorrect)
+  const selectedCorrect = selected.filter((opt) => opt.isCorrect)
+
+  if (selected.length === 0) return false
+  if (selected.length === correct.length && selected.every((opt) => opt.isCorrect)) return false
+
+  return selectedCorrect.length > 0
 }
 
 /**
@@ -756,6 +778,10 @@ watch(resultId, () => {
   border-color: rgba(0, 255, 136, 0.4);
 }
 
+.question-partially-correct {
+  border-color: rgba(255, 170, 0, 0.4);
+}
+
 .question-incorrect {
   border-color: rgba(255, 68, 68, 0.4);
 }
@@ -785,6 +811,11 @@ watch(resultId, () => {
 .status-correct {
   background: rgba(0, 255, 136, 0.15);
   color: #00ff88;
+}
+
+.status-partially-correct {
+  background: rgba(255, 170, 0, 0.15);
+  color: #ffaa00;
 }
 
 .status-incorrect {

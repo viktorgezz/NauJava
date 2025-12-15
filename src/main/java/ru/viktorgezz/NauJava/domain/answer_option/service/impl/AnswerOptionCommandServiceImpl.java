@@ -7,7 +7,7 @@ import ru.viktorgezz.NauJava.domain.answer_option.AnswerOption;
 import ru.viktorgezz.NauJava.domain.answer_option.repo.AnswerOptionRepo;
 import ru.viktorgezz.NauJava.domain.answer_option.service.intrf.AnswerOptionCommandService;
 import ru.viktorgezz.NauJava.domain.question.Question;
-import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateTestContentDto;
+import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateContentDto;
 
 import java.util.ArrayList;
 
@@ -29,7 +29,7 @@ public class AnswerOptionCommandServiceImpl implements AnswerOptionCommandServic
     @Override
     public AnswerOption createAndLinkAnswerOption(
             Question questionLink,
-            TestUpdateTestContentDto.AnswerOptionDto answerOptionDto
+            TestUpdateContentDto.AnswerOptionDto answerOptionDto
     ) {
         AnswerOption answerOptionNew = new AnswerOption(
                 answerOptionDto.text(),
@@ -46,7 +46,7 @@ public class AnswerOptionCommandServiceImpl implements AnswerOptionCommandServic
     @Override
     public void updateAnswerOptionWithoutSave(
             AnswerOption answerOptionExisting,
-            TestUpdateTestContentDto.AnswerOptionDto answerOptionDto
+            TestUpdateContentDto.AnswerOptionDto answerOptionDto
     ) {
         answerOptionExisting.setText(answerOptionDto.text());
         answerOptionExisting.setCorrect(answerOptionDto.isCorrect());

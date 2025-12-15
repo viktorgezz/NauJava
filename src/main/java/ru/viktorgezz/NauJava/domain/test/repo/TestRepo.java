@@ -14,6 +14,13 @@ import java.util.Optional;
  */
 @RepositoryRestResource(path = "tests")
 public interface TestRepo extends CrudRepository<TestModel, Long> {
+    
+    @Query("""
+            SELECT DISTINCT test FROM TestModel test
+            LEFT JOIN FETCH test.author
+            WHERE test.id = :id
+            """)
+    Optional<TestModel> findByIdWithAuthor(@Param("id") Long id);
 
     /**
      * Получить все тесты со связанными автором и темами.

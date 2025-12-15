@@ -4,7 +4,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import ru.viktorgezz.NauJava.domain.test.TestModel;
 import ru.viktorgezz.NauJava.domain.test.dto.TestToPassDto;
-import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateTestContentDto;
+import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateContentDto;
 
 /**
  * Контракт сервиса для чтения тестов {@link TestModel}.
@@ -36,7 +36,7 @@ public interface TestQueryService {
      * @return DTO теста с полным содержимым (вопросы и варианты ответов).
      * @throws jakarta.persistence.EntityNotFoundException если тест с таким ID не найден.
      */
-    TestUpdateTestContentDto findByIdWithContent(Long id);
+    TestUpdateContentDto findByIdWithContent(Long id);
 
     /**
      * Получает все тесты с информацией об авторе и темах с пагинацией.

@@ -7,7 +7,7 @@ import ru.viktorgezz.NauJava.domain.question.Question;
 import ru.viktorgezz.NauJava.domain.question.Type;
 import ru.viktorgezz.NauJava.domain.result.dto.ResultResponseDto;
 import ru.viktorgezz.NauJava.domain.test.dto.TestToPassDto;
-import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateTestContentDto;
+import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateContentDto;
 import ru.viktorgezz.NauJava.domain.user_answer.UserAnswer;
 
 import java.util.*;
@@ -178,7 +178,7 @@ public class GroupingUtil {
      * @param idQuestionToAnswerOptions Map вариантов ответов по ID вопроса.
      * @return список DTO вопросов для обновления теста.
      */
-    public static List<TestUpdateTestContentDto.QuestionDto> buildQuestionsDtoTestUpdate(
+    public static List<TestUpdateContentDto.QuestionDto> buildQuestionsDtoTestUpdate(
             List<Question> questions,
             Map<Long, List<AnswerOption>> idQuestionToAnswerOptions
     ) {
@@ -186,8 +186,8 @@ public class GroupingUtil {
                 .map(question -> {
                     List<AnswerOption> currentOptions = idQuestionToAnswerOptions.getOrDefault(question.getId(), Collections.emptyList());
 
-                    List<TestUpdateTestContentDto.AnswerOptionDto> answerOptionsDto = currentOptions.stream()
-                            .map(answerOption -> new TestUpdateTestContentDto.AnswerOptionDto(
+                    List<TestUpdateContentDto.AnswerOptionDto> answerOptionsDto = currentOptions.stream()
+                            .map(answerOption -> new TestUpdateContentDto.AnswerOptionDto(
                                     answerOption.getId(),
                                     answerOption.getText(),
                                     answerOption.isCorrect(),
@@ -195,13 +195,14 @@ public class GroupingUtil {
                             ))
                             .toList();
 
-                    return new TestUpdateTestContentDto.QuestionDto(
+                    return new TestUpdateContentDto.QuestionDto(
                             question.getId(),
                             question.getText(),
                             question.getType(),
                             question.getPoint(),
                             question.getCorrectTextAnswers(),
-                            answerOptionsDto
+                            answerOptionsDto,
+                            question.isAllowMistakes()
                     );
                 })
                 .toList();

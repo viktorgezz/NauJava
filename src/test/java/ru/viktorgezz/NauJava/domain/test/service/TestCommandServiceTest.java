@@ -16,7 +16,7 @@ import ru.viktorgezz.NauJava.domain.question.repo.QuestionRepo;
 import ru.viktorgezz.NauJava.domain.test.Status;
 import ru.viktorgezz.NauJava.domain.test.TestModel;
 import ru.viktorgezz.NauJava.domain.test.dto.TestMetadataRequestDto;
-import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateTestContentDto;
+import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateContentDto;
 import ru.viktorgezz.NauJava.domain.test.repo.TestRepo;
 import ru.viktorgezz.NauJava.domain.test.service.intrf.TestCommandService;
 import ru.viktorgezz.NauJava.domain.topic.Topic;
@@ -284,17 +284,17 @@ class TestCommandServiceTest extends AbstractIntegrationPostgresTest {
      * а также возвращает сопутствующие данные (answer options, тексты) для последующей валидации.
      */
     private UpdateTestContentData createUpdateTestContentData(Long idTest) {
-        TestUpdateTestContentDto.AnswerOptionDto answerOptionDtoFirst = createAnswerOptionDtoNew();
-        TestUpdateTestContentDto.AnswerOptionDto answerOptionDtoSecond = createAnswerOptionDtoNew();
+        TestUpdateContentDto.AnswerOptionDto answerOptionDtoFirst = createAnswerOptionDtoNew();
+        TestUpdateContentDto.AnswerOptionDto answerOptionDtoSecond = createAnswerOptionDtoNew();
 
-        TestUpdateTestContentDto.QuestionDto questionDtoSingle = createQuestionDtoSingleChoice(
+        TestUpdateContentDto.QuestionDto questionDtoSingle = createQuestionDtoSingleChoice(
                 List.of(answerOptionDtoFirst, answerOptionDtoSecond)
         );
 
         List<String> correctTextAnswers = List.of("Correct Answer One", "Correct Answer Two");
-        TestUpdateTestContentDto.QuestionDto questionDtoOpen = createQuestionDtoOpenText(correctTextAnswers);
+        TestUpdateContentDto.QuestionDto questionDtoOpen = createQuestionDtoOpenText(correctTextAnswers);
 
-        TestUpdateTestContentDto updateDtoNew = new TestUpdateTestContentDto(
+        TestUpdateContentDto updateDtoNew = new TestUpdateContentDto(
                 idTest,
                 List.of(questionDtoSingle, questionDtoOpen)
         );
@@ -410,21 +410,21 @@ class TestCommandServiceTest extends AbstractIntegrationPostgresTest {
      */
     private UpdateExistingTestData createUpdateExistingTestData(ExistingTestData dataExistingTest) {
         Long idAnswerOptionExistingFirst = dataExistingTest.answerOptionExistingFirst().getId();
-        TestUpdateTestContentDto.AnswerOptionDto answerOptionDtoUpdated = createAnswerOptionDtoExisting(idAnswerOptionExistingFirst);
-        TestUpdateTestContentDto.AnswerOptionDto answerOptionDtoNew = createAnswerOptionDtoNew();
+        TestUpdateContentDto.AnswerOptionDto answerOptionDtoUpdated = createAnswerOptionDtoExisting(idAnswerOptionExistingFirst);
+        TestUpdateContentDto.AnswerOptionDto answerOptionDtoNew = createAnswerOptionDtoNew();
 
         Long idQuestionExistingFirst = dataExistingTest.questionExistingFirst().getId();
-        TestUpdateTestContentDto.QuestionDto questionDtoUpdated = createQuestionDtoExistingMultipleChoice(
+        TestUpdateContentDto.QuestionDto questionDtoUpdated = createQuestionDtoExistingMultipleChoice(
                 idQuestionExistingFirst,
                 List.of(answerOptionDtoUpdated, answerOptionDtoNew)
         );
 
-        TestUpdateTestContentDto.AnswerOptionDto answerOptionDtoNewQuestion = createAnswerOptionDtoNew();
-        TestUpdateTestContentDto.QuestionDto questionDtoNew = createQuestionDtoSingleChoice(
+        TestUpdateContentDto.AnswerOptionDto answerOptionDtoNewQuestion = createAnswerOptionDtoNew();
+        TestUpdateContentDto.QuestionDto questionDtoNew = createQuestionDtoSingleChoice(
                 List.of(answerOptionDtoNewQuestion)
         );
 
-        TestUpdateTestContentDto updateDtoExisting = new TestUpdateTestContentDto(
+        TestUpdateContentDto updateDtoExisting = new TestUpdateContentDto(
                 dataExistingTest.testExisting().getId(),
                 List.of(questionDtoUpdated, questionDtoNew)
         );
@@ -480,11 +480,11 @@ class TestCommandServiceTest extends AbstractIntegrationPostgresTest {
      * Используется при сборке входных данных и проверках для сценария пустого теста.
      */
     private record UpdateTestContentData(
-            TestUpdateTestContentDto updateDto,
-            TestUpdateTestContentDto.QuestionDto questionDtoSingle,
-            TestUpdateTestContentDto.QuestionDto questionDtoOpen,
-            TestUpdateTestContentDto.AnswerOptionDto answerOptionDtoFirst,
-            TestUpdateTestContentDto.AnswerOptionDto answerOptionDtoSecond,
+            TestUpdateContentDto updateDto,
+            TestUpdateContentDto.QuestionDto questionDtoSingle,
+            TestUpdateContentDto.QuestionDto questionDtoOpen,
+            TestUpdateContentDto.AnswerOptionDto answerOptionDtoFirst,
+            TestUpdateContentDto.AnswerOptionDto answerOptionDtoSecond,
             List<String> correctTextAnswers
     ) {
     }
@@ -523,12 +523,12 @@ class TestCommandServiceTest extends AbstractIntegrationPostgresTest {
      * и новые варианты, а также id исходных сущностей для проверки обновления и удаления.
      */
     private record UpdateExistingTestData(
-            TestUpdateTestContentDto updateDtoExisting,
-            TestUpdateTestContentDto.QuestionDto questionDtoUpdated,
-            TestUpdateTestContentDto.QuestionDto questionDtoNew,
-            TestUpdateTestContentDto.AnswerOptionDto answerOptionDtoUpdated,
-            TestUpdateTestContentDto.AnswerOptionDto answerOptionDtoNew,
-            TestUpdateTestContentDto.AnswerOptionDto answerOptionDtoNewQuestion,
+            TestUpdateContentDto updateDtoExisting,
+            TestUpdateContentDto.QuestionDto questionDtoUpdated,
+            TestUpdateContentDto.QuestionDto questionDtoNew,
+            TestUpdateContentDto.AnswerOptionDto answerOptionDtoUpdated,
+            TestUpdateContentDto.AnswerOptionDto answerOptionDtoNew,
+            TestUpdateContentDto.AnswerOptionDto answerOptionDtoNewQuestion,
             Long idAnswerOptionExistingFirst,
             Long idAnswerOptionExistingSecond,
             Long idQuestionExistingFirst,

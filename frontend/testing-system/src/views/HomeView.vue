@@ -9,7 +9,7 @@
         <h1 class="home-title">Система тестирования</h1>
         <div class="header-actions">
           <button @click="openCreateModal" class="btn btn-create">Создать тест</button>
-          <button @click="handleLogout" class="btn btn-logout">Выйти</button>
+          <button @click="goToProfile" class="btn btn-profile">Профиль</button>
         </div>
       </div>
     </div>
@@ -26,11 +26,11 @@
 
 <script setup>
 import { ref } from 'vue'
-import { useAuthStore } from '@/stores/auth'
+import { useRouter } from 'vue-router'
 import TestList from '@/components/TestList.vue'
 import CreateTestModal from '@/components/CreateTestModal.vue'
 
-const authStore = useAuthStore()
+const router = useRouter()
 const testListRef = ref(null)
 
 const isCreateModalOpen = ref(false)
@@ -60,8 +60,8 @@ const handleTestCreated = () => {
   }
 }
 
-const handleLogout = async () => {
-  await authStore.logout()
+const goToProfile = () => {
+  router.push('/profile')
 }
 </script>
 
@@ -120,13 +120,13 @@ const handleLogout = async () => {
   box-shadow: 0 4px 12px rgba(0, 255, 136, 0.3);
 }
 
-.btn-logout {
+.btn-profile {
   background: transparent;
   color: #00ff88;
   border: 2px solid #00ff88;
 }
 
-.btn-logout:hover {
+.btn-profile:hover {
   background: #00ff88;
   color: #0a0a0a;
   transform: translateY(-2px);

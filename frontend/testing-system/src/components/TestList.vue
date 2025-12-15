@@ -72,6 +72,7 @@
       @close="closeDetailsModal"
       @edit="handleEditTest"
       @metadata-updated="handleMetadataUpdated"
+      @test-deleted="handleTestDeleted"
     />
 
     <div v-if="!loading && tests.length > 0" class="pagination-container">
@@ -222,7 +223,13 @@ const handleEditTest = (testId) => {
  * Обработка обновления метаданных теста
  */
 const handleMetadataUpdated = () => {
-  // Обновляем список тестов
+  loadTests()
+}
+
+/**
+ * Обработка удаления теста
+ */
+const handleTestDeleted = () => {
   loadTests()
 }
 

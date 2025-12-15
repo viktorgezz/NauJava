@@ -2,7 +2,7 @@ package ru.viktorgezz.NauJava.domain.question.service;
 
 import ru.viktorgezz.NauJava.domain.question.Question;
 import ru.viktorgezz.NauJava.domain.test.TestModel;
-import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateTestContentDto;
+import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateContentDto;
 
 /**
  * Контракт командного сервиса для вопросов {@link Question} в тестах {@link TestModel}.
@@ -17,7 +17,7 @@ public interface QuestionCommandService {
      * @return созданный вопрос.
      */
     Question createQuestionWithoutSave(
-            TestUpdateTestContentDto.QuestionDto questionDto,
+            TestUpdateContentDto.QuestionDto questionDto,
             TestModel test
     );
 
@@ -29,7 +29,7 @@ public interface QuestionCommandService {
      */
     void updateQuestionWithoutSave(
             Question question,
-            TestUpdateTestContentDto.QuestionDto questionDto
+            TestUpdateContentDto.QuestionDto questionDto
     );
 
     /**

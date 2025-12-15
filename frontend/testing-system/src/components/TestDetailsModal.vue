@@ -52,6 +52,54 @@
               <span class="info-label">Темы:</span>
               <span class="info-value text-muted">Темы не указаны</span>
             </div>
+
+            <div class="info-item">
+              <div
+                class="last-attempts-container"
+                @mouseenter="handleLastAttemptsHover"
+                @mouseleave="handleLastAttemptsLeave"
+              >
+                <span class="info-label">Последние попытки:</span>
+                <span class="last-attempts-hint">Наведите для просмотра</span>
+                <div
+                  v-if="showLastAttempts && lastAttempts.length > 0"
+                  class="last-attempts-tooltip"
+                  @mouseenter="handleTooltipEnter"
+                  @mouseleave="handleLastAttemptsLeave"
+                >
+                  <div class="tooltip-header">Последние 3 попытки</div>
+                  <div v-for="(attempt, index) in lastAttempts" :key="index" class="attempt-item">
+                    <div class="attempt-number">Попытка {{ index + 1 }}</div>
+                    <div class="attempt-stats">
+                      <span class="attempt-stat">
+                        Баллы: {{ formatScore(attempt.point) }} /
+                        {{ formatScore(attempt.pointMax) }}
+                      </span>
+                      <span class="attempt-stat"> Процент: {{ getPercent(attempt) }}% </span>
+                      <span class="attempt-stat">
+                        Время: {{ formatTime(attempt.timeSpentSeconds) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div
+                  v-else-if="showLastAttempts && lastAttemptsLoading"
+                  class="last-attempts-tooltip"
+                  @mouseenter="handleTooltipEnter"
+                  @mouseleave="handleLastAttemptsLeave"
+                >
+                  <div class="tooltip-loading">Загрузка...</div>
+                </div>
+                <div
+                  v-else-if="showLastAttempts && lastAttempts.length === 0"
+                  class="last-attempts-tooltip"
+                  @mouseenter="handleTooltipEnter"
+                  @mouseleave="handleLastAttemptsLeave"
+                >
+                  <div class="tooltip-empty">Нет попыток прохождения</div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -61,6 +109,14 @@
           </button>
           <button v-if="isTestOwner" @click="handleEdit" class="btn btn-primary">
             Изменить содержимое теста
+          </button>
+          <button
+            v-if="isTestOwner"
+            @click="handleDelete"
+            :disabled="isDeleting"
+            class="btn btn-danger"
+          >
+            {{ isDeleting ? 'Удаление...' : 'Удалить тест' }}
           </button>
           <button @click="handleTakeTest" class="btn btn-secondary">Пройти тест</button>
           <button @click="handleClose" class="btn btn-close-modal">Закрыть</button>
@@ -74,16 +130,23 @@
       @close="isEditMetadataModalOpen = false"
       @success="handleMetadataUpdated"
     />
+
+    <EditTestContentMethodModal
+      :is-open="isEditContentMethodModalOpen"
+      :test-id="props.testId"
+      @close="isEditContentMethodModalOpen = false"
+    />
   </div>
 </template>
 
 <script setup>
 import { ref, computed, watch } from 'vue'
 import { useRouter } from 'vue-router'
-import { getTestById } from '@/api/testService'
+import { getTestById, getTestLastAttempts, deleteTest } from '@/api/testService'
 import { useAuthStore } from '@/stores/auth'
 import { getUsernameFromToken } from '@/utils/jwtDecoder'
 import EditTestMetadataModal from '@/components/EditTestMetadataModal.vue'
+import EditTestContentMethodModal from '@/components/EditTestContentMethodModal.vue'
 
 const router = useRouter()
 
@@ -98,13 +161,20 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['close', 'edit', 'metadata-updated'])
+const emit = defineEmits(['close', 'edit', 'metadata-updated', 'test-deleted'])
 
 const authStore = useAuthStore()
 const testData = ref(null)
 const loading = ref(false)
 const error = ref(null)
 const isEditMetadataModalOpen = ref(false)
+const isEditContentMethodModalOpen = ref(false)
+
+const showLastAttempts = ref(false)
+const lastAttempts = ref([])
+const lastAttemptsLoading = ref(false)
+let lastAttemptsTimeout = null
+const isDeleting = ref(false)
 
 /**
  * Проверяет, является ли текущий пользователь владельцем теста
@@ -167,6 +237,12 @@ const loadTestData = async () => {
 const handleClose = () => {
   testData.value = null
   error.value = null
+  showLastAttempts.value = false
+  lastAttempts.value = []
+  if (lastAttemptsTimeout) {
+    clearTimeout(lastAttemptsTimeout)
+    lastAttemptsTimeout = null
+  }
   emit('close')
 }
 
@@ -192,8 +268,31 @@ const handleMetadataUpdated = () => {
  * Обработка нажатия на кнопку "Изменить содержимое теста"
  */
 const handleEdit = () => {
-  handleClose()
-  router.push(`/tests/${props.testId}/edit`)
+  isEditContentMethodModalOpen.value = true
+}
+
+/**
+ * Обработка нажатия на кнопку "Удалить тест"
+ */
+const handleDelete = async () => {
+  if (!props.testId) return
+
+  const confirmed = window.confirm(
+    'Вы уверены, что хотите удалить этот тест? Это действие нельзя отменить.'
+  )
+
+  if (!confirmed) return
+
+  isDeleting.value = true
+  try {
+    await deleteTest(props.testId)
+    handleClose()
+    emit('test-deleted')
+  } catch (err) {
+    error.value = err.response?.data?.message || 'Ошибка при удалении теста'
+  } finally {
+    isDeleting.value = false
+  }
 }
 
 /**
@@ -202,6 +301,93 @@ const handleEdit = () => {
 const handleTakeTest = () => {
   handleClose()
   router.push(`/tests/${props.testId}/pass`)
+}
+
+/**
+ * Обработка наведения на область последних попыток
+ */
+const handleLastAttemptsHover = async () => {
+  if (lastAttemptsTimeout) {
+    clearTimeout(lastAttemptsTimeout)
+  }
+
+  showLastAttempts.value = true
+
+  // Загружаем данные только если еще не загружены
+  if (lastAttempts.value.length === 0 && !lastAttemptsLoading.value) {
+    await loadLastAttempts()
+  }
+}
+
+/**
+ * Обработка ухода курсора с области последних попыток
+ */
+const handleLastAttemptsLeave = () => {
+  // Небольшая задержка перед скрытием, чтобы пользователь мог переместить курсор на tooltip
+  lastAttemptsTimeout = setTimeout(() => {
+    showLastAttempts.value = false
+  }, 200)
+}
+
+/**
+ * Обработка наведения на tooltip
+ */
+const handleTooltipEnter = () => {
+  // Отменяем таймер скрытия, если курсор на tooltip
+  if (lastAttemptsTimeout) {
+    clearTimeout(lastAttemptsTimeout)
+    lastAttemptsTimeout = null
+  }
+}
+
+/**
+ * Загружает последние попытки прохождения теста
+ */
+const loadLastAttempts = async () => {
+  if (!props.testId) return
+
+  lastAttemptsLoading.value = true
+  try {
+    lastAttempts.value = await getTestLastAttempts(props.testId)
+  } catch (err) {
+    console.error('Ошибка при загрузке последних попыток:', err)
+    lastAttempts.value = []
+  } finally {
+    lastAttemptsLoading.value = false
+  }
+}
+
+/**
+ * Форматирует балл
+ */
+const formatScore = (score) => {
+  if (score === null || score === undefined) return '—'
+  return Number(score).toFixed(2)
+}
+
+/**
+ * Вычисляет процент
+ */
+const getPercent = (attempt) => {
+  if (!attempt.pointMax || attempt.pointMax === 0) return 0
+  return Math.round((attempt.point / attempt.pointMax) * 100)
+}
+
+/**
+ * Форматирует время
+ */
+const formatTime = (seconds) => {
+  if (!seconds) return '—'
+  const hours = Math.floor(seconds / 3600)
+  const minutes = Math.floor((seconds % 3600) / 60)
+  const secs = seconds % 60
+  if (hours > 0) {
+    return `${hours}ч ${minutes}м ${secs}с`
+  }
+  if (minutes > 0) {
+    return `${minutes}м ${secs}с`
+  }
+  return `${secs}с`
 }
 
 // Загружаем данные при открытии модального окна
@@ -388,6 +574,91 @@ watch(
   font-weight: 500;
 }
 
+.last-attempts-container {
+  position: relative;
+  cursor: pointer;
+}
+
+.last-attempts-hint {
+  color: #999;
+  font-size: 13px;
+  font-style: italic;
+  margin-left: 8px;
+}
+
+.last-attempts-tooltip {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  margin-top: 12px;
+  background: rgba(10, 10, 10, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 2px solid rgba(0, 255, 136, 0.4);
+  border-radius: 12px;
+  padding: 16px;
+  min-width: 300px;
+  max-width: 400px;
+  z-index: 1001;
+  box-shadow:
+    0 8px 32px rgba(0, 0, 0, 0.6),
+    0 0 0 1px rgba(0, 255, 136, 0.2) inset,
+    0 8px 32px rgba(0, 255, 136, 0.2);
+}
+
+.tooltip-header {
+  color: #00ff88;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid rgba(0, 255, 136, 0.3);
+}
+
+.attempt-item {
+  padding: 12px;
+  margin-bottom: 8px;
+  background: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: 8px;
+  transition: all 0.3s ease;
+}
+
+.attempt-item:hover {
+  background: rgba(0, 255, 136, 0.1);
+  border-color: rgba(0, 255, 136, 0.4);
+}
+
+.attempt-item:last-child {
+  margin-bottom: 0;
+}
+
+.attempt-number {
+  color: #00ff88;
+  font-size: 14px;
+  font-weight: 600;
+  margin-bottom: 8px;
+}
+
+.attempt-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.attempt-stat {
+  color: #e0e0e0;
+  font-size: 13px;
+}
+
+.tooltip-loading,
+.tooltip-empty {
+  color: #999;
+  font-size: 14px;
+  text-align: center;
+  padding: 20px;
+}
+
 .modal-footer {
   display: flex;
   justify-content: flex-end;
@@ -442,6 +713,24 @@ watch(
   background: #333;
   color: #e0e0e0;
   border-color: #666;
+}
+
+.btn-danger {
+  background: transparent;
+  color: #ff4444;
+  border: 2px solid #ff4444;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #ff4444;
+  color: #0a0a0a;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(255, 68, 68, 0.3);
+}
+
+.btn-danger:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
 }
 
 .loading-container,

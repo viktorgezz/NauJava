@@ -3,6 +3,7 @@ package ru.viktorgezz.NauJava.domain.user.service.intrf;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import ru.viktorgezz.NauJava.domain.user.Role;
 import ru.viktorgezz.NauJava.domain.user.User;
+import ru.viktorgezz.NauJava.domain.user.dto.UserResponseDto;
 
 import java.util.List;
 
@@ -28,4 +29,5 @@ public interface UserQueryService extends UserDetailsService {
 
     long computeCountUsers();
 
+    UserResponseDto getUserDtoFromSecurityContext();
 }

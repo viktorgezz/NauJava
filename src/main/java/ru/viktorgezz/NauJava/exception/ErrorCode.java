@@ -9,6 +9,7 @@ public enum ErrorCode {
 
     USER_NOT_FOUND("User not found", "User with username: %s - not found", HttpStatus.NOT_FOUND),
     REPORT_NOT_FOUND("Report not found", "Report with idTest: %s - not found", HttpStatus.NOT_FOUND),
+    TEST_NOT_FOUND("Test not found", "Test with id: %s - not found", HttpStatus.NOT_FOUND),
     RESULT_NOT_FOUND("Result not found", "Result with idResult: %s - not found", HttpStatus.NOT_FOUND),
     RESULT_NOT_READY("Result not ready", "Result with not ready. There are %s questions left", HttpStatus.TOO_EARLY),
     PASSWORD_MISMATCH("PASSWORD_MISMATCH", "Current password and new password are not the same", HttpStatus.BAD_REQUEST),

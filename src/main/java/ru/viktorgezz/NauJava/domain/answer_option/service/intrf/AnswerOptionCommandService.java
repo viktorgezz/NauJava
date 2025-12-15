@@ -2,7 +2,7 @@ package ru.viktorgezz.NauJava.domain.answer_option.service.intrf;
 
 import ru.viktorgezz.NauJava.domain.answer_option.AnswerOption;
 import ru.viktorgezz.NauJava.domain.question.Question;
-import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateTestContentDto;
+import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateContentDto;
 
 /**
  * Командный сервис для вариантов ответа {@link AnswerOption}
@@ -16,7 +16,7 @@ public interface AnswerOptionCommandService {
      * @param answerOptionDto DTO с данными варианта ответа.
      * @return созданный вариант ответа.
      */
-    AnswerOption createAndLinkAnswerOption(Question questionExisting, TestUpdateTestContentDto.AnswerOptionDto answerOptionDto);
+    AnswerOption createAndLinkAnswerOption(Question questionExisting, TestUpdateContentDto.AnswerOptionDto answerOptionDto);
 
     /**
      * Обновляет существующий вариант ответа без сохранения в БД.
@@ -24,7 +24,7 @@ public interface AnswerOptionCommandService {
      * @param answerOptionExisting существующий вариант ответа для обновления.
      * @param answerOptionDto DTO с новыми данными варианта ответа.
      */
-    void updateAnswerOptionWithoutSave(AnswerOption answerOptionExisting, TestUpdateTestContentDto.AnswerOptionDto answerOptionDto);
+    void updateAnswerOptionWithoutSave(AnswerOption answerOptionExisting, TestUpdateContentDto.AnswerOptionDto answerOptionDto);
 
     /**
      * Сохраняет коллекцию вариантов ответов в БД.

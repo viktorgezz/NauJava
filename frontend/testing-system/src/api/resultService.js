@@ -3,6 +3,7 @@
  * Инкапсулирует запросы связанные с отправкой и получением результатов прохождения тестов.
  */
 import apiClient from './config'
+import { extractPagedData } from '@/utils/hateoasParser'
 
 /**
  * Отправляет результат прохождения теста
@@ -27,3 +28,22 @@ export const getTestResult = async (resultId) => {
   return response.data
 }
 
+/**
+ * Получает список результатов пользователя с пагинацией
+ * @param {Object} params - Параметры пагинации
+ * @param {number} params.page - Номер страницы (начиная с 0)
+ * @param {number} params.size - Размер страницы (по умолчанию 20)
+ * @param {string} params.sort - Параметры сортировки (например, "completedAt,ASC")
+ * @returns {Promise<Object>} Страница с результатами
+ */
+export const getUserResults = async (params = {}) => {
+  const { page = 0, size = 20, sort = 'completedAt,DESC' } = params
+  const response = await apiClient.get('/results', {
+    params: {
+      page,
+      size,
+      sort,
+    },
+  })
+  return extractPagedData(response.data)
+}

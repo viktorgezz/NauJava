@@ -5,6 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import ru.viktorgezz.NauJava.domain.question.Question;
 import ru.viktorgezz.NauJava.domain.question.repo.QuestionRepo;
 import ru.viktorgezz.NauJava.domain.result.Grade;
@@ -17,6 +18,7 @@ import ru.viktorgezz.NauJava.domain.user.repo.UserRepo;
 import ru.viktorgezz.NauJava.testconfig.AbstractIntegrationPostgresTest;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -179,5 +181,68 @@ class ResultRepoTest extends AbstractIntegrationPostgresTest {
                 questionSecondTestFirst.getText(),
                 questionThirdTestFirst.getText()
         );
+    }
+
+    @Test
+    @DisplayName("findAllWithTestByIds: возврат результатов по списку ID с загруженным тестом")
+    void findAllWithTestByIds_ShouldReturnResultsWithTest_WhenIdsExist() {
+        Result resultFirst = createResultWithTest(userParticipantFirst, testModelFirst, Grade.A, new BigDecimal("95.00"), 120);
+        Result resultSecond = createResultWithTest(userParticipantSecond, testModelSecond, Grade.B, new BigDecimal("80.00"), 180);
+        resultRepo.saveAll(List.of(resultFirst, resultSecond));
+
+        List<Result> resultsFound = resultRepo.findAllWithTestByIds(List.of(resultFirst.getId(), resultSecond.getId()));
+
+        assertThat(resultsFound).hasSize(2);
+        resultsFound.forEach(resultFound -> {
+            assertThat(resultFound.getTest()).isNotNull();
+            assertThat(resultFound.getTest().getTitle()).isNotNull();
+        });
+        Set<Long> idsResultFound = resultsFound.stream()
+                .map(Result::getId)
+                .collect(Collectors.toSet());
+        assertThat(idsResultFound).containsExactlyInAnyOrder(resultFirst.getId(), resultSecond.getId());
+    }
+
+    @Test
+    @DisplayName("findAllWithTestByIds: возврат пустого списка когда ID не существуют")
+    void findAllWithTestByIds_ShouldReturnEmptyList_WhenIdsDoNotExist() {
+        List<Result> resultsFound = resultRepo.findAllWithTestByIds(List.of(999L, 888L));
+
+        assertThat(resultsFound).isEmpty();
+    }
+
+    @Test
+    @DisplayName("findResultLastAttempts: возврат результатов отсортированных по дате завершения")
+    @Transactional
+    void findResultLastAttempts_ShouldReturnResultsSortedByCompletedAtDesc_WhenResultsExist() {
+        LocalDateTime baseTime = LocalDateTime.now();
+        Result resultFirst = createResultWithTest(userParticipantFirst, testModelFirst, Grade.A, new BigDecimal("95.00"), 120);
+        resultFirst.setCompletedAt(baseTime.minusDays(1));
+        Result resultSecond = createResultWithTest(userParticipantFirst, testModelFirst, Grade.B, new BigDecimal("80.00"), 180);
+        resultSecond.setCompletedAt(baseTime);
+        resultRepo.saveAll(List.of(resultFirst, resultSecond));
+
+        List<Result> resultsFound = resultRepo.findResultLastAttempts(testModelFirst.getId(), userParticipantFirst.getId())
+                .toList();
+
+        assertThat(resultsFound).hasSize(2);
+        assertThat(resultsFound.getFirst().getId()).isEqualTo(resultSecond.getId());
+        assertThat(resultsFound.get(1).getId()).isEqualTo(resultFirst.getId());
+    }
+
+    @Test
+    @DisplayName("findResultLastAttempts: возврат только результатов указанного пользователя и теста")
+    @Transactional
+    void findResultLastAttempts_ShouldReturnOnlySpecifiedUserAndTestResults_WhenMultipleUsersHaveResults() {
+        Result resultFirstUser = createResultWithTest(userParticipantFirst, testModelFirst, Grade.A, new BigDecimal("95.00"), 120);
+        Result resultSecondUser = createResultWithTest(userParticipantSecond, testModelFirst, Grade.B, new BigDecimal("80.00"), 180);
+        resultRepo.saveAll(List.of(resultFirstUser, resultSecondUser));
+
+        List<Result> resultsFound = resultRepo.findResultLastAttempts(testModelFirst.getId(), userParticipantFirst.getId())
+                .toList();
+
+        assertThat(resultsFound).hasSize(1);
+        assertThat(resultsFound.getFirst().getId()).isEqualTo(resultFirstUser.getId());
+        assertThat(resultsFound.getFirst().getParticipant().getId()).isEqualTo(userParticipantFirst.getId());
     }
 }

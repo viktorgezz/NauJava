@@ -5,13 +5,20 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.context.SecurityContextHolder;
 import ru.viktorgezz.NauJava.domain.answer_option.AnswerOption;
 import ru.viktorgezz.NauJava.domain.answer_option.repo.AnswerOptionRepo;
 import ru.viktorgezz.NauJava.domain.question.Question;
 import ru.viktorgezz.NauJava.domain.question.repo.QuestionRepo;
 import ru.viktorgezz.NauJava.domain.result.Grade;
 import ru.viktorgezz.NauJava.domain.result.Result;
+import ru.viktorgezz.NauJava.domain.result.dto.ResultMetadataResponseDto;
 import ru.viktorgezz.NauJava.domain.result.dto.ResultResponseDto;
+import ru.viktorgezz.NauJava.domain.result.dto.ResultShortMetadataResponseDto;
 import ru.viktorgezz.NauJava.domain.result.repo.ResultRepo;
 import ru.viktorgezz.NauJava.domain.result.service.intrf.ResultQueryService;
 import ru.viktorgezz.NauJava.domain.test.Status;
@@ -26,6 +33,7 @@ import ru.viktorgezz.NauJava.exception.ErrorCode;
 import ru.viktorgezz.NauJava.testconfig.AbstractIntegrationPostgresTest;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -68,12 +76,22 @@ class ResultQueryServiceTest extends AbstractIntegrationPostgresTest {
 
     @AfterEach
     void tearDown() {
+        SecurityContextHolder.clearContext();
         userAnswerRepo.deleteAll();
         answerOptionRepo.deleteAll();
         questionRepo.deleteAll();
         resultRepo.deleteAll();
         testRepo.deleteAll();
         userRepo.deleteAll();
+    }
+
+    private void setSecurityContext(User userCurrent) {
+        UsernamePasswordAuthenticationToken tokenAuthentication = new UsernamePasswordAuthenticationToken(
+                userCurrent,
+                null,
+                userCurrent.getAuthorities()
+        );
+        SecurityContextHolder.getContext().setAuthentication(tokenAuthentication);
     }
 
     @Test
@@ -242,5 +260,122 @@ class ResultQueryServiceTest extends AbstractIntegrationPostgresTest {
         resultRepo.deleteAll();
         List<Result> resultsFound = resultQueryService.findAllWithParticipantUsernameAndTitleTest();
         assertThat(resultsFound).isEmpty();
+    }
+
+    @Test
+    @DisplayName("findUserResults: возврат пагинированного списка результатов текущего пользователя")
+    void findUserResults_ShouldReturnPagedResults_WhenResultsExist() {
+        setSecurityContext(user1);
+        TestModel testFirst = testRepo.save(createTest("Test First", "Description First", Status.PUBLIC, user1));
+        TestModel testSecond = testRepo.save(createTest("Test Second", "Description Second", Status.PUBLIC, user1));
+        testFirst.setScoreMax(new BigDecimal("100.00"));
+        testSecond.setScoreMax(new BigDecimal("50.00"));
+        testRepo.saveAll(List.of(testFirst, testSecond));
+
+        Result resultFirst = createResultWithTest(user1, testFirst, Grade.A, new BigDecimal("90.00"), 120);
+        Result resultSecond = createResultWithTest(user1, testSecond, Grade.B, new BigDecimal("40.00"), 180);
+        resultRepo.saveAll(List.of(resultFirst, resultSecond));
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<ResultMetadataResponseDto> pageResults = resultQueryService.findUserResults(pageable);
+
+        assertThat(pageResults.getContent()).hasSize(2);
+        assertThat(pageResults.getTotalElements()).isEqualTo(2);
+        List<Long> idsResultFound = pageResults.getContent().stream()
+                .map(ResultMetadataResponseDto::id)
+                .toList();
+        assertThat(idsResultFound).containsExactlyInAnyOrder(resultFirst.getId(), resultSecond.getId());
+    }
+
+    @Test
+    @DisplayName("findUserResults: возврат пустой страницы когда результатов нет")
+    void findUserResults_ShouldReturnEmptyPage_WhenNoResultsExist() {
+        setSecurityContext(user1);
+        Pageable pageable = PageRequest.of(0, 10);
+
+        Page<ResultMetadataResponseDto> pageResults = resultQueryService.findUserResults(pageable);
+
+        assertThat(pageResults.getContent()).isEmpty();
+        assertThat(pageResults.getTotalElements()).isZero();
+    }
+
+    @Test
+    @DisplayName("findUserResults: возврат только результатов текущего пользователя")
+    void findUserResults_ShouldReturnOnlyCurrentUserResults_WhenMultipleUsersHaveResults() {
+        setSecurityContext(user1);
+        User userOther = userRepo.save(createUserRandom());
+        TestModel testFirst = testRepo.save(createTest("Test First", "Description First", Status.PUBLIC, user1));
+        testFirst.setScoreMax(new BigDecimal("100.00"));
+        testRepo.save(testFirst);
+
+        Result resultCurrentUser = createResultWithTest(user1, testFirst, Grade.A, new BigDecimal("90.00"), 120);
+        Result resultOtherUser = createResultWithTest(userOther, testFirst, Grade.B, new BigDecimal("80.00"), 150);
+        resultRepo.saveAll(List.of(resultCurrentUser, resultOtherUser));
+
+        Pageable pageable = PageRequest.of(0, 10);
+        Page<ResultMetadataResponseDto> pageResults = resultQueryService.findUserResults(pageable);
+
+        assertThat(pageResults.getContent()).hasSize(1);
+        assertThat(pageResults.getContent().getFirst().id()).isEqualTo(resultCurrentUser.getId());
+    }
+
+    @Test
+    @DisplayName("findResultLastThreeAttempts: возврат последних трех попыток прохождения теста")
+    void findResultLastThreeAttempts_ShouldReturnLastThreeAttempts_WhenMoreThanThreeExist() {
+        setSecurityContext(user1);
+        TestModel testFirst = testRepo.save(createTest("Test First", "Description First", Status.PUBLIC, user1));
+        testFirst.setScoreMax(new BigDecimal("100.00"));
+        testRepo.save(testFirst);
+
+        LocalDateTime baseTime = LocalDateTime.now();
+        Result resultFirst = createResultWithTest(user1, testFirst, Grade.A, new BigDecimal("90.00"), 120);
+        resultFirst.setCompletedAt(baseTime.minusDays(3));
+        Result resultSecond = createResultWithTest(user1, testFirst, Grade.B, new BigDecimal("80.00"), 150);
+        resultSecond.setCompletedAt(baseTime.minusDays(2));
+        Result resultThird = createResultWithTest(user1, testFirst, Grade.C, new BigDecimal("70.00"), 180);
+        resultThird.setCompletedAt(baseTime.minusDays(1));
+        Result resultFourth = createResultWithTest(user1, testFirst, Grade.F, new BigDecimal("60.00"), 200);
+        resultFourth.setCompletedAt(baseTime);
+        resultRepo.saveAll(List.of(resultFirst, resultSecond, resultThird, resultFourth));
+
+        List<ResultShortMetadataResponseDto> attemptsFound = resultQueryService.findResultLastThreeAttempts(testFirst.getId());
+
+        assertThat(attemptsFound).hasSize(3);
+        assertThat(attemptsFound.getFirst().point()).isEqualByComparingTo(new BigDecimal("60.00"));
+        assertThat(attemptsFound.get(1).point()).isEqualByComparingTo(new BigDecimal("70.00"));
+        assertThat(attemptsFound.get(2).point()).isEqualByComparingTo(new BigDecimal("80.00"));
+    }
+
+    @Test
+    @DisplayName("findResultLastThreeAttempts: возврат всех попыток когда их меньше трех")
+    void findResultLastThreeAttempts_ShouldReturnAllAttempts_WhenLessThanThreeExist() {
+        setSecurityContext(user1);
+        TestModel testFirst = testRepo.save(createTest("Test First", "Description First", Status.PUBLIC, user1));
+        testFirst.setScoreMax(new BigDecimal("100.00"));
+        testRepo.save(testFirst);
+
+        LocalDateTime baseTime = LocalDateTime.now();
+        Result resultFirst = createResultWithTest(user1, testFirst, Grade.A, new BigDecimal("90.00"), 120);
+        resultFirst.setCompletedAt(baseTime.minusDays(1));
+        Result resultSecond = createResultWithTest(user1, testFirst, Grade.B, new BigDecimal("80.00"), 150);
+        resultSecond.setCompletedAt(baseTime);
+        resultRepo.saveAll(List.of(resultFirst, resultSecond));
+
+        List<ResultShortMetadataResponseDto> attemptsFound = resultQueryService.findResultLastThreeAttempts(testFirst.getId());
+
+        assertThat(attemptsFound).hasSize(2);
+        assertThat(attemptsFound.getFirst().point()).isEqualByComparingTo(new BigDecimal("80.00"));
+        assertThat(attemptsFound.get(1).point()).isEqualByComparingTo(new BigDecimal("90.00"));
+    }
+
+    @Test
+    @DisplayName("findResultLastThreeAttempts: возврат пустого списка когда попыток нет")
+    void findResultLastThreeAttempts_ShouldReturnEmptyList_WhenNoAttemptsExist() {
+        setSecurityContext(user1);
+        TestModel testFirst = testRepo.save(createTest("Test First", "Description First", Status.PUBLIC, user1));
+
+        List<ResultShortMetadataResponseDto> attemptsFound = resultQueryService.findResultLastThreeAttempts(testFirst.getId());
+
+        assertThat(attemptsFound).isEmpty();
     }
 }

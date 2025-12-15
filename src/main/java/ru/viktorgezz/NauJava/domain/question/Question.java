@@ -69,6 +69,17 @@ public class Question {
         this.userAnswers = userAnswers;
     }
 
+    public Question(String text, Type type, BigDecimal point, List<String> correctTextAnswers, TestModel test, List<AnswerOption> answerOptions, List<UserAnswer> userAnswers, boolean allowMistakes) {
+        this.text = text;
+        this.type = type;
+        this.point = point;
+        this.allowMistakes = allowMistakes;
+        this.correctTextAnswers = correctTextAnswers;
+        this.test = test;
+        this.answerOptions = answerOptions;
+        this.userAnswers = userAnswers;
+    }
+
     public Question(String text, Type type) {
         this.text = text;
         this.type = type;

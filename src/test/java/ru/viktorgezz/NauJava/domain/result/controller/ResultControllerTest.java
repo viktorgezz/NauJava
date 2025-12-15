@@ -5,14 +5,17 @@ import io.restassured.RestAssured;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import ru.viktorgezz.NauJava.domain.question.Type;
 import ru.viktorgezz.NauJava.domain.result.Grade;
+import ru.viktorgezz.NauJava.domain.result.dto.ResultMetadataResponseDto;
 import ru.viktorgezz.NauJava.domain.result.dto.ResultRequestDto;
 import ru.viktorgezz.NauJava.domain.result.dto.ResultResponseDto;
 import ru.viktorgezz.NauJava.domain.result.service.intrf.ResultCommandService;
 import ru.viktorgezz.NauJava.domain.result.service.intrf.ResultQueryService;
+import ru.viktorgezz.NauJava.domain.test.Status;
 import ru.viktorgezz.NauJava.domain.user.Role;
 import ru.viktorgezz.NauJava.testconfig.AbstractIntegrationControllerTest;
 
@@ -114,6 +117,7 @@ class ResultControllerTest extends AbstractIntegrationControllerTest {
                 1L,
                 "Question text?",
                 Type.SINGLE_CHOICE,
+                false,
                 List.of(new ResultResponseDto.UserAnswerResponseDto(
                         1L,
                         "Answer text",
@@ -170,5 +174,60 @@ class ResultControllerTest extends AbstractIntegrationControllerTest {
                 .statusCode(anyOf(is(HttpStatus.NOT_FOUND.value()), is(HttpStatus.INTERNAL_SERVER_ERROR.value())));
 
         verify(resultQueryService).getTestResultDto(idResultNonExistent);
+    }
+
+    @Test
+    @DisplayName("GET /results: возврат пагинированного списка результатов пользователя")
+    void getUserResults_ShouldReturnPagedMetadata_WhenResultsExist() {
+        Long idResultFirst = 100L;
+        Long idTestFirst = 1L;
+        BigDecimal pointFirst = new BigDecimal("85.00");
+        BigDecimal pointMaxFirst = new BigDecimal("100.00");
+        LocalDateTime completedAtFirst = LocalDateTime.now();
+        int timeSpentSecondsFirst = 120;
+
+        ResultMetadataResponseDto resultMetadataFirst = new ResultMetadataResponseDto(
+                idResultFirst,
+                idTestFirst,
+                Status.PUBLIC,
+                "Test Title First",
+                pointFirst,
+                pointMaxFirst,
+                completedAtFirst,
+                timeSpentSecondsFirst
+        );
+
+        when(resultQueryService.findUserResults(any()))
+                .thenReturn(new PageImpl<>(List.of(resultMetadataFirst)));
+
+        given()
+                .spec(requestSpec)
+                .when()
+                .get("/results")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("_embedded.resultMetadataResponseDtoes", hasSize(1))
+                .body("_embedded.resultMetadataResponseDtoes[0].id", equalTo(idResultFirst.intValue()))
+                .body("_embedded.resultMetadataResponseDtoes[0].titleTest", equalTo("Test Title First"))
+                .body("_embedded.resultMetadataResponseDtoes[0].point", equalTo(85.00f));
+
+        verify(resultQueryService).findUserResults(any());
+    }
+
+    @Test
+    @DisplayName("GET /results: возврат пустой страницы когда результатов нет")
+    void getUserResults_ShouldReturnEmptyPage_WhenNoResultsExist() {
+        when(resultQueryService.findUserResults(any()))
+                .thenReturn(new PageImpl<>(List.of()));
+
+        given()
+                .spec(requestSpec)
+                .when()
+                .get("/results")
+                .then()
+                .statusCode(HttpStatus.OK.value())
+                .body("page.totalElements", equalTo(0));
+
+        verify(resultQueryService).findUserResults(any());
     }
 }

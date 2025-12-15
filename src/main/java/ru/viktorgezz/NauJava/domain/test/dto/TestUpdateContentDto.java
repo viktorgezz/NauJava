@@ -13,7 +13,7 @@ import java.util.List;
 /**
  * DTO для обновления контента теста: включает идентификатор теста и набор вопросов с вариантами ответов.
  */
-public record TestUpdateTestContentDto(
+public record TestUpdateContentDto(
         @NotNull Long idTest,
         @NotNull @Valid List<QuestionDto> questions
 ) {
@@ -30,7 +30,8 @@ public record TestUpdateTestContentDto(
             @Size(max = 5, message = "Количество верных ответов на вопрос не может превышать 5")
             List<@Size(max = 150, message = "Длина ответа на вопрос не должна превышать 150 символов")
                     String> correctTextAnswer,
-            @Valid List<AnswerOptionDto> answerOptions
+            @Valid List<AnswerOptionDto> answerOptions,
+            boolean allowMistakes
     ) {
     }
 

@@ -11,7 +11,7 @@ import ru.viktorgezz.NauJava.domain.question.Question;
 import ru.viktorgezz.NauJava.domain.question.service.QuestionCommandService;
 import ru.viktorgezz.NauJava.domain.test.TestModel;
 import ru.viktorgezz.NauJava.domain.test.dto.TestMetadataRequestDto;
-import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateTestContentDto;
+import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateContentDto;
 import ru.viktorgezz.NauJava.domain.test.repo.TestRepo;
 import ru.viktorgezz.NauJava.domain.test.service.intrf.TestCommandService;
 import ru.viktorgezz.NauJava.domain.topic.Topic;
@@ -83,7 +83,7 @@ public class TestCommandServiceImpl implements TestCommandService {
 
     @Override
     @Transactional
-    public void updateTestContent(TestUpdateTestContentDto testDto) {
+    public void updateTestContent(TestUpdateContentDto testDto) {
         Optional<TestModel> testOptional = testRepo.findForEditingContent(testDto.idTest());
         TestModel testExisting = getValidatedTest(testOptional);
 
@@ -174,7 +174,9 @@ public class TestCommandServiceImpl implements TestCommandService {
                 .filter(question -> question.getId() != null)
                 .filter(question -> !idsChangedQuestion.contains(question.getId()))
                 .toList();
+
         testExisting.getQuestions().removeAll(questionsToRemove);
+
         questionCommandService.saveAll(testExisting.getQuestions());
 
         // Обновляем максимальное количество всех балов за тест
@@ -186,6 +188,14 @@ public class TestCommandServiceImpl implements TestCommandService {
 
         // Сохраняем тест
         testRepo.save(testExisting);
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(Long id) {
+        getValidatedTest(testRepo.findByIdWithAuthor(id));
+        testRepo.deleteById(id);
+
     }
 
     private TestModel getValidatedTest(Optional<TestModel> test) {

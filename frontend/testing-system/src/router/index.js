@@ -33,6 +33,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: '/tests/:id/edit/json',
+      name: 'test-json-editor',
+      component: () => import('@/views/TestJsonEditorView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/tests/:id/pass',
       name: 'test-passing',
       component: () => import('@/views/TestPassingView.vue'),
@@ -42,6 +48,12 @@ const router = createRouter({
       path: '/results/:id',
       name: 'test-result',
       component: () => import('@/views/TestResultView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: () => import('@/views/ProfileView.vue'),
       meta: { requiresAuth: true },
     },
   ],

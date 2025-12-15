@@ -6,7 +6,7 @@ import org.springframework.transaction.annotation.Transactional;
 import ru.viktorgezz.NauJava.domain.question.Question;
 import ru.viktorgezz.NauJava.domain.question.repo.QuestionRepo;
 import ru.viktorgezz.NauJava.domain.test.TestModel;
-import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateTestContentDto;
+import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateContentDto;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -25,7 +25,8 @@ public class QuestionCommandServiceImpl implements QuestionCommandService {
     }
 
     @Override
-    public Question createQuestionWithoutSave(TestUpdateTestContentDto.QuestionDto questionDto, TestModel test) {
+    @Transactional
+    public Question createQuestionWithoutSave(TestUpdateContentDto.QuestionDto questionDto, TestModel test) {
         return new Question(
                 questionDto.text(),
                 questionDto.type(),
@@ -35,7 +36,8 @@ public class QuestionCommandServiceImpl implements QuestionCommandService {
                         .orElseGet(ArrayList::new),
                 test,
                 new ArrayList<>(),
-                new ArrayList<>()
+                new ArrayList<>(),
+                questionDto.allowMistakes()
         );
     }
 
@@ -43,7 +45,7 @@ public class QuestionCommandServiceImpl implements QuestionCommandService {
     @Transactional
     public void updateQuestionWithoutSave(
             Question question,
-            TestUpdateTestContentDto.QuestionDto questionDto
+            TestUpdateContentDto.QuestionDto questionDto
     ) {
         question.setText(questionDto.text());
         question.setType(questionDto.type());
@@ -51,6 +53,7 @@ public class QuestionCommandServiceImpl implements QuestionCommandService {
         question.setCorrectTextAnswers(Optional.ofNullable(questionDto.correctTextAnswer())
                 .map(ArrayList::new)
                 .orElseGet(ArrayList::new));
+        question.setAllowMistakes(questionDto.allowMistakes());
     }
 
     @Override

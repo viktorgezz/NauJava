@@ -9,6 +9,7 @@ import ru.viktorgezz.NauJava.domain.result.Result;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Репозиторий для доступа к сущностям {@link Result}.
@@ -37,4 +38,27 @@ public interface ResultRepo extends CrudRepository<Result, Long> {
     )
     Optional<Result> findByIdWithTestAndQuestions(@Param("id") Long id);
 
+    /**
+     * Получить результаты по списку ID с тестом.
+     *
+     * @param ids список ID результатов
+     * @return результаты с подгруженным тестом
+     */
+    @Query("""
+            SELECT result FROM Result result
+            LEFT JOIN FETCH result.test test
+            WHERE result.id IN :ids
+            """)
+    List<Result> findAllWithTestByIds(@Param("ids") List<Long> ids);
+
+    @Query("""
+            SELECT result FROM Result result
+            LEFT JOIN result.test test
+            WHERE result.participant.id = :idUser AND test.id = :idTest
+            ORDER BY result.completedAt DESC
+            """)
+    Stream<Result> findResultLastAttempts(
+            @Param("idTest") Long idTest,
+            @Param("idUser") Long idUser
+    );
 }

@@ -1,7 +1,7 @@
 package ru.viktorgezz.NauJava.domain.user;
 
 import ru.viktorgezz.NauJava.auth.dto.RegistrationRequest;
-import ru.viktorgezz.NauJava.domain.user.dto.UserResponseDto;
+import ru.viktorgezz.NauJava.domain.user.dto.UserResponseOldDto;
 
 /**
  * Маппер для конвертации {@link User} в DTO.
@@ -9,18 +9,18 @@ import ru.viktorgezz.NauJava.domain.user.dto.UserResponseDto;
 public class UserMapper {
 
     /**
-     * Конвертирует {@link User} в {@link UserResponseDto}.
+     * Конвертирует {@link User} в {@link UserResponseOldDto}.
      * Пароль не включается в DTO в целях безопасности.
      *
      * @param user модель пользователя
      * @return DTO пользователя
      */
-    public static UserResponseDto toDto(User user) {
+    public static UserResponseOldDto toDto(User user) {
         if (user == null) {
             return null;
         }
 
-        return new UserResponseDto(
+        return new UserResponseOldDto(
                 user.getId(),
                 user.getUsername(),
                 user.getRole()

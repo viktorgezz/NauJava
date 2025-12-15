@@ -2,7 +2,7 @@ package ru.viktorgezz.NauJava.domain.test.service.intrf;
 
 import ru.viktorgezz.NauJava.domain.test.TestModel;
 import ru.viktorgezz.NauJava.domain.test.dto.TestMetadataRequestDto;
-import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateTestContentDto;
+import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateContentDto;
 
 /**
  * Контракт сервиса для управления тестами {@link TestModel}.
@@ -23,6 +23,7 @@ public interface TestCommandService {
      *
      * @param testDto DTO с содержимым теста для обновления.
      */
-    void updateTestContent(TestUpdateTestContentDto testDto);
+    void updateTestContent(TestUpdateContentDto testDto);
 
+    void deleteById(Long id);
 }

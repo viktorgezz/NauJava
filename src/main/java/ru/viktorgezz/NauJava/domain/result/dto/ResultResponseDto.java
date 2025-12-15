@@ -21,14 +21,21 @@ public record ResultResponseDto(
         List<QuestionDto> questionsDto
 ) {
 
+    /**
+     * DTO для вопроса в результате теста.
+     */
     public record QuestionDto(
             Long idQuestion,
             String text,
             Type type,
+            boolean allowMistakes,
             List<UserAnswerResponseDto> userAnswersDto
     ) {
     }
 
+    /**
+     * DTO для ответа пользователя в результате теста.
+     */
     public record UserAnswerResponseDto(
             Long idAnswerOption,
             String textOption,

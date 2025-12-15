@@ -110,6 +110,19 @@
         <div v-else-if="localQuestion.type === 'MULTIPLE_CHOICE'" class="info-hint">
           Для вопроса с множественным выбором должен быть выбран хотя бы один правильный ответ
         </div>
+        <div v-if="localQuestion.type === 'MULTIPLE_CHOICE'" class="form-group allow-mistakes-group">
+          <label class="checkbox-label allow-mistakes-label">
+            <input
+              v-model="localQuestion.allowMistakes"
+              type="checkbox"
+              @change="updateQuestion"
+            />
+            <span>Разрешить ошибки (частичное начисление баллов)</span>
+          </label>
+          <div class="allow-mistakes-hint">
+            Если включено, при неправильных ответах баллы начисляются частично
+          </div>
+        </div>
       </div>
     </div>
 
@@ -176,6 +189,7 @@ const localQuestion = ref({
     explanation: ao.explanation || null,
     tempId: ao.tempId || (ao.idAnswerOption ? null : `temp-${Date.now()}`),
   })),
+  allowMistakes: props.question.allowMistakes || false,
 })
 
 const errors = reactive({
@@ -280,12 +294,17 @@ const handleTypeChange = () => {
   // При смене типа очищаем неактуальные данные
   if (localQuestion.value.type === 'OPEN_TEXT') {
     localQuestion.value.answerOptions = []
+    localQuestion.value.allowMistakes = false
   } else {
     localQuestion.value.correctTextAnswer = []
     // Если нет вариантов ответов, добавляем минимум 2
     if (localQuestion.value.answerOptions.length === 0) {
       addAnswerOption()
       addAnswerOption()
+    }
+    // Сбрасываем allowMistakes для SINGLE_CHOICE
+    if (localQuestion.value.type === 'SINGLE_CHOICE') {
+      localQuestion.value.allowMistakes = false
     }
   }
   updateQuestion()
@@ -377,6 +396,7 @@ watch(
         explanation: ao.explanation || null,
         tempId: ao.tempId || (ao.idAnswerOption ? null : `temp-${Date.now()}`),
       })),
+      allowMistakes: newQuestion.allowMistakes || false,
     }
   },
   { deep: true },
@@ -539,6 +559,27 @@ watch(
   background: rgba(0, 255, 136, 0.05);
   border: 1px solid rgba(0, 255, 136, 0.2);
   border-radius: 8px;
+}
+
+.allow-mistakes-group {
+  margin-top: 16px;
+  padding: 16px;
+  background: rgba(0, 255, 136, 0.05);
+  border: 1px solid rgba(0, 255, 136, 0.2);
+  border-radius: 8px;
+}
+
+.allow-mistakes-label {
+  font-size: 15px;
+  font-weight: 500;
+  color: #00ff88;
+}
+
+.allow-mistakes-hint {
+  color: #999;
+  font-size: 12px;
+  margin-top: 8px;
+  font-style: italic;
 }
 
 @media (max-width: 768px) {

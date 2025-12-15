@@ -56,6 +56,11 @@ public class SecurityConfig {
             "/configuration/security"
     };
 
+    private static final String[] MONITORING_URLS = {
+            "/monitoring",
+            "/monitoring/**"
+    };
+
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Autowired
@@ -73,7 +78,11 @@ public class SecurityConfig {
                         auth.requestMatchers(PUBLIC_URLS)
                                 .permitAll()
                                 .requestMatchers(SWAGGER_URLS)
-                                .hasRole(Role.ADMIN.name())
+//                                .hasRole(Role.ADMIN.name())
+                                .permitAll()
+                                .requestMatchers(MONITORING_URLS)
+                                .permitAll()
+//                                .hasRole(Role.ADMIN.name())
                                 .anyRequest()
                                 .hasAnyRole(Arrays.stream(Role.values()).map(Role::name).toArray(String[]::new))
                 )
@@ -99,10 +108,11 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of(originFrontend));
+        configuration.setAllowedOrigins(List.of(originFrontend, "http://localhost:80", "http://localhost"));
         configuration.setAllowedMethods(List.of("GET", "POST", "DELETE", "PATCH", "PUT", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type"));
         configuration.setExposedHeaders(List.of("Authorization"));
+        configuration.setAllowCredentials(true);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

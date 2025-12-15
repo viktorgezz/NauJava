@@ -2,15 +2,17 @@ spring:
   application:
     name: NauJava
   datasource:
-    url: jdbc:postgresql://localhost:5433/testing_system
-    username: postgres
-    password: strong_password
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: org.postgresql.Driver
   jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.dialect.PostgreSQLDialect
+    open-in-view: true
     hibernate:
       ddl-auto: update
+  docker:
+    compose:
+      enabled: false
 
 management:
   endpoints:
@@ -24,5 +26,5 @@ management:
 security:
   jwt:
     access-expiration-ms: 600000
-    refresh-expiration-ms: 600000
-  origin-fronted: http://localhost:5173
+    refresh-expiration-ms: 6000000
+  origin-fronted: ${SECURITY_ORIGIN_FRONTED}

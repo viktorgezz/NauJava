@@ -17,7 +17,7 @@ import ru.viktorgezz.NauJava.domain.question.repo.QuestionRepo;
 import ru.viktorgezz.NauJava.domain.test.Status;
 import ru.viktorgezz.NauJava.domain.test.TestModel;
 import ru.viktorgezz.NauJava.domain.test.dto.TestToPassDto;
-import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateTestContentDto;
+import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateContentDto;
 import ru.viktorgezz.NauJava.domain.test.repo.TestRepo;
 import ru.viktorgezz.NauJava.domain.test.service.intrf.TestQueryService;
 import ru.viktorgezz.NauJava.domain.topic.Topic;
@@ -256,11 +256,11 @@ public class TestQueryServiceTest extends AbstractIntegrationPostgresTest {
         when(answerOptionQueryService.findAllAnswerOptionByIdsQuestionWithQuestion(anyList()))
                 .thenReturn(List.of(answerOptionCorrect, answerOptionWrong));
 
-        TestUpdateTestContentDto dto = testQueryService.findByIdWithContent(testSaved.getId());
+        TestUpdateContentDto dto = testQueryService.findByIdWithContent(testSaved.getId());
 
         assertThat(dto.idTest()).isEqualTo(testSaved.getId());
         assertThat(dto.questions()).hasSize(1);
-        TestUpdateTestContentDto.QuestionDto questionDto = dto.questions().getFirst();
+        TestUpdateContentDto.QuestionDto questionDto = dto.questions().getFirst();
         assertThat(questionDto.idQuestion()).isEqualTo(questionSaved.getId());
         assertThat(questionDto.answerOptions()).hasSize(2);
         verify(answerOptionQueryService).findAllAnswerOptionByIdsQuestionWithQuestion(List.of(questionSaved.getId()));

@@ -1,14 +1,12 @@
 package ru.viktorgezz.NauJava.domain.user.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import ru.viktorgezz.NauJava.domain.user.Role;
 import ru.viktorgezz.NauJava.domain.user.User;
 import ru.viktorgezz.NauJava.domain.user.UserMapper;
 import ru.viktorgezz.NauJava.domain.user.dto.UserResponseDto;
+import ru.viktorgezz.NauJava.domain.user.dto.UserResponseOldDto;
 import ru.viktorgezz.NauJava.domain.user.service.intrf.UserQueryService;
 
 import java.util.List;
@@ -29,15 +27,20 @@ public class UserController {
     }
 
     @GetMapping("/search/username")
-    public UserResponseDto getUserByUsername(@RequestParam String username) {
+    public UserResponseOldDto getUserByUsername(@RequestParam String username) {
         return UserMapper.toDto(userQueryService.getByUsername(username));
     }
 
     @GetMapping("/search/role")
-    public List<UserResponseDto> getUsersByRole(@RequestParam Role role) {
+    public List<UserResponseOldDto> getUsersByRole(@RequestParam Role role) {
         return userQueryService.findAllByRole(role)
                 .stream()
                 .map(UserMapper::toDto)
                 .collect(Collectors.toList());
+    }
+
+    @GetMapping("/me")
+    public UserResponseDto getUser() {
+        return userQueryService.getUserDtoFromSecurityContext();
     }
 }

@@ -14,7 +14,7 @@ public enum Grade {
         BigDecimal percentage = pointCurr
                 .divide(pointMax, 4, RoundingMode.HALF_UP)
                 .multiply(new BigDecimal("100"));
-        BigDecimal valueGradeA = new BigDecimal("95");
+        BigDecimal valueGradeA = new BigDecimal("90");
         BigDecimal valueGradeB = new BigDecimal("80");
         BigDecimal valueGradeC = new BigDecimal("60");
 

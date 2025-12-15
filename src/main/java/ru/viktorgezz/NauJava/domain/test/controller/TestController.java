@@ -11,13 +11,18 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.PagedModel;
 import org.springframework.web.bind.annotation.*;
 import ru.viktorgezz.NauJava.domain.test.TestMapper;
+
+import java.util.List;
 import ru.viktorgezz.NauJava.domain.test.TestModel;
 import ru.viktorgezz.NauJava.domain.test.dto.TestMetadataRequestDto;
 import ru.viktorgezz.NauJava.domain.test.dto.TestMetadataResponseDto;
 import ru.viktorgezz.NauJava.domain.test.dto.TestToPassDto;
-import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateTestContentDto;
+import ru.viktorgezz.NauJava.domain.test.dto.TestUpdateContentDto;
 import ru.viktorgezz.NauJava.domain.test.service.intrf.TestCommandService;
 import ru.viktorgezz.NauJava.domain.test.service.intrf.TestQueryService;
+import ru.viktorgezz.NauJava.domain.result.dto.ResultShortMetadataResponseDto;
+import ru.viktorgezz.NauJava.domain.result.service.intrf.ResultQueryService;
+import ru.viktorgezz.NauJava.domain.util.TestJsonConverter;
 
 /**
  * REST-контроллер для тестов {@link TestModel}.
@@ -29,25 +34,34 @@ public class TestController {
     private final TestQueryService testQueryService;
     private final TestCommandService testCommandService;
     private final PagedResourcesAssembler<TestMetadataResponseDto> pagedResourcesAssembler;
+    private final ResultQueryService resultQueryService;
 
     @Autowired
     public TestController(
             TestQueryService testQueryService,
             TestCommandService testCommandService,
-            PagedResourcesAssembler<TestMetadataResponseDto> pagedResourcesAssembler
+            PagedResourcesAssembler<TestMetadataResponseDto> pagedResourcesAssembler,
+            ResultQueryService resultQueryService
     ) {
         this.testQueryService = testQueryService;
         this.testCommandService = testCommandService;
         this.pagedResourcesAssembler = pagedResourcesAssembler;
+        this.resultQueryService = resultQueryService;
     }
 
     @PutMapping("/content")
-    public void updateTestContent(@RequestBody @Valid TestUpdateTestContentDto testDto) {
+    public void updateTestContent(@RequestBody @Valid TestUpdateContentDto testDto) {
+        testCommandService.updateTestContent(testDto);
+    }
+
+    @PutMapping("/content/json")
+    public void updateTestContent(@RequestBody String testJson) {
+        TestUpdateContentDto testDto = TestJsonConverter.parseDto(testJson);
         testCommandService.updateTestContent(testDto);
     }
 
     @GetMapping("content")
-    public TestUpdateTestContentDto getTestContent(@RequestParam("id") Long id) {
+    public TestUpdateContentDto getTestContent(@RequestParam("id") Long id) {
         return testQueryService.findByIdWithContent(id);
     }
 
@@ -55,7 +69,6 @@ public class TestController {
     public TestMetadataResponseDto getTestMetadataById(@RequestParam("id") Long id) {
         return TestMapper.toDto(testQueryService.findById(id));
     }
-
 
     @PostMapping("/metadata")
     public Long createTest(@RequestBody @Valid TestMetadataRequestDto testDto) {
@@ -65,6 +78,11 @@ public class TestController {
     @GetMapping("/{id}")
     public TestToPassDto findTestToPassById(@PathVariable Long id) {
         return testQueryService.findTestToPassById(id);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteTest(@PathVariable Long id) {
+        testCommandService.deleteById(id);
     }
 
     @GetMapping
@@ -94,5 +112,10 @@ public class TestController {
         Page<TestMetadataResponseDto> page = testQueryService.findByTitle(title, pageable)
                 .map(TestMapper::toDto);
         return pagedResourcesAssembler.toModel(page);
+    }
+
+    @GetMapping("/{idTest}/results/last")
+    public List<ResultShortMetadataResponseDto> getTestLastAttempts(@PathVariable Long idTest) {
+        return resultQueryService.findResultLastThreeAttempts(idTest);
     }
 }

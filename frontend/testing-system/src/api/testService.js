@@ -130,3 +130,41 @@ export const getTestForPassing = async (testId) => {
   const response = await apiClient.get(`/tests/${testId}`)
   return response.data
 }
+
+/**
+ * Получает последние 3 попытки прохождения теста
+ * @param {number} testId - ID теста
+ * @returns {Promise<Array>} Список последних попыток (ResultShortMetadataResponseDto)
+ */
+export const getTestLastAttempts = async (testId) => {
+  const response = await apiClient.get(`/tests/${testId}/results/last`)
+  return response.data
+}
+
+/**
+ * Удаляет тест по ID
+ * @param {number} testId - ID теста
+ * @returns {Promise<void>}
+ */
+export const deleteTest = async (testId) => {
+  await apiClient.delete(`/tests/${testId}`)
+}
+
+/**
+ * Обновляет содержимое теста через JSON
+ * @param {number} testId - ID теста
+ * @param {string} testJson - JSON строка с содержимым теста
+ * @returns {Promise<void>}
+ */
+export const updateTestContentJson = async (testId, testJson) => {
+  // Парсим JSON и устанавливаем idTest
+  const jsonData = JSON.parse(testJson)
+  jsonData.idTest = testId
+  const jsonString = JSON.stringify(jsonData)
+  
+  await apiClient.put('/tests/content/json', jsonString, {
+    headers: {
+      'Content-Type': 'text/plain',
+    },
+  })
+}
