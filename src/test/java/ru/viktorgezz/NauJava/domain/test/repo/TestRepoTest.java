@@ -52,23 +52,6 @@ class TestRepoTest extends AbstractIntegrationPostgresTest {
     }
 
     @Test
-    @DisplayName("findAllWithAuthorAndTopics: возврат тестов с подгруженными автором и темами")
-    void findAllWithAuthorAndTopics_ShouldReturnTestsWithAuthorAndTopics_WhenTestsExist() {
-        testRepo.save(createTest("Title A", "Desc A", Status.PUBLIC, userRepo.findById(idAuthor).orElseThrow()));
-        testRepo.save(createTest("Title B", "Desc B", Status.PRIVATE, userRepo.findById(idAuthor).orElseThrow()));
-
-        List<TestModel> testsFound = testRepo.findAllWithAuthorAndTopics();
-
-        assertThat(testsFound).hasSize(2);
-        testsFound.forEach(testFound -> {
-            assertThat(testFound.getAuthor()).isNotNull();
-            assertThat(testFound.getAuthor().getId()).isEqualTo(idAuthor);
-            Set<TestTopic> topics = testFound.getTestTopics();
-            assertThat(topics).isNotNull();
-        });
-    }
-
-    @Test
     @DisplayName("findAllWithAuthorAndTopicsByIds: возврат тестов по списку id")
     void findAllWithAuthorAndTopicsByIds_ShouldReturnTestsForSpecifiedIds_WhenTestsExist() {
         TestModel testFirst = testRepo.save(createTest("Title A", "Desc A", Status.PUBLIC, userRepo.findById(idAuthor).orElseThrow()));

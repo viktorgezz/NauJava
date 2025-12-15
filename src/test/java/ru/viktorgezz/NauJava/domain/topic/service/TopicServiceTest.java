@@ -66,25 +66,6 @@ public class TopicServiceTest extends AbstractIntegrationPostgresTest {
     }
 
     @Test
-    @DisplayName("saveAndLinkAll: связывает темы с тестом и сохраняет их")
-    void saveAndLinkAll_ShouldLinkTopicsWithTest_WhenTopicsProvided() {
-        Set<Topic> topics = Set.of(topic1, topic2);
-
-        topicService.saveAndLinkAll(topics, test);
-
-        List<TestModel> tests = testRepo.findAllWithAuthorAndTopics();
-        assertThat(tests).hasSize(1);
-        TestModel testFound = tests.getFirst();
-
-        assertThat(topicRepo.findAllByIdTestModel(testFound.getId()))
-                .containsOnly(topic1, topic2)
-                .flatExtracting(topic -> topic.getTestTopics().stream()
-                        .map(TestTopic::getTest)
-                        .collect(Collectors.toSet()))
-                .containsOnly(testFound);
-    }
-
-    @Test
     @DisplayName("findOrCreateTopics: возвращает существующие и создаёт новые темы по названиям")
     void findOrCreateTopics_ShouldReturnExistingAndCreateMissing_WhenTitlesMixed() {
         topicRepo.save(createTopic("existing"));

@@ -6,17 +6,28 @@
   <div class="test-list-container">
     <div class="test-list-header">
       <h1 class="test-list-title">Библиотека тестов</h1>
-      <div class="search-container">
-        <input
-          v-model="searchTitle"
-          type="text"
-          class="search-input"
-          placeholder="Поиск по названию..."
-          @input="handleSearch"
-        />
-        <button v-if="searchTitle" @click="clearSearch" class="btn-clear-search" title="Очистить">
-          ×
-        </button>
+      <div class="header-controls">
+        <div class="search-container">
+          <input
+            v-model="searchTitle"
+            type="text"
+            class="search-input"
+            placeholder="Поиск по названию..."
+            @input="handleSearch"
+          />
+          <button v-if="searchTitle" @click="clearSearch" class="btn-clear-search" title="Очистить">
+            ×
+          </button>
+        </div>
+        <label class="checkbox-container">
+          <input
+            v-model="onlyMyTests"
+            type="checkbox"
+            class="checkbox-input"
+            @change="handleOnlyMyTestsChange"
+          />
+          <span class="checkbox-label">Показать только мои тесты</span>
+        </label>
       </div>
     </div>
 
@@ -112,6 +123,7 @@ const tests = ref([])
 const loading = ref(false)
 const error = ref(null)
 const searchTitle = ref('')
+const onlyMyTests = ref(false)
 const currentPage = ref(0)
 const totalPages = ref(0)
 const totalElements = ref(0)
@@ -133,6 +145,7 @@ const loadTests = async () => {
     const params = {
       page: currentPage.value,
       size: pageSize,
+      onlyMyTests: onlyMyTests.value,
     }
 
     let response
@@ -179,6 +192,14 @@ const handleSearch = () => {
  */
 const clearSearch = () => {
   searchTitle.value = ''
+  currentPage.value = 0
+  loadTests()
+}
+
+/**
+ * Обработка изменения чекбокса "Только мои тесты"
+ */
+const handleOnlyMyTestsChange = () => {
   currentPage.value = 0
   loadTests()
 }
@@ -295,6 +316,12 @@ watch(currentPage, () => {
 
 .test-list-header {
   margin-bottom: 30px;
+}
+
+.header-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
 .test-list-title {
@@ -576,6 +603,32 @@ watch(currentPage, () => {
 .btn-secondary:hover {
   background: #00ff88;
   color: #0a0a0a;
+}
+
+.checkbox-container {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  cursor: pointer;
+  user-select: none;
+}
+
+.checkbox-input {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: #00ff88;
+}
+
+.checkbox-label {
+  color: #e0e0e0;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.checkbox-container:hover .checkbox-label {
+  color: #00ff88;
 }
 
 @media (max-width: 768px) {

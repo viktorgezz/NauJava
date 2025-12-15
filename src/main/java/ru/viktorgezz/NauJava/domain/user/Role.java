@@ -7,5 +7,6 @@ public enum Role {
 
     USER,
     MODERATOR,
-    ADMIN
+    ADMIN,
+    ADMIN_MAIN
 }

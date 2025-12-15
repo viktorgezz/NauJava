@@ -23,15 +23,16 @@ public interface TestRepo extends CrudRepository<TestModel, Long> {
     Optional<TestModel> findByIdWithAuthor(@Param("id") Long id);
 
     /**
-     * Получить все тесты со связанными автором и темами.
+     * Получить все публичные тесты со связанными автором и темами.
      *
-     * @return List<TestModel> все тесты с подгруженными автором и темами
+     * @return List<TestModel> все публичные тесты с подгруженными автором и темами
      */
     @Query("""
             SELECT DISTINCT test FROM TestModel test
             LEFT JOIN FETCH test.author
             LEFT JOIN FETCH test.testTopics tt
             LEFT JOIN FETCH tt.topic
+            WHERE test.status = ru.viktorgezz.NauJava.domain.test.Status.PUBLIC
             """
     )
     List<TestModel> findAllWithAuthorAndTopics();
@@ -50,6 +51,39 @@ public interface TestRepo extends CrudRepository<TestModel, Long> {
             WHERE test.id IN :ids
             """)
     List<TestModel> findAllWithAuthorAndTopicsByIds(@Param("ids") List<Long> ids);
+
+    /**
+     * Получить все тесты текущего пользователя со связанными автором и темами.
+     *
+     * @param userId ID пользователя
+     * @return List<TestModel> все тесты пользователя с подгруженными автором и темами
+     */
+    @Query("""
+            SELECT DISTINCT test FROM TestModel test
+            LEFT JOIN FETCH test.author
+            LEFT JOIN FETCH test.testTopics tt
+            LEFT JOIN FETCH tt.topic
+            WHERE test.author.id = :userId
+            """
+    )
+    List<TestModel> findAllWithAuthorAndTopicsByUserId(@Param("userId") Long userId);
+
+    /**
+     * Получить тесты текущего пользователя по списку ID с автором и темами.
+     *
+     * @param userId ID пользователя
+     * @param ids     список ID тестов
+     * @return тесты пользователя с подгруженными автором и темами
+     */
+    @Query("""
+            SELECT DISTINCT test FROM TestModel test
+            LEFT JOIN FETCH test.author
+            LEFT JOIN FETCH test.testTopics testTopic
+            LEFT JOIN FETCH testTopic.topic
+            WHERE test.author.id = :userId
+            AND test.id IN :ids
+            """)
+    List<TestModel> findAllWithAuthorAndTopicsByUserIdAndIds(@Param("userId") Long userId, @Param("ids") List<Long> ids);
 
     /**
      * Загрузить тест с вопросами и вариантами ответов для обновления.

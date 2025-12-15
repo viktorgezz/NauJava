@@ -11,15 +11,17 @@ import { extractPagedData } from '@/utils/hateoasParser'
  * @param {number} params.page - Номер страницы (начиная с 0)
  * @param {number} params.size - Размер страницы (по умолчанию 20)
  * @param {string} params.sort - Параметры сортировки (например, "id,DESC")
+ * @param {boolean} params.onlyMyTests - Показывать только свои тесты (по умолчанию false)
  * @returns {Promise<Object>} Страница с тестами
  */
 export const getTests = async (params = {}) => {
-  const { page = 0, size = 20, sort = 'id,DESC' } = params
+  const { page = 0, size = 20, sort = 'id,DESC', onlyMyTests = false } = params
   const response = await apiClient.get('/tests', {
     params: {
       page,
       size,
       sort,
+      onlyMyTests,
     },
   })
   return extractPagedData(response.data)
@@ -32,16 +34,18 @@ export const getTests = async (params = {}) => {
  * @param {number} params.page - Номер страницы (начиная с 0)
  * @param {number} params.size - Размер страницы (по умолчанию 20)
  * @param {string} params.sort - Параметры сортировки (по умолчанию "title,ASC")
+ * @param {boolean} params.onlyMyTests - Показывать только свои тесты (по умолчанию false)
  * @returns {Promise<Object>} Страница с тестами
  */
 export const getTestsByTitle = async (title, params = {}) => {
-  const { page = 0, size = 20, sort = 'title,ASC' } = params
+  const { page = 0, size = 20, sort = 'title,ASC', onlyMyTests = false } = params
   const response = await apiClient.get('/tests/title', {
     params: {
       title,
       page,
       size,
       sort,
+      onlyMyTests,
     },
   })
   return extractPagedData(response.data)

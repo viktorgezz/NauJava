@@ -98,12 +98,43 @@ public class TestQueryServiceImpl implements TestQueryService {
         return getTestsByIdsPage(testPagingAndSortingRepo.findTestIdsByTitle(title, pageable), pageable);
     }
 
+    @Override
+    public Page<TestModel> findAllByUserIdWithAuthorAndTopics(Long userId, Pageable pageable) {
+        return getTestsByIdsPageByUserId(
+                testPagingAndSortingRepo.findAllTestIdsByUserId(userId, pageable),
+                userId,
+                pageable
+        );
+    }
+
+    @Override
+    public Page<TestModel> findByUserIdAndTitle(Long userId, String title, Pageable pageable) {
+        return getTestsByIdsPageByUserId(
+                testPagingAndSortingRepo.findTestIdsByUserIdAndTitle(userId, title, pageable),
+                userId,
+                pageable
+        );
+    }
+
     private Page<TestModel> getTestsByIdsPage(Page<Long> idsPage, Pageable pageable) {
         if (idsPage.isEmpty()) {
             return Page.empty(pageable);
         }
 
         List<TestModel> tests = testRepo.findAllWithAuthorAndTopicsByIds(idsPage.getContent());
+
+        List<Long> orderedIds = idsPage.getContent();
+        tests.sort(Comparator.comparingInt(test -> orderedIds.indexOf(test.getId())));
+
+        return new PageImpl<>(tests, pageable, idsPage.getTotalElements());
+    }
+
+    private Page<TestModel> getTestsByIdsPageByUserId(Page<Long> idsPage, Long userId, Pageable pageable) {
+        if (idsPage.isEmpty()) {
+            return Page.empty(pageable);
+        }
+
+        List<TestModel> tests = testRepo.findAllWithAuthorAndTopicsByUserIdAndIds(userId, idsPage.getContent());
 
         List<Long> orderedIds = idsPage.getContent();
         tests.sort(Comparator.comparingInt(test -> orderedIds.indexOf(test.getId())));

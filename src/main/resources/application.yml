@@ -28,3 +28,7 @@ security:
     access-expiration-ms: 600000
     refresh-expiration-ms: 6000000
   origin-fronted: ${SECURITY_ORIGIN_FRONTED}
+
+admin:
+  main:
+    create: true

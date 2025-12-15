@@ -23,6 +23,7 @@ import ru.viktorgezz.NauJava.domain.test.service.intrf.TestQueryService;
 import ru.viktorgezz.NauJava.domain.result.dto.ResultShortMetadataResponseDto;
 import ru.viktorgezz.NauJava.domain.result.service.intrf.ResultQueryService;
 import ru.viktorgezz.NauJava.domain.util.TestJsonConverter;
+import ru.viktorgezz.NauJava.security.util.CurrentUserUtils;
 
 /**
  * REST-контроллер для тестов {@link TestModel}.
@@ -87,6 +88,7 @@ public class TestController {
 
     @GetMapping
     public PagedModel<EntityModel<TestMetadataResponseDto>> getTests(
+            @RequestParam(required = false, defaultValue = "false") Boolean onlyMyTests,
             @PageableDefault(
                     size = 20,
                     sort = "id",
@@ -94,14 +96,22 @@ public class TestController {
             )
             Pageable pageable
     ) {
-        Page<TestMetadataResponseDto> page = testQueryService.findAllWithAuthorAndTopics(pageable)
-                .map(TestMapper::toDto);
+        Page<TestMetadataResponseDto> page;
+        if (Boolean.TRUE.equals(onlyMyTests)) {
+            Long userId = CurrentUserUtils.getCurrentUser().getId();
+            page = testQueryService.findAllByUserIdWithAuthorAndTopics(userId, pageable)
+                    .map(TestMapper::toDto);
+        } else {
+            page = testQueryService.findAllWithAuthorAndTopics(pageable)
+                    .map(TestMapper::toDto);
+        }
         return pagedResourcesAssembler.toModel(page);
     }
 
     @GetMapping("/title")
     public PagedModel<EntityModel<TestMetadataResponseDto>> getTestsByTitle(
             @RequestParam String title,
+            @RequestParam(required = false, defaultValue = "false") Boolean onlyMyTests,
             @PageableDefault(
                     size = 20,
                     sort = "title",
@@ -109,8 +119,15 @@ public class TestController {
             )
             Pageable pageable
     ) {
-        Page<TestMetadataResponseDto> page = testQueryService.findByTitle(title, pageable)
-                .map(TestMapper::toDto);
+        Page<TestMetadataResponseDto> page;
+        if (Boolean.TRUE.equals(onlyMyTests)) {
+            Long userId = CurrentUserUtils.getCurrentUser().getId();
+            page = testQueryService.findByUserIdAndTitle(userId, title, pageable)
+                    .map(TestMapper::toDto);
+        } else {
+            page = testQueryService.findByTitle(title, pageable)
+                    .map(TestMapper::toDto);
+        }
         return pagedResourcesAssembler.toModel(page);
     }
 

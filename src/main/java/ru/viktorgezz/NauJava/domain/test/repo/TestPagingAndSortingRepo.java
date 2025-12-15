@@ -15,27 +15,57 @@ import ru.viktorgezz.NauJava.domain.test.TestModel;
 public interface TestPagingAndSortingRepo extends PagingAndSortingRepository<TestModel, Long> {
 
     /**
-     * Получить ID всех тестов с пагинацией.
+     * Получить ID всех публичных тестов с пагинацией.
      *
      * @param pageable параметры пагинации
      * @return страница ID тестов
      */
     @Query("""
             SELECT test.id FROM TestModel test
+            WHERE test.status = ru.viktorgezz.NauJava.domain.test.Status.PUBLIC
             """)
     Page<Long> findAllTestIds(Pageable pageable);
 
     /**
-     * Поиск ID тестов по частичному совпадению названия (без учёта регистра).
+     * Поиск ID публичных тестов по частичному совпадению названия (без учёта регистра).
      *
-     * @param string   подстрока для поиска в названии
+     * @param title    подстрока для поиска в названии
      * @param pageable параметры пагинации
      * @return страница ID тестов
      */
     @Query("""
             SELECT test.id FROM TestModel test
-            WHERE LOWER(test.title) LIKE LOWER(CONCAT('%', :title, '%'))
+            WHERE test.status = ru.viktorgezz.NauJava.domain.test.Status.PUBLIC
+            AND LOWER(test.title) LIKE LOWER(CONCAT('%', :title, '%'))
             """)
-    Page<Long> findTestIdsByTitle(@Param("title") String string, Pageable pageable);
+    Page<Long> findTestIdsByTitle(@Param("title") String title, Pageable pageable);
+
+    /**
+     * Получить ID всех тестов текущего пользователя с пагинацией.
+     *
+     * @param userId   ID пользователя
+     * @param pageable параметры пагинации
+     * @return страница ID тестов
+     */
+    @Query("""
+            SELECT test.id FROM TestModel test
+            WHERE test.author.id = :userId
+            """)
+    Page<Long> findAllTestIdsByUserId(@Param("userId") Long userId, Pageable pageable);
+
+    /**
+     * Поиск ID тестов текущего пользователя по частичному совпадению названия (без учёта регистра).
+     *
+     * @param userId   ID пользователя
+     * @param title    подстрока для поиска в названии
+     * @param pageable параметры пагинации
+     * @return страница ID тестов
+     */
+    @Query("""
+            SELECT test.id FROM TestModel test
+            WHERE test.author.id = :userId
+            AND LOWER(test.title) LIKE LOWER(CONCAT('%', :title, '%'))
+            """)
+    Page<Long> findTestIdsByUserIdAndTitle(@Param("userId") Long userId, @Param("title") String title, Pageable pageable);
 
 }

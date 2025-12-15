@@ -47,12 +47,31 @@ public interface TestQueryService {
     Page<TestModel> findAllWithAuthorAndTopics(Pageable pageable);
 
     /**
-     * Ищет тесты по названию с пагинацией.
+     * Ищет публичные тесты по названию с пагинацией.
      *
      * @param title название теста для поиска.
      * @param pageable параметры пагинации.
      * @return страница найденных тестов.
      */
     Page<TestModel> findByTitle(String title, Pageable pageable);
+
+    /**
+     * Получает все тесты текущего пользователя с информацией об авторе и темах с пагинацией.
+     *
+     * @param userId ID пользователя.
+     * @param pageable параметры пагинации.
+     * @return страница тестов пользователя.
+     */
+    Page<TestModel> findAllByUserIdWithAuthorAndTopics(Long userId, Pageable pageable);
+
+    /**
+     * Ищет тесты текущего пользователя по названию с пагинацией.
+     *
+     * @param userId ID пользователя.
+     * @param title название теста для поиска.
+     * @param pageable параметры пагинации.
+     * @return страница найденных тестов пользователя.
+     */
+    Page<TestModel> findByUserIdAndTitle(Long userId, String title, Pageable pageable);
 
 }
