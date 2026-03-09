@@ -1,0 +1,308 @@
+package ru.viktorgezz.testing_system.util;
+
+import ru.viktorgezz.testing_system.domain.answer_option.AnswerOption;
+import ru.viktorgezz.testing_system.domain.question.Question;
+import ru.viktorgezz.testing_system.domain.question.Type;
+import ru.viktorgezz.testing_system.domain.result.dto.ResultRequestDto;
+import ru.viktorgezz.testing_system.domain.result.Grade;
+import ru.viktorgezz.testing_system.domain.result.Result;
+import ru.viktorgezz.testing_system.domain.result.dto.ResultShortMetadataResponseDto;
+import ru.viktorgezz.testing_system.domain.test.Status;
+import ru.viktorgezz.testing_system.domain.test.TestModel;
+import ru.viktorgezz.testing_system.domain.test.dto.TestUpdateContentDto;
+import ru.viktorgezz.testing_system.domain.topic.Topic;
+import ru.viktorgezz.testing_system.domain.user.User;
+import ru.viktorgezz.testing_system.domain.user_answer.UserAnswer;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+
+import static ru.viktorgezz.testing_system.util.GeneratorRandom.*;
+
+/**
+ * Утилиты для создания тестовых моделей.
+ */
+public class CreationModel {
+
+    public static Result createResult(User user, Grade grade, BigDecimal score) {
+        Result result = new Result();
+        result.setParticipant(user);
+        result.setGrade(grade);
+        result.setScore(score);
+        result.setCompletedAt(LocalDateTime.now());
+        return result;
+    }
+
+    public static ResultRequestDto createResultRqDtoWithEmptyAnswers(int timeSpentSeconds, Long idTest) {
+        return new ResultRequestDto(timeSpentSeconds, idTest, Collections.emptyMap());
+    }
+
+    public static TestModel createTest(
+            String title,
+            String description,
+            Status status,
+            User author
+    ) {
+        TestModel testModel = new TestModel();
+        testModel.setTitle(title);
+        testModel.setDescription(description);
+        testModel.setStatus(status);
+        testModel.setAuthor(author);
+        return testModel;
+    }
+
+    public static TestModel createTestRadom(User author) {
+        return createTest(
+                GeneratorRandom.getRandomTestTitleRandom(),
+                GeneratorRandom.getRandomString(10),
+                Status.PUBLIC,
+                author
+        );
+    }
+
+    public static User createUserRandom() {
+        return GeneratorRandom.getRandomUser();
+    }
+
+    public static Topic createTopic(String topicTitle) {
+        return new Topic(topicTitle);
+    }
+
+    public static Topic createTopicRandom() {
+        return GeneratorRandom.getRandomTopic();
+    }
+
+    public static Question createQuestionRandom(Type type) {
+        Question question = new Question(getRandomQuestionText(), type);
+        question.setPoint(getRandomPoint());
+        return question;
+    }
+
+    public static AnswerOption createAnswerOptionRandom(Question question) {
+        return new AnswerOption(
+                getRandomString(10),
+                getRandomBoolean(),
+                getRandomString(8),
+                question,
+                new ArrayList<>()
+        );
+    }
+
+    public static TestUpdateContentDto.AnswerOptionDto createAnswerOptionDtoNew(
+    ) {
+        return new TestUpdateContentDto.AnswerOptionDto(
+                null,
+                getRandomString(5),
+                getRandomBoolean(),
+                getRandomString(4)
+        );
+    }
+
+    public static TestUpdateContentDto.AnswerOptionDto createAnswerOptionDtoExisting(
+            Long idAnswerOption
+    ) {
+        return new TestUpdateContentDto.AnswerOptionDto(
+                idAnswerOption,
+                getRandomString(5),
+                getRandomBoolean(),
+                getRandomString(4)
+        );
+    }
+
+    public static TestUpdateContentDto.QuestionDto createQuestionDtoNew(
+            String textQuestion,
+            Type typeQuestion,
+            BigDecimal pointQuestion,
+            List<String> correctTextAnswers,
+            List<TestUpdateContentDto.AnswerOptionDto> answerOptionsDto
+    ) {
+        return new TestUpdateContentDto.QuestionDto(
+                null,
+                textQuestion,
+                typeQuestion,
+                pointQuestion,
+                correctTextAnswers,
+                answerOptionsDto,
+                false
+        );
+    }
+
+    public static TestUpdateContentDto.QuestionDto createQuestionDtoExisting(
+            Long idQuestion,
+            Type typeQuestion,
+            List<String> correctTextAnswers,
+            List<TestUpdateContentDto.AnswerOptionDto> answerOptionsDto
+    ) {
+        return new TestUpdateContentDto.QuestionDto(
+                idQuestion,
+                getRandomQuestionText(),
+                typeQuestion,
+                getRandomPoint(),
+                correctTextAnswers,
+                answerOptionsDto,
+                false
+        );
+    }
+
+    public static TestUpdateContentDto.QuestionDto createQuestionDtoOpenText(
+            List<String> correctTextAnswers
+    ) {
+        return createQuestionDtoNew(
+                getRandomQuestionText(),
+                Type.OPEN_TEXT,
+                getRandomPoint(),
+                correctTextAnswers,
+                null
+        );
+    }
+
+    public static TestUpdateContentDto.QuestionDto createQuestionDtoSingleChoice(
+            List<TestUpdateContentDto.AnswerOptionDto> answerOptionsDto
+    ) {
+        return createQuestionDtoNew(
+                getRandomQuestionText(),
+                Type.SINGLE_CHOICE,
+                getRandomPoint(),
+                null,
+                answerOptionsDto
+        );
+    }
+
+    public static TestUpdateContentDto.QuestionDto createQuestionDtoExistingMultipleChoice(
+            Long idQuestion,
+            List<TestUpdateContentDto.AnswerOptionDto> answerOptionsDto
+    ) {
+        return createQuestionDtoExisting(idQuestion, Type.MULTIPLE_CHOICE, null, answerOptionsDto);
+    }
+
+    /**
+     * Создаёт UserAnswerRequestDto с выбранными вариантами ответов (для SINGLE_CHOICE / MULTIPLE_CHOICE вопросов).
+     */
+    public static ResultRequestDto.UserAnswerRequestDto createUserAnswerRequestDtoWithSelectedOptions(
+            List<Long> idsSelectedAnswerOption
+    ) {
+        return new ResultRequestDto.UserAnswerRequestDto("", idsSelectedAnswerOption);
+    }
+
+    /**
+     * Создаёт UserAnswerRequestDto с текстовым ответом (для OPEN_TEXT вопросов).
+     */
+    public static ResultRequestDto.UserAnswerRequestDto createUserAnswerRequestDtoWithTextAnswer(
+            String textAnswerWritten
+    ) {
+        return new ResultRequestDto.UserAnswerRequestDto(textAnswerWritten, Collections.emptyList());
+    }
+
+    /**
+     * Создаёт AnswerOption с заданными параметрами корректности.
+     */
+    public static AnswerOption createAnswerOption(String text, boolean isCorrect, Question question) {
+        return new AnswerOption(text, isCorrect, null, question, new ArrayList<>());
+    }
+
+    /**
+     * Создаёт Question типа SINGLE_CHOICE с заданным количеством баллов и привязкой к тесту.
+     */
+    public static Question createQuestionSingleChoice(String text, BigDecimal point, TestModel test) {
+        Question question = new Question(text, Type.SINGLE_CHOICE);
+        question.setPoint(point);
+        question.setTest(test);
+        return question;
+    }
+
+    /**
+     * Создаёт Question типа MULTIPLE_CHOICE с возможностью допускать ошибки.
+     */
+    public static Question createQuestionMultipleChoiceWithAllowMistakes(
+            String text,
+            BigDecimal point,
+            TestModel test
+    ) {
+        Question question = new Question(text, Type.MULTIPLE_CHOICE);
+        question.setPoint(point);
+        question.setAllowMistakes(true);
+        question.setTest(test);
+        return question;
+    }
+
+    /**
+     * Создаёт Question типа OPEN_TEXT с заданными правильными ответами и привязкой к тесту.
+     */
+    public static Question createQuestionOpenText(
+            String text,
+            BigDecimal point,
+            List<String> correctTextAnswers,
+            TestModel test
+    ) {
+        Question question = new Question(text, Type.OPEN_TEXT);
+        question.setPoint(point);
+        question.setCorrectTextAnswers(correctTextAnswers);
+        question.setTest(test);
+        return question;
+    }
+
+    /**
+     * Создаёт Result без grade и score (для тестирования compilateResultAsync).
+     */
+    public static Result createResultWithoutGrade(
+            int timeSpentSeconds,
+            User participant,
+            TestModel test
+    ) {
+        return new Result(timeSpentSeconds, LocalDateTime.now(), participant, test);
+    }
+
+    /**
+     * Создаёт Result с полными данными и привязкой к тесту.
+     */
+    public static Result createResultWithTest(
+            User participant,
+            TestModel test,
+            Grade grade,
+            BigDecimal score,
+            int timeSpentSeconds
+    ) {
+        Result result = new Result(timeSpentSeconds, LocalDateTime.now(), participant, test);
+        result.setGrade(grade);
+        result.setScore(score);
+        return result;
+    }
+
+    /**
+     * Создаёт UserAnswer для вопроса с выбором ответа (SINGLE_CHOICE / MULTIPLE_CHOICE).
+     */
+    public static UserAnswer createUserAnswerForChoiceQuestion(
+            Result result,
+            Question question,
+            AnswerOption selectedOption,
+            boolean isCorrect
+    ) {
+        return new UserAnswer(isCorrect, result, question, selectedOption);
+    }
+
+    /**
+     * Создаёт UserAnswer для вопроса с открытым текстом (OPEN_TEXT).
+     */
+    public static UserAnswer createUserAnswerForOpenTextQuestion(
+            Result result,
+            Question question,
+            String textAnswer,
+            boolean isCorrect
+    ) {
+        return new UserAnswer(textAnswer, isCorrect, result, question);
+    }
+
+    /**
+     * Создаёт ResultShortMetadataResponseDto с заданными параметрами.
+     */
+    public static ResultShortMetadataResponseDto createResultShortMetadataResponseDto(
+            BigDecimal point,
+            BigDecimal pointMax,
+            int timeSpentSeconds
+    ) {
+        return new ResultShortMetadataResponseDto(point, pointMax, timeSpentSeconds);
+    }
+}

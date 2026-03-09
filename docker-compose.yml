@@ -18,7 +18,7 @@ services:
 
   backend:
     build:
-      context: .
+      context: ./backend-testing-system
       dockerfile: Dockerfile
     container_name: naujava-backend
     ports:
@@ -34,16 +34,16 @@ services:
 
   frontend:
     build:
-      context: ./frontend/testing-system
+      context: ./frontend-testing-system
       dockerfile: Dockerfile
     container_name: testing-system-frontend
     environment:
       - VITE_BACKEND_API_URL=${VITE_BACKEND_API_URL:-http://localhost:8080}
     volumes:
-      - ./frontend/testing-system/src:/app/src
-      - ./frontend/testing-system/public:/app/public
-      - ./frontend/testing-system/index.html:/app/index.html
-      - ./frontend/testing-system/vite.config.js:/app/vite.config.js
+      - ./frontend-testing-system/src:/app/src
+      - ./frontend-testing-system/public:/app/public
+      - ./frontend-testing-system/index.html:/app/index.html
+      - ./frontend-testing-system/vite.config.js:/app/vite.config.js
       - /app/node_modules
     stdin_open: true
     tty: true

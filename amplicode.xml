@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="AmplicodePersistenceUnitSettings">
+    <persistence-units>
+      <persistence-unit moduleName="core-testing-system" name="Default">
+        <packages>
+          <package value="ru.viktorgezz.testing_system" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="app" name="Default">
+        <packages>
+          <package value="ru.viktorgezz.app" />
+        </packages>
+      </persistence-unit>
+      <persistence-unit moduleName="security" name="Default">
+        <packages>
+          <package value="ru.viktorgezz.security" />
+        </packages>
+      </persistence-unit>
+    </persistence-units>
+  </component>
+</project>
